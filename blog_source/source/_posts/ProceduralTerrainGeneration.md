@@ -3,11 +3,8 @@ title: 程序化地形生成-1
 date: 2024-10-11 22:59:27
 categories: 
 	- 技术漫谈
-tags: 
-	- 3D
-	- render
-	- 渲染
-	- 编程
+tags: [3D, render, 渲染, 编程, 程序化生成]
+	
 index_img: /2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png
 banner_img: /2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png
 ---

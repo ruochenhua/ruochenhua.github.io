@@ -3,11 +3,7 @@ title: 级联阴影贴图实现
 date: 2024-10-13 17:06:53
 categories: 
 	- 技术漫谈
-tags: 
-	- 3D
-	- render
-	- 渲染
-	- 编程
+tags: [3D, render, 渲染, 编程]
 index_img: /2024/10/13/cascade-shadow-map/sm_far.png
 banner_img: /2024/10/13/cascade-shadow-map/sm_far.png
 ---
