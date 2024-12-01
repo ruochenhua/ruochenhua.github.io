@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png">
 <meta property="article:published_time" content="2024-10-11T14:59:27.000Z">
-<meta property="article:modified_time" content="2024-10-15T14:31:06.374Z">
+<meta property="article:modified_time" content="2024-11-05T15:30:48.824Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="render">
@@ -332,9 +332,9 @@
 <p>除了每次叠加噪音会进行频率和振幅的变化，为了获得更好的随机性，以及进一步减少噪音可能出现的重复pattern，可以将噪音进行旋转（也就是将传入的uv或者是坐标乘以一个默认的旋转矩阵）后再叠加到原来的噪音上。</p>
 <p>我们也需要地形的法线来和光源结合，渲染出地形的明暗部分。获得法线的方法有很多种，可以采样当前计算的地形上点的x轴和z轴（这里假定y轴为up）方向不远的一两个点，和目标点相减得到切线和副切线方向，通过叉乘得到目标点的法线。亦或是采样其他点后通过中心差分法求得目标点的法线。</p>
 <h2 id="阴影"><a href="#阴影" class="headerlink" title="阴影"></a>阴影</h2><p>仅仅通过法线来渲染地形的明部和暗部是不够的，我们还需要计算地形投射在地表上的阴影。地形的阴影计算原理非常简单，就是将地形上渲染的目标点，沿着光源方向进行射线检测，如果和地形相交的话，那该点就是处于阴影之下。理想情况下，射线检测的距离当然是实际上光源和地形上的点的距离，但是往往由于性能的原因，我们需要缩短这个距离。<em>实际的检测距离可以结合当前点的高度以及地形可能的最高位置进行计算</em>。</p>
-<p>在判断当前点处于阴影的时候，计算最终颜色的时候需要再乘以一个阴影的系数。<br><img src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_oc11_hardshadow.png" srcset="/img/loading.gif" lazyload></p>
+<p>在判断当前点处于阴影的时候，计算最终颜色的时候需要再乘以一个阴影的系数。<br><img src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_oc11_hardshadow.png" srcset="/img/loading.gif" lazyload alt="硬阴影"></p>
 <p>为了提升效果，我们通常不希望阴影的边缘非常生硬，而是希望有一种柔软的过度，这种更加符合现实的表现。实现这种软阴影的方法可能有很多种，这里采用的是Inigo教程的一种方法。</p>
-<p>上面提到判定阴影是通过从地形上面的点向光源方向做射线检测得到的，如果和地形相交则该点处于阴影当中，若不相交，则需要再取一个值，这值是地形向着光源方向移动距离t长度的位置，它和地形高度的差值d和距离t的比值的最小值，乘以某个常数X（10~32等等，可以自己尝试合适的范围）后经过smoothstep限制在（0,1）范围内。这个值作为阴影系数放入光照计算后就可以得到不错的软阴影效果。<br><img src="/2024/10/11/ProceduralTerrainGeneration/calc_soft_shadow.png" srcset="/img/loading.gif" lazyload></p>
+<p>上面提到判定阴影是通过从地形上面的点向光源方向做射线检测得到的，如果和地形相交则该点处于阴影当中，若不相交，则需要再取一个值，这值是地形向着光源方向移动距离t长度的位置，它和地形高度的差值d和距离t的比值的最小值，乘以某个常数X（10~32等等，可以自己尝试合适的范围）后经过smoothstep限制在（0,1）范围内。这个值作为阴影系数放入光照计算后就可以得到不错的软阴影效果。<br><img src="/2024/10/11/ProceduralTerrainGeneration/calc_soft_shadow.png" srcset="/img/loading.gif" lazyload alt="软阴影"></p>
 <p>通过下面的对比图我们可以看到，在加入了软阴影计算后，地形阴影的边缘有了一种较为平滑的过度，显得没那么生硬了。想要更改软阴影的表现的话可以通过修改常数X。<br><img src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>好了，我们已经得到了一个基础的程序化生成地形的效果了，但是它看起来还是有些单调。地形的深度表现、天空、云彩等等应该如何表现呢？</p>
 <p>无需着急，我们将会在后面的文章中对它进行进一步的优化。</p>
