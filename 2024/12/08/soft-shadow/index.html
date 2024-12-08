@@ -1,0 +1,722 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="什么是软阴影在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴影">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软阴影的实现（PCF和PCSS）">
+<meta property="og:url" content="http://example.com/2024/12/08/soft-shadow/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="什么是软阴影在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴影">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
+<meta property="article:published_time" content="2024-12-08T02:29:07.000Z">
+<meta property="article:modified_time" content="2024-12-08T04:18:56.148Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="阴影">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
+  
+  
+  
+  <title>软阴影的实现（PCF和PCSS） - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2024/12/08/soft-shadow/soft-shadow-thumbnail.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="软阴影的实现（PCF和PCSS）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-08 10:29" pubdate>
+          2024年12月8日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">软阴影的实现（PCF和PCSS）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="什么是软阴影"><a href="#什么是软阴影" class="headerlink" title="什么是软阴影"></a>什么是软阴影</h1><p>在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。</p>
+<p>阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。</p>
+<p>那么该如何在可接受的性能表现下实现软阴影的效果呢，下面详细介绍两种方法：Percentage Closer Filtering（PCF）以及Percentage Closer Soft Shadows（PCSS）。</p>
+<h1 id="柔和阴影边缘-PCF"><a href="#柔和阴影边缘-PCF" class="headerlink" title="柔和阴影边缘-PCF"></a>柔和阴影边缘-PCF</h1><p>下面是一个普通的阴影效果：<br><img src="/2024/12/08/soft-shadow/normal-shadow.png" srcset="/img/loading.gif" lazyload alt="普通的阴影效果"><br>这个阴影贴图的分辨率是2048，这是在<a target="_blank" rel="noopener" href="https://ruochenhua.github.io/2024/10/13/cascade-shadow-map/">CSM</a>的最低一级的阴影效果。可以看到阴影边缘的锯齿感非常的强烈，同时由于采样精度的问题，模型的腿上也出现了不正确的阴影区域。最简单的方法就是通过提高阴影贴图的分辨率来缓解这个问题，但是显而易见这不是最好的解决方案，而Percentage Closer Filtering（后简称PCF）可以帮助我们解决这个问题。</p>
+<h2 id="什么是PCF"><a href="#什么是PCF" class="headerlink" title="什么是PCF"></a>什么是PCF</h2><p>Percentage Closer Filtering（PCF）是一种在计算机图形学中用于生成软阴影的技术。它主要用于解决硬阴影（如简单的阴影映射产生的锐利阴影边缘）不符合真实场景光照效果的问题。</p>
+<p>与简单的阴影映射不同，PCF 在判断像素是否在阴影中时，不是只比较单个点的深度。它会在像素点周围的一定区域内进行多次采样。例如，在一个以像素点为中心的小区域（通常是方形或圆形区域）内，对多个采样点进行深度比较。这些采样点的位置可以是均匀分布，也可以采用更复杂的分布方式，如泊松分布，以获得更自然的效果。</p>
+<p>对于每个采样点，比较其深度和阴影图中的深度来判断是否在阴影中。然后统计在阴影中的采样点的比例。设采样点总数为<strong>N</strong>，处于阴影中的采样点数量为<strong>n</strong>，则阴影强度可以通过公式计算<strong>shadow&#x3D;n&#x2F;N</strong>得到。这个阴影强度用于确定像素最终的阴影效果。如果阴影强度为1，表示像素完全处于阴影中；如果阴影强度为0，表示像素完全不在阴影中；介于两者之间的值表示不同程度的软阴影效果。</p>
+<h2 id="PCF的实现"><a href="#PCF的实现" class="headerlink" title="PCF的实现"></a>PCF的实现</h2><p>转换为代码如下：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> CalculatePCFShadow(<span class="hljs-type">float</span> current_depth, <span class="hljs-type">sampler2D</span> shadow_map,  <span class="hljs-type">vec2</span> uv, <span class="hljs-type">int</span> radius)<br>&#123;<br>    <span class="hljs-type">float</span> shadow = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-type">vec2</span> texel_size = <span class="hljs-number">1.0</span> / <span class="hljs-type">vec2</span>(<span class="hljs-built_in">textureSize</span>(shadow_map, <span class="hljs-number">0</span>));<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> x = -radius; x &lt;= radius; ++x)<br>    &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> y = -radius; y &lt;= radius; ++y)<br>        &#123;<br>            <span class="hljs-type">float</span> pcf_depth = <span class="hljs-built_in">texture</span>(shadow_map, <span class="hljs-type">vec2</span>(uv + <span class="hljs-type">vec2</span>(x, y) * texel_size)).r;<br>            shadow += current_depth &gt; pcf_depth ? <span class="hljs-number">1.0</span> : <span class="hljs-number">0.0</span>;<br>        &#125;<br>    &#125;<br>    shadow /= <span class="hljs-built_in">pow</span>((<span class="hljs-number">1</span>+radius*<span class="hljs-number">2</span>),<span class="hljs-number">2.0</span>);<br>    <span class="hljs-keyword">return</span> shadow;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里我使用了矩形的采样区域，可以看到其实当采样区域的半径为1的时候，采样点个数为9，阴影边缘的锯齿感已经得到了明显的改善。模型腿上也没有出现错误的阴影区域，效果大大提升。</p>
+<p><img src="/2024/12/08/soft-shadow/pcf-shadow-1.png" srcset="/img/loading.gif" lazyload alt="PCF阴影，采样半径1"></p>
+<p>当采样半径提升为3，采样点个数为49时，阴影的边缘软化效果更明显了，不过付出了5倍的性能消耗，提升确并没有非常明显。</p>
+<p><img src="/2024/12/08/soft-shadow/pcf-shadow-3.png" srcset="/img/loading.gif" lazyload alt="PCF阴影，采样半径3"> </p>
+<h1 id="半影的产生-PCSS"><a href="#半影的产生-PCSS" class="headerlink" title="半影的产生-PCSS"></a>半影的产生-PCSS</h1><h2 id="什么是本影和半影"><a href="#什么是本影和半影" class="headerlink" title="什么是本影和半影"></a>什么是本影和半影</h2><p>在实际的场景中，我们观察阴影，会发现下面这种情况：</p>
+<p><img src="/2024/12/08/soft-shadow/real_shadow.png" srcset="/img/loading.gif" lazyload alt="现实阴影"><br>物体的深暗影子周围还有一片区域是浅浅的暗影。深暗影子的区域我们称之为“<strong>本影</strong>”，而浅暗影子的区域我们称之为“<strong>半影</strong>”。</p>
+<p>这种现象在体积光照（或者区域光照）的情况下很容易出现。其原因是，很多光源是有范围的，如下图假设有一个光源的大小用L1到L2，光源的右边有一个物体。</p>
+<p><img src="/2024/12/08/soft-shadow/umbra-principle.png" srcset="/img/loading.gif" lazyload alt="本影和半影的原理"></p>
+<p>光源最上点位L1的位置，照向物体的时候，产生的阴影范围是<strong>A区域</strong>以及下方的<strong>B区域</strong>，上方的<strong>B区域</strong>会被L1照亮；L2点产生的阴影范围是<strong>A区域</strong>和上方的<strong>B区域</strong>，下方的<strong>B区域</strong>会被L2照亮。所以我们可以看到，<strong>区域A</strong>是光源完全的光都会被挡住的区域，所以他的阴影是最深的，是为<strong>本影</strong>。而两个<strong>区域B</strong>是挡住了光源的部分区域，同时被光源的另外一部分照亮的，是为<strong>半影</strong>。</p>
+<p><img src="/2024/12/08/soft-shadow/umbra-contrast.png" srcset="/img/loading.gif" lazyload alt="本影和半影的对照区域"></p>
+<h2 id="什么是PCSS"><a href="#什么是PCSS" class="headerlink" title="什么是PCSS"></a>什么是PCSS</h2><p>在弄明白什么是本影和半影之后，我们来介绍一下PCSS是什么。</p>
+<p>Percentage Closer Soft Shadows（PCSS）即百分比渐近软阴影，是计算机图形学中用于生成更逼真软阴影的一种技术，它是在 Percentage Closer Filtering（PCF）基础上发展而来的。</p>
+<p>在PCF的基础上，PCSS还额外考虑了光源、遮挡物和接收阴影的物体之间的几何关系，通过这些关系来调整用于计算阴影强度的采样区域大小。通过根据阴影的不同情况动态调整采样区域的大小，PCSS能生成更自然、更符合物理规律的软阴影。</p>
+<p>这里是提出PCSS的<a target="_blank" rel="noopener" href="https://developer.download.nvidia.com/shaderlibrary/docs/shadow_PCSS.pdf">论文</a>。</p>
+<p>其原理总结起来就是根据采样一个区域内处于阴影的比例，来动态的调节这个区域对应的阴影的采样范围。</p>
+<h2 id="PCSS的实现步骤"><a href="#PCSS的实现步骤" class="headerlink" title="PCSS的实现步骤"></a>PCSS的实现步骤</h2><p>PCSS的实现步骤如下：</p>
+<p>首先，计算平均的遮挡物距离。在阴影图中，以当前像素点为中心，在一个初始的较小采样区域内查找深度值小于当前像素点深度的采样点，这些采样点对应的物体即为遮挡物。通过计算这些遮挡物采样点深度的平均值，得到平均遮挡物距离<strong>d_blocker</strong>。</p>
+<p><img src="/2024/12/08/soft-shadow/get-d_blocker-1.png" srcset="/img/loading.gif" lazyload alt="采样平均遮挡物距离1"></p>
+<p>对应代码为：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> FindBlockerDepth(<span class="hljs-type">sampler2D</span> shadowmap, <span class="hljs-type">vec2</span> uv, <span class="hljs-type">float</span> d_receiver, <span class="hljs-type">float</span> radius)<br>&#123;<br>    <span class="hljs-type">float</span> blocker_depth_sum = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-type">int</span> blocker_count = <span class="hljs-number">0</span>;<br>    <br>    <span class="hljs-comment">// 以当前像素为中心,半径为radius的范围采样</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> y = -radius; y &lt;= radius; y++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">float</span> x = -radius; x &lt;= radius; x++) &#123;<br>            <span class="hljs-type">vec2</span> <span class="hljs-keyword">offset</span> = <span class="hljs-type">vec2</span>(x, y) * <span class="hljs-number">1.0</span> / <span class="hljs-type">vec2</span>(<span class="hljs-built_in">textureSize</span>(shadowmap, <span class="hljs-number">0</span>));<br>            <span class="hljs-type">float</span> sampleDepth = TextureProjBilinear(shadowmap, uv + <span class="hljs-keyword">offset</span>);<br>            <span class="hljs-keyword">if</span> (sampleDepth &lt; d_receiver) &#123;<br>                blocker_depth_sum += sampleDepth;<br>                blocker_count++;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> blocker_count &gt; <span class="hljs-number">0</span>? blocker_depth_sum / <span class="hljs-type">float</span>(blocker_count) : <span class="hljs-number">0.0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>其中<strong>d_receiver</strong>为当前像素点到光源的深度值，这个值可以将当前像素点位置变换到光源的投影下得到，在处理阴影贴图的时候就需要拿到了。TextureProjBilinear是获取shadowmap深度值的方法，里面采用了双线性插值的方法，不过对PCSS来说不一定需要使用这个方法。</p>
+<p>可以看到这个阶段，PCSS搜索了一个阴影贴图里面的区域（下图红色区域），记录下了这个区域的被阻挡范围的平均深度。</p>
+<p><img src="/2024/12/08/soft-shadow/get-d_blocker-2.png" srcset="/img/loading.gif" lazyload alt="采样平均遮挡物距离2"></p>
+<p>然后根据这个范围，以及三角形相似原理，估算出半影半径。</p>
+<p><img src="/2024/12/08/soft-shadow/penumbra.png" srcset="/img/loading.gif" lazyload alt="计算半影半径"><br>其中d_receiver、d_blocker我们已知，W_light是光源的范围大小，可以根据实际情况来调整。用图上右方的公式，得出半影的采样范围W_penumbra。</p>
+<p>代码如下：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 计算遮挡物范围半径（基于相似三角形原理）</span><br><span class="hljs-type">float</span> EstimateBlockerSearchRadius(<span class="hljs-type">vec2</span> uv, <span class="hljs-type">float</span> d_receiver, <span class="hljs-type">float</span> d_blocker, <span class="hljs-type">float</span> light_size)<br>&#123;<br>    <span class="hljs-keyword">if</span> (d_blocker == <span class="hljs-number">0.0</span>) <span class="hljs-keyword">return</span> <span class="hljs-number">0.0</span>;<br>    <span class="hljs-keyword">return</span> (d_receiver - d_blocker) * (light_size / d_blocker);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后，根据估算出的半影半径，扩大采样区域，然后在这个更大的区域内进行采样，并按照 PCF 的方式计算阴影强度。这样，离光源较近或遮挡物较近的地方，半影半径较小，阴影较实；离光源较远或遮挡物较远的地方，半影半径较大，阴影较虚，从而实现了更自然的软阴影效果。</p>
+<p>代码如下：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> shadow_sum = <span class="hljs-number">0.0</span>f;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> pcss_i = <span class="hljs-number">0</span>; pcss_i &lt; pcss_sample_count; pcss_i++)<br>&#123;<br>    <span class="hljs-comment">// 可以使用泊松采样盘等方法获取更自然的采样点位置，这里简单均匀采样</span><br>    <span class="hljs-type">vec2</span> <span class="hljs-keyword">offset</span> = <span class="hljs-type">vec2</span>(<span class="hljs-built_in">cos</span>(<span class="hljs-type">float</span>(pcss_i) * <span class="hljs-number">2.0</span> * <span class="hljs-number">3.1415926</span> / <span class="hljs-type">float</span>(pcss_sample_count)),<br>    <span class="hljs-built_in">sin</span>(<span class="hljs-type">float</span>(pcss_i) * <span class="hljs-number">2.0</span> * <span class="hljs-number">3.1415926</span> / <span class="hljs-type">float</span>(pcss_sample_count))) * blocker_radius;<br><br>    <span class="hljs-type">vec4</span> sampleLightSpacePos = <span class="hljs-type">vec4</span>(proj_coord.xy + <span class="hljs-keyword">offset</span>, proj_coord.z, <span class="hljs-number">1.0</span>);<br>    <span class="hljs-type">float</span> sampleDepth = TextureProjBilinear(shadow_map, proj_coord.xy+<span class="hljs-keyword">offset</span>);<br>    shadow_sum += sampleDepth &lt; d_recv? <span class="hljs-number">1.0</span> : <span class="hljs-number">0.0</span>;<br>&#125;<br>shadow = shadow_sum / pcss_sample_count;<br></code></pre></td></tr></table></figure>
+
+<h2 id="PCSS的效果"><a href="#PCSS的效果" class="headerlink" title="PCSS的效果"></a>PCSS的效果</h2><p>下面是PCSS开启和关闭的效果对比，其中PCSS关闭下PCF的采样半径是3：<br><img src="/2024/12/08/soft-shadow/PCSS_OFF.png" srcset="/img/loading.gif" lazyload alt="PCSS关闭"><br><img src="/2024/12/08/soft-shadow/PCSS_ON.png" srcset="/img/loading.gif" lazyload alt="PCSS开启"></p>
+<p>可以看到开启了PCSS的效果后，遮挡物体的阴影区域，随着离遮挡物越来越远，出现了越来越明显的半影效果，效果更加自然和真实。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><h2 id="Percentage-Closer-Filtering（PCF）的作用"><a href="#Percentage-Closer-Filtering（PCF）的作用" class="headerlink" title="Percentage Closer Filtering（PCF）的作用"></a>Percentage Closer Filtering（PCF）的作用</h2><ol>
+<li><p>软阴影生成基础：PCF 是一种用于生成软阴影的基础技术。它基于阴影映射，在判断像素是否在阴影中时，不是只比较单个点的深度，而是在像素点周围一定区域内进行多次采样。</p>
+</li>
+<li><p>阴影强度计算：通过统计采样区域内处于阴影中的采样点比例来计算阴影强度。这种方式能有效避免硬阴影边缘的锯齿问题，使阴影边缘过渡更加自然，产生软阴影效果，提升了阴影的真实感。</p>
+</li>
+<li><p>平衡性能和效果：相对一些复杂的物理软阴影算法，PCF 较为简单，在性能和效果之间取得了较好的平衡，适用于实时渲染场景，如游戏。</p>
+</li>
+</ol>
+<h2 id="Percentage-Closer-Soft-Shadows（PCSS）的作用"><a href="#Percentage-Closer-Soft-Shadows（PCSS）的作用" class="headerlink" title="Percentage Closer Soft Shadows（PCSS）的作用"></a>Percentage Closer Soft Shadows（PCSS）的作用</h2><ol>
+<li><p>动态软阴影生成：PCSS 在 PCF 基础上进一步改进。它能够根据光源、遮挡物和接收阴影物体之间的几何关系动态调整采样区域的大小。</p>
+</li>
+<li><p>更自然的阴影过渡：通过计算平均遮挡物距离和估算半影半径，根据半影半径调整采样区域进行采样计算阴影强度。这样生成的软阴影更加符合物理规律，阴影从完全阴影到完全光照的过渡更加自然、真实，在需要高逼真度渲染的场景中能显著提升视觉质量。</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
+      
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
+      
+        <a href="/tags/%E9%98%B4%E5%BD%B1/" class="print-no-link">#阴影</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>软阴影的实现（PCF和PCSS）</div>
+      <div>http://example.com/2024/12/08/soft-shadow/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>晨</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年12月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/24/reflective-shadow-map/" title="反射阴影贴图">
+                        <span class="hidden-mobile">反射阴影贴图</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
