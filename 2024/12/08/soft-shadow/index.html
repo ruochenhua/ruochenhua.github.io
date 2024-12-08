@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
 <meta property="article:published_time" content="2024-12-08T02:29:07.000Z">
-<meta property="article:modified_time" content="2024-12-08T04:18:56.148Z">
+<meta property="article:modified_time" content="2024-12-08T04:20:27.459Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
@@ -335,7 +335,8 @@
 <p>代码如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> shadow_sum = <span class="hljs-number">0.0</span>f;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> pcss_i = <span class="hljs-number">0</span>; pcss_i &lt; pcss_sample_count; pcss_i++)<br>&#123;<br>    <span class="hljs-comment">// 可以使用泊松采样盘等方法获取更自然的采样点位置，这里简单均匀采样</span><br>    <span class="hljs-type">vec2</span> <span class="hljs-keyword">offset</span> = <span class="hljs-type">vec2</span>(<span class="hljs-built_in">cos</span>(<span class="hljs-type">float</span>(pcss_i) * <span class="hljs-number">2.0</span> * <span class="hljs-number">3.1415926</span> / <span class="hljs-type">float</span>(pcss_sample_count)),<br>    <span class="hljs-built_in">sin</span>(<span class="hljs-type">float</span>(pcss_i) * <span class="hljs-number">2.0</span> * <span class="hljs-number">3.1415926</span> / <span class="hljs-type">float</span>(pcss_sample_count))) * blocker_radius;<br><br>    <span class="hljs-type">vec4</span> sampleLightSpacePos = <span class="hljs-type">vec4</span>(proj_coord.xy + <span class="hljs-keyword">offset</span>, proj_coord.z, <span class="hljs-number">1.0</span>);<br>    <span class="hljs-type">float</span> sampleDepth = TextureProjBilinear(shadow_map, proj_coord.xy+<span class="hljs-keyword">offset</span>);<br>    shadow_sum += sampleDepth &lt; d_recv? <span class="hljs-number">1.0</span> : <span class="hljs-number">0.0</span>;<br>&#125;<br>shadow = shadow_sum / pcss_sample_count;<br></code></pre></td></tr></table></figure>
 
-<h2 id="PCSS的效果"><a href="#PCSS的效果" class="headerlink" title="PCSS的效果"></a>PCSS的效果</h2><p>下面是PCSS开启和关闭的效果对比，其中PCSS关闭下PCF的采样半径是3：<br><img src="/2024/12/08/soft-shadow/PCSS_OFF.png" srcset="/img/loading.gif" lazyload alt="PCSS关闭"><br><img src="/2024/12/08/soft-shadow/PCSS_ON.png" srcset="/img/loading.gif" lazyload alt="PCSS开启"></p>
+<h2 id="PCSS的效果"><a href="#PCSS的效果" class="headerlink" title="PCSS的效果"></a>PCSS的效果</h2><p>下面是PCSS开启和关闭的效果对比，其中PCSS关闭下PCF的采样半径是3：<br><img src="/2024/12/08/soft-shadow/PCSS_OFF.png" srcset="/img/loading.gif" lazyload alt="PCSS关闭"></p>
+<p><img src="/2024/12/08/soft-shadow/PCSS_ON.png" srcset="/img/loading.gif" lazyload alt="PCSS开启"></p>
 <p>可以看到开启了PCSS的效果后，遮挡物体的阴影区域，随着离遮挡物越来越远，出现了越来越明显的半影效果，效果更加自然和真实。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><h2 id="Percentage-Closer-Filtering（PCF）的作用"><a href="#Percentage-Closer-Filtering（PCF）的作用" class="headerlink" title="Percentage Closer Filtering（PCF）的作用"></a>Percentage Closer Filtering（PCF）的作用</h2><ol>
 <li><p>软阴影生成基础：PCF 是一种用于生成软阴影的基础技术。它基于阴影映射，在判断像素是否在阴影中时，不是只比较单个点的深度，而是在像素点周围一定区域内进行多次采样。</p>
