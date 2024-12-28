@@ -19,25 +19,26 @@
   <meta name="author" content="晨">
   <meta name="keywords" content="">
   
-    <meta name="description" content="前言今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文">
+    <meta name="description" content="前言在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。 这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部">
 <meta property="og:type" content="article">
-<meta property="og:title" content="虚幻引擎5基于AI的贴图生成方法">
-<meta property="og:url" content="http://example.com/2024/12/22/ue-ai-texture-generation/index.html">
+<meta property="og:title" content="浅谈数字人仿真的渲染技术（一）">
+<meta property="og:url" content="http://example.com/2024/12/28/digital-human-render-1/index.html">
 <meta property="og:site_name" content="晨小屋">
-<meta property="og:description" content="前言今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文">
+<meta property="og:description" content="前言在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。 这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/12/22/ue-ai-texture-generation/texgen_bp.png">
-<meta property="article:published_time" content="2024-12-22T11:35:55.000Z">
-<meta property="article:modified_time" content="2024-12-22T13:35:11.233Z">
+<meta property="og:image" content="http://example.com/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg">
+<meta property="article:published_time" content="2024-12-28T07:24:16.000Z">
+<meta property="article:modified_time" content="2024-12-28T11:40:17.307Z">
 <meta property="article:author" content="晨">
-<meta property="article:tag" content="虚幻引擎">
-<meta property="article:tag" content="AIGC">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="数字孪生">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/12/22/ue-ai-texture-generation/texgen_bp.png">
+<meta name="twitter:image" content="http://example.com/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg">
   
   
   
-  <title>虚幻引擎5基于AI的贴图生成方法 - 晨小屋</title>
+  <title>浅谈数字人仿真的渲染技术（一） - 晨小屋</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -209,13 +210,13 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/2024/12/22/ue-ai-texture-generation/texgen_bp.png') no-repeat center center; background-size: cover;">
+     style="background: url('/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="虚幻引擎5基于AI的贴图生成方法"></span>
+            <span id="subtitle" data-typed-text="浅谈数字人仿真的渲染技术（一）"></span>
           
         </div>
 
@@ -226,8 +227,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-12-22 19:35" pubdate>
-          2024年12月22日 晚上
+        <time datetime="2024-12-28 15:24" pubdate>
+          2024年12月28日 下午
         </time>
       </span>
     
@@ -238,7 +239,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          1.7k 字
         
       </span>
     
@@ -249,7 +250,7 @@
         
         
         
-          10 分钟
+          15 分钟
         
       </span>
     
@@ -286,48 +287,60 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">虚幻引擎5基于AI的贴图生成方法</h1>
+            <h1 id="seo-header">浅谈数字人仿真的渲染技术（一）</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。<br>AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。</p>
-<p>这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文生图等等。研究的过程中用Unreal Engine搭了些简单的demo，很可惜后续有真正的项目推进后，这些预研的内容也并未有进一步的推进了，觉得有些许可惜，于是便打算在这里记录一下。</p>
-<p>同时这个项目也上传到了Git，有兴趣的欢迎查看：<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/UETextureGeneration">UETextureGeneration</a>。</p>
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><h2 id="大体流程"><a href="#大体流程" class="headerlink" title="大体流程"></a>大体流程</h2><p>这个demo的流程非常简单，参照一般文生图的流程，填写提示词、负提示词、生成步数和种子等信息。这些参数将传入给到文生图的Python脚本，脚本会运行一个大模型来创建对应的结果。</p>
-<p><img src="/2024/12/22/ue-ai-texture-generation/run_texgen.png" srcset="/img/loading.gif" lazyload alt="运行工具得到生成的贴图"></p>
-<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p>下面介绍一下这个工具所需要的准备工作。</p>
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。</p>
+<p>这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部分内容做个记录，整理成文章分享出来。</p>
+<p>由于PPT内容还是比较多的，哪怕是精简后的版本也还有50多页，于是乎会准备做成一个系列，当初精简掉的部分可能也会想办法补充回来，让内容尽量的充分。</p>
+<h1 id="数字人简介"><a href="#数字人简介" class="headerlink" title="数字人简介"></a>数字人简介</h1><h2 id="数字人的定义"><a href="#数字人的定义" class="headerlink" title="数字人的定义"></a>数字人的定义</h2><p>目前数字人缺乏一个统一的标准定义，我们从它的发展起源，从技术角度上选择一个最宽泛最简洁的标准：<strong>由计算机生成的人类。</strong></p>
+<p>中国人工智能产业发展联盟发布的《2020年虚拟数字人发展白皮书》中给了一个更加详细的定义：虚拟数字人意指具有数字化外形的虚拟人物，除了拥有人的<strong>外观</strong>、人的<strong>行为</strong>之外、还有拥有人的<strong>思想</strong>，具有<strong>识别外界环境</strong>、并能与<strong>人交流互动</strong>的能力。</p>
+<p>那其实这个定义里面，也描述了数字人相关的几个关键技术方向，包括：<em>渲染-外观，行为-驱动算法，思想-AI，识别外接环境-感知，与人交流互动-表达</em>。</p>
+<h2 id="数字人的发展历史"><a href="#数字人的发展历史" class="headerlink" title="数字人的发展历史"></a>数字人的发展历史</h2><p>在上世纪80年代，其实就有虚拟形象引入到现实世界的想法。<br>1982 年，动画片《太空堡垒》中的女角色林明美作为虚拟歌姬出道，其专辑也成功打入当时的知名音乐排行榜。日本媒体率先提出了“虚拟偶像”的称号。1984 年，世界首位虚拟电影演员“Max Headroom”诞生，出演电影，并拍摄数支广告，在英国家喻户晓。</p>
+<p><img src="/2024/12/28/digital-human-render-1/%E6%9E%97%E6%98%8E%E7%BE%8E.png" srcset="/img/loading.gif" lazyload alt="林明美"></p>
+<p>此时，虚拟人概念先行，给予虚拟形象以立体化人设，并带入大众视野。但受制于技术发展，“数字化”在这个阶段并不明显。打造虚拟人的技术以手工绘制为主，人物形象以 2 D 卡通的形式展现，展现方式以事先完成的音频和视频为主，并不具备实时交互功能。</p>
+<p>进入 21 世纪，虚拟人的 数字化特征逐渐明显。形象创建上，虚拟数字人开始从手绘转向 CG和动捕等计算机技术。</p>
+<p>2007 年，日本虚拟歌手“初音未来”的诞生与流行。初音未来的虚拟形象采用 CG 和动作捕捉技术。在动作捕捉技术的助力下，初音未来可以直接采用人类的表情和动作，并借助 CG 技术真实的360度渲染出来。作为虚拟歌姬，初音未来的歌喉基于 VOCALOID（电子音乐制作 的 语音合成软件）。采样于日本声优藤田咲，创作者只需要输入歌词和旋律，就能够自动形成歌曲。</p>
+<p><img src="/2024/12/28/digital-human-render-1/%E5%88%9D%E9%9F%B3%E6%9C%AA%E6%9D%A5.png" srcset="/img/loading.gif" lazyload alt="初音未来"></p>
+<p>近年来，由于各项技术的不断发展，出现了越来越多高真实度的数字人形象。</p>
+<p>比如说2016年出现的miquela，她在ins上的出现引发了一场“真假辩论”。许多粉丝相信她是真实存在的人物，只是修图“狠”了点。直到黑客们入侵了她的账号，才最终确定了她是由 3 D 电脑动画公司制作的虚拟人。她甚至在2018年一起被美国《时代》周刊列为“25 位最有影响力的互联网人物”</p>
+<p>同样是在2018年，由腾讯、Epic Games推出了Siren项目。Siren 的所有动作表情都由实时捕捉以及实时渲染形成，并且整个过程只有15毫秒，60帧。Siren在渲染的真实性和交互性之间找到平衡，打造了具备实时交互能力的数字虚拟人。</p>
+<p><img src="/2024/12/28/digital-human-render-1/siren.png" srcset="/img/loading.gif" lazyload alt="siren"></p>
+<h2 id="数字人的分类"><a href="#数字人的分类" class="headerlink" title="数字人的分类"></a>数字人的分类</h2><p>数字人可以按照不同维度进行分类。</p>
+<p>按照美术风格：</p>
 <ul>
-<li><p>首先我们需要找到引擎的python地址，如C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64，找到这个路径的python.exe文件。虚幻引擎是以这个Python来运行Python脚本，所以我们对应的Python库需要安装在这个路径之下。</p>
-</li>
-<li><p>记录下上面的Python的路径，打开cmd或其他命令行工具，以:<br>   “C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64\python.exe” -m pip install XXX </p>
-<p>   这种格式来使用pip安装对应的库。</p>
-</li>
-<li><p>需要安装的库包括以下这些：</p>
+<li>2D、3D</li>
+<li>写实、卡通、风格化</li>
+</ul>
+<p>按照驱动方式：</p>
 <ul>
-<li>transformers, diffusers, accelerate（hugging face）    </li>
-<li>pytorch（<a target="_blank" rel="noopener" href="https://pytorch.org/get-started/locally/%EF%BC%8C">https://pytorch.org/get-started/locally/，</a> <a target="_blank" rel="noopener" href="https://pytorch.org/get-started/previous-versions/">https://pytorch.org/get-started/previous-versions/</a>)</li>
-<li>numpy</li>
-<li>opencv-python</li>
+<li>真人驱动</li>
+<li>AI驱动</li>
 </ul>
+<p>按照商业和功能维度：</p>
+<ul>
+<li>内容&#x2F;IP型</li>
+<li>功能服务型</li>
+<li>虚拟分身</li>
+</ul>
+<h2 id="数字人的发展"><a href="#数字人的发展" class="headerlink" title="数字人的发展"></a>数字人的发展</h2><p>近几年，虚拟数字人在电商、金融、影视、游戏和金融等行业都拥有不同大小的市场规模。<br>我们拿虚拟偶像的市场作为例子。虚拟偶像行业2020年中国的市场规模为34.6亿元，预计2023年将达到205.2亿元。带动的市场从2020的645.6亿元，预计2023年增长到3334.7亿元，是一个指数级的增长。</p>
+<p>当然除了虚拟偶像数字人还有很多其他方面的应用，所以市场前景是非常可观的。下面是一个虚拟偶像市场规模及预测的分析。</p>
+<p><img src="/2024/12/28/digital-human-render-1/%E8%99%9A%E6%8B%9F%E5%81%B6%E5%83%8F%E5%B8%82%E5%9C%BA%E8%A7%84%E6%A8%A1.png" srcset="/img/loading.gif" lazyload alt="虚拟偶像市场规模"></p>
+<h1 id="数字人的制作流程简介"><a href="#数字人的制作流程简介" class="headerlink" title="数字人的制作流程简介"></a>数字人的制作流程简介</h1><p>数字人制作大致分4个阶段：</p>
+<ol>
+<li><p>第一阶段（形象设计）：明确形象设计方向。</p>
 </li>
-</ul>
-<p>python的版本可能不支持最新的pytorch版本，如ue5.3使用的python 3.9.7只能支持到pytorch2.1，需要根据版本来安装合适的版本，numpy支持到1.24.1版本，opencv-python支持到4.6.0版本。</p>
-<p>ue5.5的Python升级到了3.11，所以可以支持到更新的版本了，请在安装前检查一下，要不然很容易出现问题。</p>
-<h2 id="文件布局"><a href="#文件布局" class="headerlink" title="文件布局"></a>文件布局</h2><p>三个脚本放在<strong>Scripts</strong>文件夹下，分别对应着漫反射贴图生成、法线和置换贴图生成以及提升贴图分辨率三个流程。</p>
-<p>下面简单介绍一下这个几个脚本对应的能力。</p>
-<h2 id="漫反射贴图生成："><a href="#漫反射贴图生成：" class="headerlink" title="漫反射贴图生成："></a>漫反射贴图生成：</h2><p>脚本名称：RunTexGen.py</p>
-<p>漫反射贴图生成使用模型：<a target="_blank" rel="noopener" href="https://huggingface.co/dream-textures/texture-diffusion">texture diffusion</a></p>
-<p>模型基于stable diffusion 2 base，通过DreamBooth微调，可通过文生图的方式生成材质的漫反射贴图，尽量不包含光照和阴影信息。</p>
-<h2 id="法线贴图生成："><a href="#法线贴图生成：" class="headerlink" title="法线贴图生成："></a>法线贴图生成：</h2><p>脚本名称：RunNormalGen.py</p>
-<p>为了有更加真实的光照表现效果，贴图一般会配合法线贴图使用。<br>从漫反射贴图生成法线贴图的库有好几个，比如说<a target="_blank" rel="noopener" href="https://github.com/HugoTini/DeepBump">deepbump</a>，demo使用的是<a target="_blank" rel="noopener" href="https://github.com/joeyballentine/Material-Map-Generator">Material-Map-Generator(MMG)</a>，因为它还可以生成DisplacementMap和RoughnessMap，这两张贴图同样可以增强模型在3D光照环境下的表现。</p>
-<h3 id="置换贴图："><a href="#置换贴图：" class="headerlink" title="置换贴图："></a>置换贴图：</h3><p>上文提到了置换贴图（DisplacementMap），这个资源也是一个提升模型显示效果的手段。法线贴图增加模型细节是不需要修改模型本身的顶点形状的，只是通过提供更为细致的平面法线信息辅助光照计算。</p>
-<p>置换贴图则是可以真实的修改模型的形状。</p>
-<p>在UE中可以使用模型工具通过<strong>DisplacementMap</strong>来丰富模型的细节，也有另外一种方法**视差遮挡映射（ParallaxOcclusionMapping)**，我在UE中使用的是这种方法。</p>
-<h2 id="Upscale："><a href="#Upscale：" class="headerlink" title="Upscale："></a>Upscale：</h2><p>脚本名称：RunUpScale.py</p>
-<p>使用<a target="_blank" rel="noopener" href="https://huggingface.co/radames/stable-diffusion-x4-upscaler-img2img">Upscale Pipeline stable-diffusion-x4-upscaler-img2img</a>，将原有的贴图分辨率从512X512提升到2048X2048，模型精度有比较大的提升，但是显存需求显著增大，并且消耗时间显著增长。</p>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>最简单的方式是参照下面的蓝图方式调用即可。<br><img src="/2024/12/22/ue-ai-texture-generation/texgen_bp.png" srcset="/img/loading.gif" lazyload alt="脚本调用蓝图"><br><img src="/2024/12/22/ue-ai-texture-generation/texgen_bp_macro.png" srcset="/img/loading.gif" lazyload alt="参数包裹函数"></p>
-<p>最初调用的时候由于需要下载对应的模型，所以时间会相对来说久一些。并且由于是从hugging face上下载模型，可能需要梯子。<br><img src="/2024/12/22/ue-ai-texture-generation/texgen_cmd.png" srcset="/img/loading.gif" lazyload alt="调用后的命令行"></p>
+<li><p>第二阶段（模型制作）：根据平面形象，进行模型搭建。<br>这里我们以可能是最为复杂的超写实数字人的制作流程进行举例，首先在lightstage里面扫描模型（扫描仪，360度单反相机阵列，300多个相机组成）。扫描出来的模型是一个点云，需要模型师去调整，抚平一些瑕疵。去除扫描的毛刺。有些部位可能拍照的时候出现遮挡（比如耳后），需要在模型软件工具中处理好。<br><img src="/2024/12/28/digital-human-render-1/%E8%80%81%E9%BB%84%E6%89%AB%E6%8F%8F.png" srcset="/img/loading.gif" lazyload alt="老黄扫描"><br><img src="/2024/12/28/digital-human-render-1/%E8%80%81%E9%BB%84%E5%BB%BA%E6%A8%A1.png" srcset="/img/loading.gif" lazyload alt="老黄建模"></p>
+</li>
+<li><p>第三阶段（驱动绑定）：<br>面部动画face rig绑定驱动，通过动画，人脸识别，或者AI去驱动。或者使用blendshape等技术。<br>身体躯干使用骨骼绑定，辅以动作捕捉等等。<br><img src="/2024/12/28/digital-human-render-1/metahuman%E9%9D%A2%E9%83%A8%E9%A9%B1%E5%8A%A8.png" srcset="/img/loading.gif" lazyload alt="metahuman(UE)面部驱动"><br><img src="/2024/12/28/digital-human-render-1/%E8%80%81%E9%BB%84%E9%A9%B1%E5%8A%A8.png" srcset="/img/loading.gif" lazyload alt="老黄驱动"></p>
+</li>
+<li><p>第四阶段（渲染）：将场景、人物放入渲染工具进行渲染输出，常用的工具包括nVidia omniverse、unreal engine等等。<br><img src="/2024/12/28/digital-human-render-1/%E8%80%81%E9%BB%84%E6%A8%A1%E5%9E%8B%E6%B8%B2%E6%9F%93.png" srcset="/img/loading.gif" lazyload alt="老黄模型渲染"></p>
+</li>
+</ol>
+<p>目前虚幻引擎5的metahuman creator是一个很流程化且易于使用的数字人制作工具。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>第一部分先总结到这里，在后面的部分我会更加详细的介绍一些数字人渲染技术，包括皮肤、头发的渲染以及卡通渲染等等。</p>
 
                 
               </div>
@@ -361,9 +374,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8E/" class="print-no-link">#虚幻引擎</a>
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
       
-        <a href="/tags/AIGC/" class="print-no-link">#AIGC</a>
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F/" class="print-no-link">#数字孪生</a>
       
     </div>
   
@@ -375,8 +390,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>虚幻引擎5基于AI的贴图生成方法</div>
-      <div>http://example.com/2024/12/22/ue-ai-texture-generation/</div>
+      <div>浅谈数字人仿真的渲染技术（一）</div>
+      <div>http://example.com/2024/12/28/digital-human-render-1/</div>
     </div>
     <div class="license-meta">
       
@@ -388,7 +403,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年12月22日</div>
+          <div>2024年12月28日</div>
         </div>
       
       
@@ -420,18 +435,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/12/28/digital-human-render-1/" title="浅谈数字人仿真的渲染技术（一）">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">浅谈数字人仿真的渲染技术（一）</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/12/10/screen-space-reflection/" title="屏幕空间反射">
-                        <span class="hidden-mobile">屏幕空间反射</span>
+                      <a href="/2024/12/22/ue-ai-texture-generation/" title="虚幻引擎5基于AI的贴图生成方法">
+                        <span class="hidden-mobile">虚幻引擎5基于AI的贴图生成方法</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
