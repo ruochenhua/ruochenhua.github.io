@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>浅谈数字人仿真的渲染技术（二）</title>
+    <link href="/2025/01/04/digital-human-render-2/"/>
+    <url>/2025/01/04/digital-human-render-2/</url>
+    
+    <content type="html"><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>新年好，这是接着上次关于数字人渲染技术的第二部分，今天的这部分的分享，我会开始介绍一些关于数字人渲染的实际技术，包括基于物理渲染的基础，和真实风格的数字人的皮肤、头发渲染技术。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>技术漫谈</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>3D</tag>
+      
+      <tag>渲染</tag>
+      
+      <tag>数字孪生</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>浅谈数字人仿真的渲染技术（一）</title>
     <link href="/2024/12/28/digital-human-render-1/"/>
     <url>/2024/12/28/digital-human-render-1/</url>
