@@ -22,11 +22,11 @@
     <meta name="description" content="什么是软阴影在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴影">
 <meta property="og:type" content="article">
 <meta property="og:title" content="软阴影的实现（PCF和PCSS）">
-<meta property="og:url" content="http://example.com/2024/12/08/soft-shadow/index.html">
+<meta property="og:url" content="https://ruochenhua.github.io/2024/12/08/soft-shadow/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="什么是软阴影在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴影">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
+<meta property="og:image" content="https://ruochenhua.github.io/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
 <meta property="article:published_time" content="2024-12-08T02:29:07.000Z">
 <meta property="article:modified_time" content="2024-12-08T04:20:27.459Z">
 <meta property="article:author" content="晨">
@@ -35,7 +35,7 @@
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="阴影">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2024/12/08/soft-shadow/soft-shadow-thumbnail.png">
   
   
   
@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -296,7 +296,7 @@
                 <h1 id="什么是软阴影"><a href="#什么是软阴影" class="headerlink" title="什么是软阴影"></a>什么是软阴影</h1><p>在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。</p>
 <p>阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。</p>
 <p>那么该如何在可接受的性能表现下实现软阴影的效果呢，下面详细介绍两种方法：Percentage Closer Filtering（PCF）以及Percentage Closer Soft Shadows（PCSS）。</p>
-<h1 id="柔和阴影边缘-PCF"><a href="#柔和阴影边缘-PCF" class="headerlink" title="柔和阴影边缘-PCF"></a>柔和阴影边缘-PCF</h1><p>下面是一个普通的阴影效果：<br><img src="/2024/12/08/soft-shadow/normal-shadow.png" srcset="/img/loading.gif" lazyload alt="普通的阴影效果"><br>这个阴影贴图的分辨率是2048，这是在<a target="_blank" rel="noopener" href="https://ruochenhua.github.io/2024/10/13/cascade-shadow-map/">CSM</a>的最低一级的阴影效果。可以看到阴影边缘的锯齿感非常的强烈，同时由于采样精度的问题，模型的腿上也出现了不正确的阴影区域。最简单的方法就是通过提高阴影贴图的分辨率来缓解这个问题，但是显而易见这不是最好的解决方案，而Percentage Closer Filtering（后简称PCF）可以帮助我们解决这个问题。</p>
+<h1 id="柔和阴影边缘-PCF"><a href="#柔和阴影边缘-PCF" class="headerlink" title="柔和阴影边缘-PCF"></a>柔和阴影边缘-PCF</h1><p>下面是一个普通的阴影效果：<br><img src="/2024/12/08/soft-shadow/normal-shadow.png" srcset="/img/loading.gif" lazyload alt="普通的阴影效果"><br>这个阴影贴图的分辨率是2048，这是在<a href="https://ruochenhua.github.io/2024/10/13/cascade-shadow-map/">CSM</a>的最低一级的阴影效果。可以看到阴影边缘的锯齿感非常的强烈，同时由于采样精度的问题，模型的腿上也出现了不正确的阴影区域。最简单的方法就是通过提高阴影贴图的分辨率来缓解这个问题，但是显而易见这不是最好的解决方案，而Percentage Closer Filtering（后简称PCF）可以帮助我们解决这个问题。</p>
 <h2 id="什么是PCF"><a href="#什么是PCF" class="headerlink" title="什么是PCF"></a>什么是PCF</h2><p>Percentage Closer Filtering（PCF）是一种在计算机图形学中用于生成软阴影的技术。它主要用于解决硬阴影（如简单的阴影映射产生的锐利阴影边缘）不符合真实场景光照效果的问题。</p>
 <p>与简单的阴影映射不同，PCF 在判断像素是否在阴影中时，不是只比较单个点的深度。它会在像素点周围的一定区域内进行多次采样。例如，在一个以像素点为中心的小区域（通常是方形或圆形区域）内，对多个采样点进行深度比较。这些采样点的位置可以是均匀分布，也可以采用更复杂的分布方式，如泊松分布，以获得更自然的效果。</p>
 <p>对于每个采样点，比较其深度和阴影图中的深度来判断是否在阴影中。然后统计在阴影中的采样点的比例。设采样点总数为<strong>N</strong>，处于阴影中的采样点数量为<strong>n</strong>，则阴影强度可以通过公式计算<strong>shadow&#x3D;n&#x2F;N</strong>得到。这个阴影强度用于确定像素最终的阴影效果。如果阴影强度为1，表示像素完全处于阴影中；如果阴影强度为0，表示像素完全不在阴影中；介于两者之间的值表示不同程度的软阴影效果。</p>
@@ -404,7 +404,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>软阴影的实现（PCF和PCSS）</div>
-      <div>http://example.com/2024/12/08/soft-shadow/</div>
+      <div>https://ruochenhua.github.io/2024/12/08/soft-shadow/</div>
     </div>
     <div class="license-meta">
       

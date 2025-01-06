@@ -22,11 +22,11 @@
     <meta name="description" content="关于景深景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游">
 <meta property="og:type" content="article">
 <meta property="og:title" content="景深的简单实现">
-<meta property="og:url" content="http://example.com/2024/10/28/depth-of-field/index.html">
+<meta property="og:url" content="https://ruochenhua.github.io/2024/10/28/depth-of-field/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="关于景深景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/10/28/depth-of-field/game1.jpg">
+<meta property="og:image" content="https://ruochenhua.github.io/2024/10/28/depth-of-field/game1.jpg">
 <meta property="article:published_time" content="2024-10-28T14:11:58.000Z">
 <meta property="article:modified_time" content="2024-10-28T15:19:19.418Z">
 <meta property="article:author" content="晨">
@@ -35,7 +35,7 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/10/28/depth-of-field/game1.jpg">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2024/10/28/depth-of-field/game1.jpg">
   
   
   
@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -314,7 +314,7 @@
 <h2 id="散景的效果"><a href="#散景的效果" class="headerlink" title="散景的效果"></a>散景的效果</h2><p>这里给出经过扩张模糊得到的散景效果。下面这张图是扩张模糊之前的效果。<br><img src="/2024/10/28/depth-of-field/dilate_before.png" srcset="/img/loading.gif" lazyload alt="扩张模糊前"><br>下面这张图是扩张模糊之后的效果。<br><img src="/2024/10/28/depth-of-field/dilate_after.png" srcset="/img/loading.gif" lazyload alt="扩张模糊后"></p>
 <p>当然在实际的场景中，我们可能不会开这么大的扩散效果，此处只是作为对比。</p>
 <h1 id="结合场景"><a href="#结合场景" class="headerlink" title="结合场景"></a>结合场景</h1><p>好了，现在我们有原本场景的渲染效果和扩散后的效果，实现最终的景深效果需要将这两者结合起来。我们需要一种方法来决定画面上哪些部分是需要采用清晰的图像，哪些是采用模糊的图像。</p>
-<p>为了实现这个效果我们需要获得画面上每个点的深度，或者每个点的实际世界坐标。幸运的是，我们在实现<a target="_blank" rel="noopener" href="https://ruochenhua.github.io/2024/10/19/defer-render/">延迟渲染</a>的时候已经将这些存放到缓冲中去了，接下来就是实现景深效果了。</p>
+<p>为了实现这个效果我们需要获得画面上每个点的深度，或者每个点的实际世界坐标。幸运的是，我们在实现<a href="https://ruochenhua.github.io/2024/10/19/defer-render/">延迟渲染</a>的时候已经将这些存放到缓冲中去了，接下来就是实现景深效果了。</p>
 <p>最终的代码如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> TexCoords;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> scene_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> dilate_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> position_texture;<br><br><span class="hljs-comment">// 焦点距离</span><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">float</span> focus_distance = <span class="hljs-number">3.0</span>;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">vec2</span> focus_threshold;<br><span class="hljs-comment">// 景深的上下限</span><br><span class="hljs-type">float</span> min_dist = focus_threshold.x;<br><span class="hljs-type">float</span> max_dist = focus_threshold.y;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec4</span> focus_color = <span class="hljs-built_in">texture</span>(scene_texture, TexCoords);<br>    <span class="hljs-type">vec4</span> out_of_focus_color = <span class="hljs-built_in">texture</span>(dilate_texture, TexCoords);<br>    <span class="hljs-type">vec3</span> scene_position = <span class="hljs-built_in">texture</span>(position_texture, TexCoords).xyz; <br>    <br>	<span class="hljs-comment">// 这里采用了画面每个点的世界坐标和相机的距离作为判定模糊的标准</span><br>	<span class="hljs-comment">// 当然用深度信息也是可以的，性能上也更好，这里为了代码展示更好理解</span><br>    <span class="hljs-type">vec3</span> cam_pos = matrix_ubo.cam_pos.xyz;<br>	<br>    <span class="hljs-type">float</span> blur_amout = <span class="hljs-built_in">smoothstep</span>(min_dist, max_dist, <span class="hljs-built_in">abs</span>(focus_distance - <span class="hljs-built_in">distance</span>(scene_position, cam_pos)));<br>    <br>	<span class="hljs-comment">// 最后的颜色是焦距内和散景的混合</span><br>    FragColor = <span class="hljs-built_in">mix</span>(focus_color, out_of_focus_color, blur_amout);<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -374,7 +374,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>景深的简单实现</div>
-      <div>http://example.com/2024/10/28/depth-of-field/</div>
+      <div>https://ruochenhua.github.io/2024/10/28/depth-of-field/</div>
     </div>
     <div class="license-meta">
       

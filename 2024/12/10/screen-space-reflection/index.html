@@ -22,11 +22,11 @@
     <meta name="description" content="什么是屏幕空间反射在前面的文章的一些配图中，其实已经揭露了之前在KongEngine中实现的一个不小的功能点，就是屏幕空间反射（screen space reflection）。加入了屏幕空间反射能力之后，在一些光滑和带有反射材质的表面上，能够实现不错的反射效果。  屏幕空间反射（后简称SSR）是一种在实时渲染中用于模拟物体表面反射的成熟技术。SSR 的核心原理是在屏幕空间中进行光线追踪，以此计算">
 <meta property="og:type" content="article">
 <meta property="og:title" content="屏幕空间反射">
-<meta property="og:url" content="http://example.com/2024/12/10/screen-space-reflection/index.html">
+<meta property="og:url" content="https://ruochenhua.github.io/2024/12/10/screen-space-reflection/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="什么是屏幕空间反射在前面的文章的一些配图中，其实已经揭露了之前在KongEngine中实现的一个不小的功能点，就是屏幕空间反射（screen space reflection）。加入了屏幕空间反射能力之后，在一些光滑和带有反射材质的表面上，能够实现不错的反射效果。  屏幕空间反射（后简称SSR）是一种在实时渲染中用于模拟物体表面反射的成熟技术。SSR 的核心原理是在屏幕空间中进行光线追踪，以此计算">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/12/10/screen-space-reflection/ssr_mugshot.png">
+<meta property="og:image" content="https://ruochenhua.github.io/2024/12/10/screen-space-reflection/ssr_mugshot.png">
 <meta property="article:published_time" content="2024-12-10T13:58:52.000Z">
 <meta property="article:modified_time" content="2024-12-14T02:35:39.996Z">
 <meta property="article:author" content="晨">
@@ -34,7 +34,7 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/12/10/screen-space-reflection/ssr_mugshot.png">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2024/12/10/screen-space-reflection/ssr_mugshot.png">
   
   
   
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -302,7 +302,7 @@
 <li>结合相机参数和屏幕坐标计算出<strong>观察向量</strong>，进而得到<strong>反射向量</strong>。    </li>
 <li>沿着反射向量在屏幕空间进行光线追踪，查找反射光线与场景中其他物体的相交点，以获取反射光线的颜色，最终将反射颜色与场景的原始颜色进行合成，得到带有反射效果的最终渲染结果。</li>
 </ol>
-<p>我们对于上面1、2两步应该已经不陌生了，毕竟我们在前面的文章就介绍了KongEngine接入<a target="_blank" rel="noopener" href="https://ruochenhua.github.io/2024/10/19/defer-render/">延迟渲染</a>的能力，在G-Buffer中我们已经存储了屏幕空间的各种相关数据，包括深度值和法线向量。有了这些数据，按照第2点计算反射向量也是很顺理成章的事情。</p>
+<p>我们对于上面1、2两步应该已经不陌生了，毕竟我们在前面的文章就介绍了KongEngine接入<a href="https://ruochenhua.github.io/2024/10/19/defer-render/">延迟渲染</a>的能力，在G-Buffer中我们已经存储了屏幕空间的各种相关数据，包括深度值和法线向量。有了这些数据，按照第2点计算反射向量也是很顺理成章的事情。</p>
 <p>对应的代码如下：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 将延迟渲染保存的数据传给SSR shader</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">CRender::SSReflectionRender</span><span class="hljs-params">()</span> <span class="hljs-type">const</span></span><br><span class="hljs-function"></span>&#123;	<br>	<span class="hljs-comment">// scene normal：defer_buffer_.g_normal_</span><br>	<span class="hljs-comment">// scene reflection mask: defer_buffer_.g_orm_</span><br>	<span class="hljs-comment">// scene position: defer_buffer_.g_position_</span><br>	<span class="hljs-comment">// scene depth存在于normal贴图的w分量上</span><br>	ssreflection_shader-&gt;<span class="hljs-built_in">Use</span>();<br>	<span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);<br>	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, defer_buffer_.g_position_);<br>	<span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0 + <span class="hljs-number">1</span>);<br>	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, defer_buffer_.g_normal_);<br>	<span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0 + <span class="hljs-number">2</span>);<br>	<span class="hljs-comment">// 用给后处理的texture作为scene color</span><br>	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, post_process.screen_quad_texture[<span class="hljs-number">0</span>]);<br>	<span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0 + <span class="hljs-number">3</span>);<br>	<span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, defer_buffer_.g_orm_);<br>	<br>	quad_shape-&gt;<span class="hljs-built_in">Draw</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
 
@@ -426,7 +426,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>屏幕空间反射</div>
-      <div>http://example.com/2024/12/10/screen-space-reflection/</div>
+      <div>https://ruochenhua.github.io/2024/12/10/screen-space-reflection/</div>
     </div>
     <div class="license-meta">
       

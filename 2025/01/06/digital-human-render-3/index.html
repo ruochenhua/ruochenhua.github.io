@@ -22,19 +22,19 @@
     <meta name="description" content="前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根指向">
 <meta property="og:type" content="article">
 <meta property="og:title" content="谈数字人仿真的渲染技术（三）">
-<meta property="og:url" content="http://example.com/2025/01/06/digital-human-render-3/index.html">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根指向">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/01/06/digital-human-render-3/ue-metahuman-face.jpg">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png">
 <meta property="article:published_time" content="2025-01-06T14:09:54.000Z">
-<meta property="article:modified_time" content="2025-01-06T14:54:32.449Z">
+<meta property="article:modified_time" content="2025-01-06T14:56:17.850Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="数字孪生">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2025/01/06/digital-human-render-3/ue-metahuman-face.jpg">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png">
   
   
   
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -210,7 +210,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/2025/01/06/digital-human-render-3/ue-metahuman-face.jpg') no-repeat center center; background-size: cover;">
+     style="background: url('/2025/01/06/digital-human-render-3/ue-metahuman-face.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -403,7 +403,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>谈数字人仿真的渲染技术（三）</div>
-      <div>http://example.com/2025/01/06/digital-human-render-3/</div>
+      <div>https://ruochenhua.github.io/2025/01/06/digital-human-render-3/</div>
     </div>
     <div class="license-meta">
       
