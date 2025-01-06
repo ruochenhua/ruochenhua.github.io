@@ -94,5 +94,5 @@ banner_img: /2024/12/28/digital-human-render-1/metahuman_mugshot.jpg
 
 目前虚幻引擎5的metahuman creator是一个很流程化且易于使用的数字人制作工具。
 
-# 总结
+# 结语
 第一部分先总结到这里，在后面的部分我会更加详细的介绍一些数字人渲染技术，包括皮肤、头发的渲染以及卡通渲染等等。
