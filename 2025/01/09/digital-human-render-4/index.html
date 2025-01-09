@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是非真实感渲染（Non-photorealistic Rendering, NPR）技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPRNPR，我们一般指的是非真实感渲染（Non-photor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈数字人仿真的渲染技术（三）">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/01/09/digital-human-render-4/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是非真实感渲染（Non-photorealistic Rendering, NPR）技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPRNPR，我们一般指的是非真实感渲染（Non-photor">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/01/09/digital-human-render-4/npr-digi-human.png">
+<meta property="article:published_time" content="2025-01-09T14:23:55.000Z">
+<meta property="article:modified_time" content="2025-01-09T15:16:42.731Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="数字孪生">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/09/digital-human-render-4/npr-digi-human.png">
+  
+  
+  
+  <title>浅谈数字人仿真的渲染技术（三） - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2025/01/09/digital-human-render-4/npr-digi-human.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="浅谈数字人仿真的渲染技术（三）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-09 22:23" pubdate>
+          2025年1月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          28 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">浅谈数字人仿真的渲染技术（三）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是<strong>非真实感渲染（Non-photorealistic Rendering, NPR）</strong>技术，通常这项技术会被用在渲染卡通风格的内容。</p>
+<h1 id="非真实感渲染"><a href="#非真实感渲染" class="headerlink" title="非真实感渲染"></a>非真实感渲染</h1><p>前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。</p>
+<h2 id="什么是NPR"><a href="#什么是NPR" class="headerlink" title="什么是NPR"></a>什么是NPR</h2><p><strong>NPR</strong>，我们一般指的是<strong>非真实感渲染（Non-photorealistic Rendering）</strong>，它是相对于<strong>真实渲染（Photorealistic Rendering）</strong>的。</p>
+<p>真实感渲染的目的在于渲染出照片级别的高真实度画面；而非真实感渲染，他的目的多种多样，它可以模拟艺术化的绘制风格，呈现出手绘的效果。</p>
+<p>这是游戏”犬神“的画面，它的渲染模拟出一种独特的水墨风格。<br><img src="/2025/01/09/digital-human-render-4/okami.png" srcset="/img/loading.gif" lazyload alt="犬神"></p>
+<p>这是游戏”荒野之息“的画面，它就有点类似于日本动画的风格。<br><img src="/2025/01/09/digital-human-render-4/zelda.png" srcset="/img/loading.gif" lazyload alt="塞尔达传说-荒野之息"></p>
+<p>他们显然不是想游戏画面看起来和显示世界一模一样的，所以利用NPR来突出自己独特的美术基调，展现不同的美术风格，从而吸引玩家。</p>
+<h2 id="NPR在数字人的体现"><a href="#NPR在数字人的体现" class="headerlink" title="NPR在数字人的体现"></a>NPR在数字人的体现</h2><p>在数字人的概念在互联网中异常火热的时候，业界也出现了很多热门虚拟数字人或虚拟偶像，如下面这张图里面列举的一些例子。</p>
+<p><img src="/2025/01/09/digital-human-render-4/npr-digi-human.png" srcset="/img/loading.gif" lazyload alt="NPR与数字人"></p>
+<p>最左边的的Miquela（美国），以及最右边的AYAYI（燃麦科技）是主打写实，超写实风格的数字人。<br>中间的四个，分别是洛天依，初音，鹿鸣和暖暖，她们的美术风格其实都多多少少有带点二次元风格，如果大家有关注虚拟主播这个行业的话，其实很多虚拟主播都是带着二次元风格的化身（皮套）。</p>
+<p>二次元风格，或者卡通风格的渲染，都属于NPR的渲染风格。NPR在数字人的应用上也是很广泛的。</p>
+<p>当然，非真实感是一个非常宽泛的定义，我们这里不会去展开太多，今天我们只关注于其中的卡通渲染，针对这个领域来介绍一些相关的渲染技术。</p>
+<h1 id="卡通渲染"><a href="#卡通渲染" class="headerlink" title="卡通渲染"></a>卡通渲染</h1><p><strong>卡通渲染</strong>是NPR领域应用最广的渲染技术之一，那么他和真实感渲染有很多地方是不一样的，其中最主要的两点，就是<strong>描边处理</strong>，和<strong>艺术化着色</strong>。</p>
+<p>接下来我们就来重点聊一聊这两个方面。</p>
+<h2 id="描边"><a href="#描边" class="headerlink" title="描边"></a>描边</h2><p>首先来介绍一下描边处理。</p>
+<p>描边几乎是所有非真实渲染都要实现的效果，它比较容易呈现出一种手绘的视觉风格。目前主流使用的描边技术包括几类，分别是<strong>基于几何的生成方法</strong>，<strong>基于视角的勾边</strong>，<strong>基于图像处理的勾边</strong>。这三种方法之间也可以混合使用。我们今天也会主要介绍这三种描边。</p>
+<h3 id="基于几何的生成方法"><a href="#基于几何的生成方法" class="headerlink" title="基于几何的生成方法"></a>基于几何的生成方法</h3><p>首先我们来介绍一些基于几何生成的描边方法。</p>
+<p>这个方法的特点是，描边本身是一个单独的几何体，这个几何体通过特殊的方式渲染出来，结合原本渲染的模型，可以达到描边的效果。</p>
+<p>基于几何的描边需要有两个渲染pass。</p>
+<ol>
+<li><p>在第一个Pass中只渲染背面的面片。在第一个Pass进行描边处理时，我们可以利用顶点着色器将物体本身沿法线方向进行一定的扩展，得到一个<em>比原来模型略大一些的模型</em>来实现物体的轮廓可见的效果，这种方法一般被称为<strong>Shell method</strong>或者<strong>Halo method</strong>；用这个扩大的模型来实现描边的效果。<br>也可以使用另外一种叫做<strong>z-bias</strong>的方法，也是绘制模型背面，但不膨胀模型，而是把背面顶点的Z值稍微向前偏移一点点，使得背面的些许部分显示出来形成描边效果。但是这种方法比较不可控，实现的效果较Shell method差很多。</p>
+</li>
+<li><p>然后第二个Pass中对模型进行正常的渲染。</p>
+</li>
+</ol>
+<p>下面的这张图是一个大致的原理介绍。</p>
+<p><img src="/2025/01/09/digital-human-render-4/outline-geo-based.png" srcset="/img/loading.gif" lazyload alt="基于几何的描边方法"></p>
+<p>几何生成方法描边的优点是实现简单，可以得到轮廓均匀的描边效果，对大部分模型都有效。<br>同样该方法也有很多的缺点：无法用来描边棱角分明的模型，比如立方体；一般只能用来勾勒物体的外部轮廓(Silhouette)而无法绘制物体内部的轮廓(Contour)；需要处理双倍的Mesh数量，性能不友好。</p>
+<h3 id="基于视角的勾边"><a href="#基于视角的勾边" class="headerlink" title="基于视角的勾边"></a>基于视角的勾边</h3><p>接下来介绍基于视角的勾边，这部分的计算依赖于我们的一个直觉观察：当我们的视线和某个表面相切时，这个表面上的像素点往往就是模型的边缘，基于这个观察，我们可以用视线的向量和模型法线向量的点乘来估计一个像素的“边缘程度”，当边缘程度超过一定阈值的时候，就判定其为描边区域。</p>
+<p>当然，这个值也可以用来作为纹理坐标去采样一张预定义的“轮廓纹理”。</p>
+<p>基于视角的描边，处理起来相对比较简单，但是最大的缺点是线宽粗细差别较大，不易控制。</p>
+<p><img src="/2025/01/09/digital-human-render-4/outline-view-based.png" srcset="/img/loading.gif" lazyload alt="基于视角的描边"></p>
+<h3 id="基于图像处理的勾边"><a href="#基于图像处理的勾边" class="headerlink" title="基于图像处理的勾边"></a>基于图像处理的勾边</h3><p>最后是基于图像处理的描边，这类方法的实现可以说更接近于“边缘”这一概念的本质定义。</p>
+<p>什么是“边缘”呢？边缘就是在深度或者法线上不连续的位置。为了获取边缘，我们只需要在图片上找到不连续的位置即可，因此，我们一般将深度信息和法线信息的形式传入，运用边缘检测算法去寻找这些像素。</p>
+<p>这类方法的优点是描边的线宽一致，适应性广，大部分的边缘检测都可以利用该方法，缺点是需要额外的法线和深度信息。</p>
+<p>由于近年来流行的<strong>延迟渲染框架</strong>，法线和深度本来就是G-Buffer的一部分，因此往往不需要额外绘制法线和深度的信息。</p>
+<p>如果没有G-Buffer，需要单独获取深度图和法线图，会有额外的性能消耗。而且对于深度和法线变化很小的地方，可能无法检测出来，比如桌上的纸张。</p>
+<p>其实除了边缘，基于图像处理还可以根据<strong>漫反射颜色的变化</strong>，<strong>光照区域的变化</strong>，甚至<strong>自定义模板</strong>等等来自定义想要处理的勾边。</p>
+<p><img src="/2025/01/09/digital-human-render-4/outline-image-process.png" srcset="/img/loading.gif" lazyload alt="基于图像处理的描边"></p>
+<p>边缘检测的算法这里不深入去拓展了，提一下比较主流的有sobel算子，robert算子，prewitt算子等等。可以去参考图像识别、处理相关的知识。</p>
+<h2 id="艺术化着色"><a href="#艺术化着色" class="headerlink" title="艺术化着色"></a>艺术化着色</h2><p>然后我们再来聊一聊另外一个重点部分，就是艺术化着色。</p>
+<p>艺术化着色很考验美术的能力，好的着色效果需要有好的美术风格和造型，当然这里我们就不深入讨论这块了（程序员审美），我们还是简单介绍一下比较常用来实现艺术化着色的技术。</p>
+<p>这里主要介绍两个方式，即卡通着色和基于色调的着色。</p>
+<h3 id="卡通着色"><a href="#卡通着色" class="headerlink" title="卡通着色"></a>卡通着色</h3><p>卡通渲染的着色方式是<strong>Cel Shading或者Toon Shading</strong>，Cel来自于Celluloid，是传统卡通的制作材料，Toon来自于卡通Cartoon。</p>
+<p>他们的基本思想就是降低色阶，与现实环境丰富的色阶相比，卡通渲染尽量减少使用的色阶，从而实现手工着色的效果。</p>
+<p>下面这张图的场景是采用了PBR，可以看到他的色阶是非常多的，阴影，高光过度很平滑。</p>
+<p><img src="/2025/01/09/digital-human-render-4/cartoon-pbr.png" srcset="/img/loading.gif" lazyload alt="PBR场景"></p>
+<p>这张图的场景我们降低了色阶，体现比较明显的是橙色的球的阴影部分，稍微有点卡通的风格了。</p>
+<p><img src="/2025/01/09/digital-human-render-4/cartoon-lower.png" srcset="/img/loading.gif" lazyload alt="降低色阶"></p>
+<p>这张图片则是进一步降低了色阶，可以看到有一种很强烈的手工着色的感觉，有种古早卡通的风格。</p>
+<p><img src="/2025/01/09/digital-human-render-4/cartoon-lowest.png" srcset="/img/loading.gif" lazyload alt="进一步降低色阶"></p>
+<p>实现这种效果的方法很多，一般计算光照的时候，有一个步骤会根据模型法线和光线法线的点乘，得到一个数值，这个数值会影响最终光照的效果。在PBR中这个数值的影响是连续的，但是在NPR中，我们可以提前定义一个分段函数，这个分段函数定义一个数字区间的颜色值。</p>
+<p>打个比方这个球，可以点乘结果大于0.85用亮橘色，小于0.5用黑色，中间可以继续分段。如果想要平滑过渡的效果，也可以在函数的分段中用平滑计算的方式获取一个插值。</p>
+<p><img src="/2025/01/09/digital-human-render-4/npr-coloring.png" srcset="/img/loading.gif" lazyload alt="NPR着色分段"></p>
+<p>目前来说大部分的卡通渲染，会将N和L的点乘结果对应到一张<strong>Ramp Texture</strong>上， 如下图所示，根据ramp texture上的颜色数据上颜色。这样美术就可以比较方便的控制想要的颜色效果。</p>
+<p><img src="/2025/01/09/digital-human-render-4/ramp-texture.png" srcset="/img/loading.gif" lazyload alt="ramp texture"></p>
+<p>下面这张图是对应ramp texture对应的效果。</p>
+<p><img src="/2025/01/09/digital-human-render-4/ramp-texture-effect.png" srcset="/img/loading.gif" lazyload alt="ramp texture对应的效果"></p>
+<p>另外为了模拟PBR中光线和视角相关的效果(菲涅尔项)，还需要视角相关的信息。通过法线和视线方向的点乘得到另一个纹理坐标在ramp texture上取值，ramp texture的制作也需要考虑相关的因素。</p>
+<p><img src="/2025/01/09/digital-human-render-4/ramp-texture-fresnel.png" srcset="/img/loading.gif" lazyload alt="ramp texture菲涅尔项"></p>
+<h3 id="基于色调的着色"><a href="#基于色调的着色" class="headerlink" title="基于色调的着色"></a>基于色调的着色</h3><p>最后我们简单介绍一下tone based shading，他的主要思想是首先由美术指定冷色调和暖色调，比如说冷色调设定为蓝色，暖色调设定为橙色。而最终模型着色将根据法线和光线的夹角，在这两个色调的基础上进行插值。</p>
+<p>下面是基于色调着色的公式。<br><img src="/2025/01/09/digital-human-render-4/tone-base-shading.png" srcset="/img/loading.gif" lazyload alt="基于色调的着色公式"></p>
+<p>这里公式里面的l是光线照射方向，和我们前面BRDF等公式里面的光线方向相反。这里可以看到，公式计算中法线和光线向量的点乘越低，暖色调的比例就越高，冷色调的比例就越低，反之亦然。</p>
+<h2 id="what’s-more"><a href="#what’s-more" class="headerlink" title="what’s more"></a>what’s more</h2><p>当然，目前我们说介绍的这些，也只是对NPR的一个最基础的介绍了，为了更好的效果，很多细节需要优化。<br>比如说可能会有更加风格化的高光和阴影，如下图所示。</p>
+<p><img src="/2025/01/09/digital-human-render-4/highlight-shadow.png" srcset="/img/loading.gif" lazyload alt="风格化的高光和阴影"></p>
+<p>以及还需要将环境光照的影响考虑进来。</p>
+<p>还有就是现在很多产品选择的在NPR中使用PBR，就比如说我们前面在PBR里面介绍的kajiya-kay的头发高光计算方法，比如说很多二次元风格的模型会在皮肤眼睛等部位同样使用次表面散射的模型。</p>
+<p><img src="/2025/01/09/digital-human-render-4/NPR-kajiya-kay.png" srcset="/img/loading.gif" lazyload alt="在NPR中结合Kajiya-Kay"></p>
+<h1 id="未来数字人技术的展望"><a href="#未来数字人技术的展望" class="headerlink" title="未来数字人技术的展望"></a>未来数字人技术的展望</h1><p>最后稍微讲一下我们对未来数字人技术的展望吧。</p>
+<p>首先由于其渲染的复杂度和性能消耗，高保真类型的数字人可能会更趋近于在云端渲染，包括我们的端云渲染平台andeverse，大家可以关注一下。云渲染可以利用云端的强大的分布式硬件，以及高速网络， 实现在一般设备上的真实人物表现。</p>
+<p>同时今年大热的AI技术成果爆发，也让我们不禁想去探索AI辅助的数字人生产制作流程。它能对整个生产管线的效率和效果有多大的提升。</p>
+<p>另外其实皮肤的效果是否还有更进一步的解决办法，因为目前实时渲染还是采用一种近似方法。皮肤下面其实离毛细血管是比较近的，在人类在表现激动情绪的时候会有脸红等肤色的变化的细节。这些细节的完善，可以帮助我们进一步提升写实类人物的渲染，从而走出恐怖谷。</p>
+<p><img src="/2025/01/09/digital-human-render-4/metahuman.png" srcset="/img/loading.gif" lazyload alt="metahuman"></p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>《浅谈数字人渲染技术》的内容终于总结完了，这个分享我准备了很久，ppt在交付前一再精简，最后还是有55页，也是整整拆分成四篇文章才勉强将里面的内容将完。</p>
+<p>这次分享也给了我很多的启发，让我熟悉了数字人渲染的相关技术，以及整个产业的发展。里面的内容广泛而深入，这几篇浅显的文章既希望能够帮助到有需要的人，也是我对自己的一次小小的总结。</p>
+<p>希望后面有机会能够进一步深入这个领域。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
+      
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F/" class="print-no-link">#数字孪生</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>浅谈数字人仿真的渲染技术（三）</div>
+      <div>https://ruochenhua.github.io/2025/01/09/digital-human-render-4/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>晨</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/06/digital-human-render-3/" title="浅谈数字人仿真的渲染技术（三）">
+                        <span class="hidden-mobile">浅谈数字人仿真的渲染技术（三）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
