@@ -1,0 +1,698 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔">
+<meta property="og:type" content="article">
+<meta property="og:title" content="水面效果-2">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/01/19/water-effect-2/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png">
+<meta property="article:published_time" content="2025-01-19T02:05:28.000Z">
+<meta property="article:modified_time" content="2025-01-19T03:18:20.948Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="水">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png">
+  
+  
+  
+  <title>水面效果-2 - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2025/01/12/water-effect-1/kong_water.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="水面效果-2"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-19 10:05" pubdate>
+          2025年1月19日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">水面效果-2</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。</p>
+<h1 id="菲涅尔现象"><a href="#菲涅尔现象" class="headerlink" title="菲涅尔现象"></a>菲涅尔现象</h1><p>如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔反射描述了<strong>反射光和折射光的比例与光线入射角之间的关系</strong>。</p>
+<p>根据菲涅尔方程（Fresnel equations），反射率会随着入射角的变化而变化。当光线垂直（入射角为 0°）入射到界面时，反射率是一个固定的值；而当入射角增大时，反射率会逐渐增大。当入射角接近 90°（掠射角）时，反射率趋近于 1，几乎所有的光都会被反射。</p>
+<p>在渲染水面时，<strong>当视线垂直于水面，可以看到水下一定的深度，此时光大部分折射进入水中，反射的较少。但当视线与水面夹角很小时（接近平行于水面看），水面就像一面镜子，反射很强</strong>。这就是菲涅尔现象在起作用。</p>
+<p>下面的两张截图表现了这个效果。</p>
+<p><img src="/2025/01/19/water-effect-2/water-fresnel-parallel.png" srcset="/img/loading.gif" lazyload alt="视线平行水面，水面像一面镜子反射场景"></p>
+<p><img src="/2025/01/19/water-effect-2/water-fresnel-horizontal.png" srcset="/img/loading.gif" lazyload alt="视线垂直水面，可以更多的看到水面下的场景"></p>
+<p>那么该如何实现这种效果呢，很简单，在渲染的时候，我们可以根据视线和水面的夹角来调整反射纹理和折射纹理的混合参数。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs glsl">   <span class="hljs-comment">// ....</span><br><br>   <span class="hljs-comment">// 获取视线方向</span><br><span class="hljs-type">vec3</span> view_vector = <span class="hljs-built_in">normalize</span>(cam_pos-frag_pos); <br><br>   <span class="hljs-comment">// 利用点乘计算视线和水面的夹角，限制在0到1之间</span><br><span class="hljs-type">float</span> fresnel_blend = <span class="hljs-built_in">clamp</span>(<span class="hljs-built_in">dot</span>(water_normal, view_vector), <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>);<br>   <br>   <span class="hljs-comment">// 这里的pow操作是调整效果，可以根据需求使用</span><br>fresnel_blend = <span class="hljs-built_in">pow</span>(fresnel_blend, <span class="hljs-number">2.2</span>);<br><br>   <span class="hljs-type">vec4</span> color = <span class="hljs-built_in">mix</span>(reflection_color, refraction_color, fresnel_blend);<br><br>   <span class="hljs-comment">// ....</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="水面的动态"><a href="#水面的动态" class="headerlink" title="水面的动态"></a>水面的动态</h1><p>好了，我们的水面现在看起来很棒，但是太过于平静了。现在的水面就像是一面镜子，一块玻璃，现实中的水面会因为风或者其他接触物的影响有波纹或者扰动产生，我们需要想办法增加这种效果。</p>
+<p>水的动态效果模拟其实是一个很深的研究课题，像虚幻引擎的water插件的水面模拟采用了<strong>gerstner wave</strong>，通过不同频率、波长的波的叠加来实现复杂的水面效果（其实这就和地形生成的FBM类似，详情可以参考<a href="https://ruochenhua.github.io/2024/10/11/ProceduralTerrainGeneration/">这篇文章</a>）。如果想要做的更加真实一点，可以采用Navior-Stroker方程来模拟，这是一个经典的用于模拟水体的方法，可以带来更加真实的效果，当然消耗也更大。</p>
+<p>我们今天就来介绍一种最为简单的方法，利用贴图来实现这个效果。</p>
+<h2 id="dudv-map"><a href="#dudv-map" class="headerlink" title="dudv map"></a>dudv map</h2><p>我们在这里需要使用一种叫做dudv map的资源，常见的dudv map如下：</p>
+<p><img src="/2025/01/19/water-effect-2/waterDUDV.png" srcset="/img/loading.gif" lazyload alt="dudv map"></p>
+<p>dudv map是用来辅助表现水面的扰动程度的，如果你有基础的渲染知识的话应该知道法线贴图（normal map），其实dudv map和法线贴图的思路是类似的。</p>
+<p>我们可以看到dudv map整体是呈黄色，因为dudv map主要是包含了X轴（红色）和Y轴（绿色）的数据，黄色是由这两种颜色组合而来。使用dudv map的方法可以参考下面的代码：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-meta">#version 450 compatibility</span><br><span class="hljs-meta">#extension GL_ARB_shading_language_include : require</span><br><span class="hljs-meta">#include &quot;/common/common.glsl&quot;</span><br><br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> out_pos;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> out_normal;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> out_texcoord;<br><br><span class="hljs-keyword">in</span> <span class="hljs-type">vec4</span> clip_space;<br><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> reflection_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> refraction_texture;<br><span class="hljs-comment">// 输入dudv map</span><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> dudv_map;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>	<span class="hljs-type">vec2</span> ndc = clip_space.xy / clip_space.w;<br>	ndc = ndc / <span class="hljs-number">2.0</span> + <span class="hljs-type">vec2</span>(<span class="hljs-number">0.5</span>);<br>	<span class="hljs-type">vec2</span> reflection_coord = <span class="hljs-type">vec2</span>(ndc.x, -ndc.y);<br>	<span class="hljs-type">vec2</span> refraction_coord = ndc;<br>	<br>    <span class="hljs-comment">// 利用dudv map来制造水面扰动</span><br>	<span class="hljs-type">vec2</span> distorted_texcoords = <span class="hljs-built_in">texture</span>(dudv_map, <span class="hljs-type">vec2</span>(out_texcoord.x, out_texcoord.y)).rg * <span class="hljs-number">0.1</span>;<br>	distorted_texcoords = out_texcoord + <span class="hljs-type">vec2</span>(distorted_texcoords.x, distorted_texcoords.y + move_factor);<br>	<span class="hljs-type">vec2</span> total_distort = (<span class="hljs-built_in">texture</span>(dudv_map, distorted_texcoords).rg * <span class="hljs-number">2.0</span> - <span class="hljs-number">1.0</span>) * wave_strength;<br>	<br>	reflection_coord += total_distort;<br>	reflection_coord.x = <span class="hljs-built_in">clamp</span>(reflection_coord.x, <span class="hljs-number">0.001</span>, <span class="hljs-number">0.999</span>);<br>	reflection_coord.y = <span class="hljs-built_in">clamp</span>(reflection_coord.y, <span class="hljs-number">-0.999</span>, <span class="hljs-number">-0.001</span>);<br><br>	refraction_coord += total_distort;<br>	refraction_coord = <span class="hljs-built_in">clamp</span>(refraction_coord, <span class="hljs-number">0.001</span>, <span class="hljs-number">0.999</span>);<br>	<br>	<span class="hljs-type">vec4</span> reflection_color = <span class="hljs-type">vec4</span>(<span class="hljs-built_in">texture</span>(reflection_texture, reflection_coord).xyz, <span class="hljs-number">1.0</span>);<br>	<span class="hljs-type">vec4</span> refraction_color = <span class="hljs-type">vec4</span>(<span class="hljs-built_in">texture</span>(refraction_texture, refraction_coord).xyz, <span class="hljs-number">1.0</span>);<br>	<br>	<span class="hljs-type">vec3</span> view_vector = <span class="hljs-built_in">normalize</span>(matrix_ubo.cam_pos.xyz-out_pos);<br>	<span class="hljs-type">float</span> fresnel_blend = <span class="hljs-built_in">clamp</span>(<span class="hljs-built_in">dot</span>(out_normal, view_vector), <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>);<br>	fresnel_blend = <span class="hljs-built_in">pow</span>(fresnel_blend, <span class="hljs-number">2.2</span>);<br>	<br>	<span class="hljs-type">vec4</span> color = <br>		<span class="hljs-built_in">mix</span>(reflection_color, refraction_color, fresnel_blend);<br><br>	FragColor = color;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>dudv map主要用于制造水面的扰动效果，实现的效果如下：<br><img src="/2025/01/19/water-effect-2/water-with-dudv.png" srcset="/img/loading.gif" lazyload alt="dudv map的效果"></p>
+<p>哇，已经很有感觉了。当然最好在计算distorted_texcoords的时候增加一个随着时间变化的变量，加上动态效果的话会更有真实感。</p>
+<h2 id="法线贴图"><a href="#法线贴图" class="headerlink" title="法线贴图"></a>法线贴图</h2><p>在上面我们已经提到了法线贴图，在渲染水面的时候其实也可以使用法线贴图来增加实感效果。</p>
+<p><img src="/2025/01/19/water-effect-2/waterNormal.png" srcset="/img/loading.gif" lazyload alt="法线贴图"></p>
+<p>一个比较好的法线贴图使用的地方是在水面高光的渲染上，现在的水面有了扰动，但是和光源的交互还是相对较弱的。增加了高光后可以进一步加强水面的实感表现。</p>
+<p><img src="/2025/01/19/water-effect-2/water-no-specular.png" srcset="/img/loading.gif" lazyload alt="没有水面高光"></p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br>....<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> normal_map;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br><br>    ......<br><br>	<span class="hljs-type">vec3</span> specular_highlights = <span class="hljs-type">vec3</span>(<span class="hljs-number">0</span>);<br>    <span class="hljs-comment">// 检查光源</span><br>	<span class="hljs-keyword">if</span>(light_info_ubo.has_dir_light.r != <span class="hljs-number">0</span>)<br>	&#123;<br>		<span class="hljs-type">vec4</span> normal_map_color = <span class="hljs-built_in">texture</span>(normal_map, distorted_texcoords);<br>		<span class="hljs-type">vec3</span> normal = <span class="hljs-built_in">normalize</span>(<span class="hljs-type">vec3</span>(normal_map_color.r * <span class="hljs-number">2.0</span> - <span class="hljs-number">1.0</span>, normal_map_color.b, normal_map_color.g * <span class="hljs-number">2.0</span> - <span class="hljs-number">1.0</span>));<br><br><span class="hljs-comment">//		fresnel_blend = clamp(dot(normal, view_vector), 0.0, 1.0);</span><br><br>		<span class="hljs-type">vec3</span> light_dir = light_info_ubo.directional_light.light_dir.xyz;<br>		<span class="hljs-type">vec3</span> light_color = light_info_ubo.directional_light.light_color.xyz;<br><br>        <span class="hljs-comment">// 高光的简单计算</span><br>		<span class="hljs-type">vec3</span> reflected_light = <span class="hljs-built_in">reflect</span>(light_dir, normal);<br>		<span class="hljs-type">float</span> specular = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(reflected_light, view_vector), <span class="hljs-number">0.0</span>);<br>		<span class="hljs-type">float</span> shine_damper = <span class="hljs-number">100.0</span>;<br>		specular = <span class="hljs-built_in">pow</span>(specular, shine_damper);<br><br>		<span class="hljs-type">float</span> reflectivity = <span class="hljs-number">1.5</span>;<br>		specular_highlights = light_color * specular * reflectivity;<br>	&#125;<br><br>    .....<br><br>    <span class="hljs-type">vec4</span> blue_color = <span class="hljs-type">vec4</span>(<span class="hljs-number">0.1</span>, <span class="hljs-number">0.2</span>, <span class="hljs-number">0.6</span>, <span class="hljs-number">1.0</span>); 	<span class="hljs-comment">// add some blue color</span><br>	<span class="hljs-type">vec4</span> color = <span class="hljs-built_in">mix</span>(<br>		<span class="hljs-built_in">mix</span>(reflection_color, refraction_color, fresnel_blend)<br>		, blue_color<br>		, <span class="hljs-number">0.1</span>) + <span class="hljs-type">vec4</span>(specular_highlights, <span class="hljs-number">0.0</span>);        <span class="hljs-comment">// 将高光加到场景中</span><br><br>	FragColor = color;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2025/01/19/water-effect-2/water-with-specular.png" srcset="/img/loading.gif" lazyload alt="增加水面高光"></p>
+<p>水面终于有了波光粼粼的效果了。</p>
+<p>在上面的代码中，我在最后增加了一点点蓝色的tint，增加表现效果。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>好了，这就是一个简单的水面效果渲染的流程了。这个流程很简单易懂，但是有这不错的效果，希望能够对大家有所帮助。</p>
+<h1 id="what’s-more？"><a href="#what’s-more？" class="headerlink" title="what’s more？"></a>what’s more？</h1><p>当然水的渲染，或者说模拟是个很深入的话题，除了我前面提到的gerstner wave和navior-stroke方法，还有很多其他的内容，比如说可以根据水的深度来让深水区的颜色有更深的蓝色晕染，浅水区的颜色更加透明。后续有时间可能会找其中的一两种优化方法再来讨论一下。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&ab_channel=ThinMatrix">ThinMatrix’s OpenGL water guide</a></p>
+<p><a target="_blank" rel="noopener" href="https://medium.com/@vincehnguyen/simplest-way-to-render-pretty-water-in-opengl-7bce40cbefbe">Simplest way to render pretty water in OpenGL</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
+      
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
+      
+        <a href="/tags/%E6%B0%B4/" class="print-no-link">#水</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>水面效果-2</div>
+      <div>https://ruochenhua.github.io/2025/01/19/water-effect-2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>晨</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/01/12/water-effect-1/" title="水面效果-1">
+                        <span class="hidden-mobile">水面效果-1</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
