@@ -26,16 +26,16 @@
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="前言在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/01/19/water-effect-2/water-with-specular.png">
 <meta property="article:published_time" content="2025-01-19T02:05:28.000Z">
-<meta property="article:modified_time" content="2025-01-19T03:18:20.948Z">
+<meta property="article:modified_time" content="2025-01-19T03:21:52.538Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="水">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/19/water-effect-2/water-with-specular.png">
   
   
   
@@ -211,7 +211,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/2025/01/12/water-effect-1/kong_water.png') no-repeat center center; background-size: cover;">
+     style="background: url('/2025/01/19/water-effect-2/water-with-specular.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -324,6 +324,7 @@
 <p>水面终于有了波光粼粼的效果了。</p>
 <p>在上面的代码中，我在最后增加了一点点蓝色的tint，增加表现效果。</p>
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>好了，这就是一个简单的水面效果渲染的流程了。这个流程很简单易懂，但是有这不错的效果，希望能够对大家有所帮助。</p>
+<p>另外上面所有的参数，可以根据实际的需求或者审美来调整。比如说调整reflectivity来改变高光的强度；调整fresnel的power系数来改变菲涅尔现象的表现。</p>
 <h1 id="what’s-more？"><a href="#what’s-more？" class="headerlink" title="what’s more？"></a>what’s more？</h1><p>当然水的渲染，或者说模拟是个很深入的话题，除了我前面提到的gerstner wave和navior-stroke方法，还有很多其他的内容，比如说可以根据水的深度来让深水区的颜色有更深的蓝色晕染，浅水区的颜色更加透明。后续有时间可能会找其中的一两种优化方法再来讨论一下。</p>
 <h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&ab_channel=ThinMatrix">ThinMatrix’s OpenGL water guide</a></p>
 <p><a target="_blank" rel="noopener" href="https://medium.com/@vincehnguyen/simplest-way-to-render-pretty-water-in-opengl-7bce40cbefbe">Simplest way to render pretty water in OpenGL</a></p>
@@ -422,6 +423,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/02/03/deepseek-local-deploy/" title="DeepSeek-R1本地部署">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DeepSeek-R1本地部署</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
