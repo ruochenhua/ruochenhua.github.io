@@ -19,12 +19,12 @@
   <meta name="author" content="晨">
   <meta name="keywords" content="">
   
-    <meta name="description" content="前言今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文">
+    <meta name="description" content="前言 今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIG">
 <meta property="og:type" content="article">
 <meta property="og:title" content="虚幻引擎5基于AI的贴图生成方法">
 <meta property="og:url" content="https://ruochenhua.github.io/2024/12/22/ue-ai-texture-generation/index.html">
 <meta property="og:site_name" content="晨小屋">
-<meta property="og:description" content="前言今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文">
+<meta property="og:description" content="前言 今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIG">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2024/12/22/ue-ai-texture-generation/texgen_bp.png">
 <meta property="article:published_time" content="2024-12-22T11:35:55.000Z">
@@ -88,7 +88,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -291,21 +295,30 @@
             
               <div class="markdown-body">
                 
-                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。<br>AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。</p>
+                <h1>前言</h1>
+<p>今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。<br>
+AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。</p>
 <p>这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文生图等等。研究的过程中用Unreal Engine搭了些简单的demo，很可惜后续有真正的项目推进后，这些预研的内容也并未有进一步的推进了，觉得有些许可惜，于是便打算在这里记录一下。</p>
 <p>同时这个项目也上传到了Git，有兴趣的欢迎查看：<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/UETextureGeneration">UETextureGeneration</a>。</p>
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><h2 id="大体流程"><a href="#大体流程" class="headerlink" title="大体流程"></a>大体流程</h2><p>这个demo的流程非常简单，参照一般文生图的流程，填写提示词、负提示词、生成步数和种子等信息。这些参数将传入给到文生图的Python脚本，脚本会运行一个大模型来创建对应的结果。</p>
-<p><img src="/2024/12/22/ue-ai-texture-generation/run_texgen.png" srcset="/img/loading.gif" lazyload alt="运行工具得到生成的贴图"></p>
-<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p>下面介绍一下这个工具所需要的准备工作。</p>
+<h1>介绍</h1>
+<h2 id="大体流程">大体流程</h2>
+<p>这个demo的流程非常简单，参照一般文生图的流程，填写提示词、负提示词、生成步数和种子等信息。这些参数将传入给到文生图的Python脚本，脚本会运行一个大模型来创建对应的结果。</p>
+<p><img src="run_texgen.png" srcset="/img/loading.gif" lazyload alt="运行工具得到生成的贴图"></p>
+<h2 id="安装步骤">安装步骤</h2>
+<p>下面介绍一下这个工具所需要的准备工作。</p>
 <ul>
-<li><p>首先我们需要找到引擎的python地址，如C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64，找到这个路径的python.exe文件。虚幻引擎是以这个Python来运行Python脚本，所以我们对应的Python库需要安装在这个路径之下。</p>
+<li>
+<p>首先我们需要找到引擎的python地址，如C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64，找到这个路径的python.exe文件。虚幻引擎是以这个Python来运行Python脚本，所以我们对应的Python库需要安装在这个路径之下。</p>
 </li>
-<li><p>记录下上面的Python的路径，打开cmd或其他命令行工具，以:<br>   “C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64\python.exe” -m pip install XXX </p>
-<p>   这种格式来使用pip安装对应的库。</p>
+<li>
+<p>记录下上面的Python的路径，打开cmd或其他命令行工具，以:<br>
+“C:\UnrealEngine\UE_5.3\Engine\Binaries\ThirdParty\Python3\Win64\python.exe” -m pip install XXX</p>
+<p>这种格式来使用pip安装对应的库。</p>
 </li>
-<li><p>需要安装的库包括以下这些：</p>
+<li>
+<p>需要安装的库包括以下这些：</p>
 <ul>
-<li>transformers, diffusers, accelerate（hugging face）    </li>
+<li>transformers, diffusers, accelerate（hugging face）</li>
 <li>pytorch（<a target="_blank" rel="noopener" href="https://pytorch.org/get-started/locally/%EF%BC%8C">https://pytorch.org/get-started/locally/，</a> <a target="_blank" rel="noopener" href="https://pytorch.org/get-started/previous-versions/">https://pytorch.org/get-started/previous-versions/</a>)</li>
 <li>numpy</li>
 <li>opencv-python</li>
@@ -314,20 +327,30 @@
 </ul>
 <p>python的版本可能不支持最新的pytorch版本，如ue5.3使用的python 3.9.7只能支持到pytorch2.1，需要根据版本来安装合适的版本，numpy支持到1.24.1版本，opencv-python支持到4.6.0版本。</p>
 <p>ue5.5的Python升级到了3.11，所以可以支持到更新的版本了，请在安装前检查一下，要不然很容易出现问题。</p>
-<h2 id="文件布局"><a href="#文件布局" class="headerlink" title="文件布局"></a>文件布局</h2><p>三个脚本放在<strong>Scripts</strong>文件夹下，分别对应着漫反射贴图生成、法线和置换贴图生成以及提升贴图分辨率三个流程。</p>
+<h2 id="文件布局">文件布局</h2>
+<p>三个脚本放在<strong>Scripts</strong>文件夹下，分别对应着漫反射贴图生成、法线和置换贴图生成以及提升贴图分辨率三个流程。</p>
 <p>下面简单介绍一下这个几个脚本对应的能力。</p>
-<h2 id="漫反射贴图生成："><a href="#漫反射贴图生成：" class="headerlink" title="漫反射贴图生成："></a>漫反射贴图生成：</h2><p>脚本名称：RunTexGen.py</p>
+<h2 id="漫反射贴图生成：">漫反射贴图生成：</h2>
+<p>脚本名称：<a target="_blank" rel="noopener" href="http://RunTexGen.py">RunTexGen.py</a></p>
 <p>漫反射贴图生成使用模型：<a target="_blank" rel="noopener" href="https://huggingface.co/dream-textures/texture-diffusion">texture diffusion</a></p>
 <p>模型基于stable diffusion 2 base，通过DreamBooth微调，可通过文生图的方式生成材质的漫反射贴图，尽量不包含光照和阴影信息。</p>
-<h2 id="法线贴图生成："><a href="#法线贴图生成：" class="headerlink" title="法线贴图生成："></a>法线贴图生成：</h2><p>脚本名称：RunNormalGen.py</p>
-<p>为了有更加真实的光照表现效果，贴图一般会配合法线贴图使用。<br>从漫反射贴图生成法线贴图的库有好几个，比如说<a target="_blank" rel="noopener" href="https://github.com/HugoTini/DeepBump">deepbump</a>，demo使用的是<a target="_blank" rel="noopener" href="https://github.com/joeyballentine/Material-Map-Generator">Material-Map-Generator(MMG)</a>，因为它还可以生成DisplacementMap和RoughnessMap，这两张贴图同样可以增强模型在3D光照环境下的表现。</p>
-<h3 id="置换贴图："><a href="#置换贴图：" class="headerlink" title="置换贴图："></a>置换贴图：</h3><p>上文提到了置换贴图（DisplacementMap），这个资源也是一个提升模型显示效果的手段。法线贴图增加模型细节是不需要修改模型本身的顶点形状的，只是通过提供更为细致的平面法线信息辅助光照计算。</p>
+<h2 id="法线贴图生成：">法线贴图生成：</h2>
+<p>脚本名称：<a target="_blank" rel="noopener" href="http://RunNormalGen.py">RunNormalGen.py</a></p>
+<p>为了有更加真实的光照表现效果，贴图一般会配合法线贴图使用。<br>
+从漫反射贴图生成法线贴图的库有好几个，比如说<a target="_blank" rel="noopener" href="https://github.com/HugoTini/DeepBump">deepbump</a>，demo使用的是<a target="_blank" rel="noopener" href="https://github.com/joeyballentine/Material-Map-Generator">Material-Map-Generator(MMG)</a>，因为它还可以生成DisplacementMap和RoughnessMap，这两张贴图同样可以增强模型在3D光照环境下的表现。</p>
+<h3 id="置换贴图：">置换贴图：</h3>
+<p>上文提到了置换贴图（DisplacementMap），这个资源也是一个提升模型显示效果的手段。法线贴图增加模型细节是不需要修改模型本身的顶点形状的，只是通过提供更为细致的平面法线信息辅助光照计算。</p>
 <p>置换贴图则是可以真实的修改模型的形状。</p>
-<p>在UE中可以使用模型工具通过<strong>DisplacementMap</strong>来丰富模型的细节，也有另外一种方法**视差遮挡映射（ParallaxOcclusionMapping)**，我在UE中使用的是这种方法。</p>
-<h2 id="Upscale："><a href="#Upscale：" class="headerlink" title="Upscale："></a>Upscale：</h2><p>脚本名称：RunUpScale.py</p>
+<p>在UE中可以使用模型工具通过<strong>DisplacementMap</strong>来丰富模型的细节，也有另外一种方法<strong>视差遮挡映射（ParallaxOcclusionMapping)</strong>，我在UE中使用的是这种方法。</p>
+<h2 id="Upscale：">Upscale：</h2>
+<p>脚本名称：<a target="_blank" rel="noopener" href="http://RunUpScale.py">RunUpScale.py</a></p>
 <p>使用<a target="_blank" rel="noopener" href="https://huggingface.co/radames/stable-diffusion-x4-upscaler-img2img">Upscale Pipeline stable-diffusion-x4-upscaler-img2img</a>，将原有的贴图分辨率从512X512提升到2048X2048，模型精度有比较大的提升，但是显存需求显著增大，并且消耗时间显著增长。</p>
-<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>最简单的方式是参照下面的蓝图方式调用即可。<br><img src="/2024/12/22/ue-ai-texture-generation/texgen_bp.png" srcset="/img/loading.gif" lazyload alt="脚本调用蓝图"><br><img src="/2024/12/22/ue-ai-texture-generation/texgen_bp_macro.png" srcset="/img/loading.gif" lazyload alt="参数包裹函数"></p>
-<p>最初调用的时候由于需要下载对应的模型，所以时间会相对来说久一些。并且由于是从hugging face上下载模型，可能需要梯子。<br><img src="/2024/12/22/ue-ai-texture-generation/texgen_cmd.png" srcset="/img/loading.gif" lazyload alt="调用后的命令行"></p>
+<h1>使用</h1>
+<p>最简单的方式是参照下面的蓝图方式调用即可。<br>
+<img src="texgen_bp.png" srcset="/img/loading.gif" lazyload alt="脚本调用蓝图"><br>
+<img src="texgen_bp_macro.png" srcset="/img/loading.gif" lazyload alt="参数包裹函数"></p>
+<p>最初调用的时候由于需要下载对应的模型，所以时间会相对来说久一些。并且由于是从hugging face上下载模型，可能需要梯子。<br>
+<img src="texgen_cmd.png" srcset="/img/loading.gif" lazyload alt="调用后的命令行"></p>
 
                 
               </div>
@@ -488,6 +511,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -680,6 +709,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 

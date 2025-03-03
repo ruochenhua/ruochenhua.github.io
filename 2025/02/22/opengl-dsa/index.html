@@ -19,12 +19,12 @@
   <meta name="author" content="晨">
   <meta name="keywords" content="">
   
-    <meta name="description" content="前言最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个">
+    <meta name="description" content="前言 最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OpenGL优化技巧之DSA">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/02/22/opengl-dsa/index.html">
 <meta property="og:site_name" content="晨小屋">
-<meta property="og:description" content="前言最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个">
+<meta property="og:description" content="前言 最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2025/02/22/opengl-dsa/OpenGL-logo.jpg">
 <meta property="article:published_time" content="2025-02-22T09:47:06.000Z">
@@ -89,7 +89,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -292,14 +296,18 @@
             
               <div class="markdown-body">
                 
-                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。</p>
+                <h1>前言</h1>
+<p>最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。</p>
 <p>以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个方面，Direct State Acess（DSA）。</p>
 <p>为了聊明白Direct State Acess（以下简称DSA）是什么，以及为什么它可以作为一种优化OpenGL的方法，我们首先需要理解一个概念，即：OpenGL本质上是一个状态机。</p>
-<h1 id="OpenGL本质上是一个状态机"><a href="#OpenGL本质上是一个状态机" class="headerlink" title="OpenGL本质上是一个状态机"></a>OpenGL本质上是一个状态机</h1><p>该如何理解这句话呢？我们来思考一下，状态机最核心的组成部分是各个不同的状态，以及状态之间的逻辑转换，对于到OpenGL可以做以下的理解：</p>
+<h1>OpenGL本质上是一个状态机</h1>
+<p>该如何理解这句话呢？我们来思考一下，状态机最核心的组成部分是各个不同的状态，以及状态之间的逻辑转换，对于到OpenGL可以做以下的理解：</p>
 <ul>
-<li><p>状态：<strong>OpenGL有大量可配置的状态</strong>。例如，绘图模式（点、线、三角形等）、光照模型（是否启用光照、光源位置和属性等）、纹理参数（纹理过滤方式、纹理坐标模式等）、当前绑定的帧缓存以及各种测试和混合函数的设置等。这些状态决定了 OpenGL 如何处理和渲染图形数据。<strong>一旦状态被设置，它们就会影响后续OpenGL命令的执行结果</strong>。比如设置了当前绑定的帧缓存，后面的操作就会在指定的缓存上生效，直到解绑或者绑定另外的缓存。</p>
+<li>
+<p>状态：<strong>OpenGL有大量可配置的状态</strong>。例如，绘图模式（点、线、三角形等）、光照模型（是否启用光照、光源位置和属性等）、纹理参数（纹理过滤方式、纹理坐标模式等）、当前绑定的帧缓存以及各种测试和混合函数的设置等。这些状态决定了 OpenGL 如何处理和渲染图形数据。<strong>一旦状态被设置，它们就会影响后续OpenGL命令的执行结果</strong>。比如设置了当前绑定的帧缓存，后面的操作就会在指定的缓存上生效，直到解绑或者绑定另外的缓存。</p>
 </li>
-<li><p>状态之间的装换：<strong>OpenGL 就像一个具有不同状态的机器，用户通过调用 OpenGL 的函数来切换状态和执行操作</strong>。例如，通过调用函数可以从一种绘图模式切换到另一种绘图模式，或者启用不同的着色器。每个状态下可以执行相应的操作，并且操作的结果取决于当前所处的状态。<strong>OpenGL 命令不是孤立执行的，而是基于当前的状态来执行</strong>。例如，当执行绘制三角形的命令时，它会根据当前的绘图模式、颜色状态、纹理状态等，来确定如何绘制这个三角形。</p>
+<li>
+<p>状态之间的装换：<strong>OpenGL 就像一个具有不同状态的机器，用户通过调用 OpenGL 的函数来切换状态和执行操作</strong>。例如，通过调用函数可以从一种绘图模式切换到另一种绘图模式，或者启用不同的着色器。每个状态下可以执行相应的操作，并且操作的结果取决于当前所处的状态。<strong>OpenGL 命令不是孤立执行的，而是基于当前的状态来执行</strong>。例如，当执行绘制三角形的命令时，它会根据当前的绘图模式、颜色状态、纹理状态等，来确定如何绘制这个三角形。</p>
 </li>
 </ul>
 <p>这些概念可能看着有点抽象，可以通过下面的示例代码来理解：</p>
@@ -308,48 +316,53 @@
 <p>这里面<strong>mesh_shader-&gt;Use()<strong>就是一次状态的转换，将OpenGL从其他状态转换到了mesh_shader对应的状态上。后面的代码是基于OpenGL处于mesh_shader下的状态而来的，这两张纹理以及后面的参数是要作为mesh_shader的输入，而不是其他的shader。以及最后的</strong>Draw</strong>函数更是基于当前处于mesh_shader下的状态。</p>
 <p>另外值得注意的是，<strong>glActiveTexture</strong>以及<strong>glBindTexture</strong>这两个函数的调用也可以视为一个状态的转换。从状态机的角度来看，OpenGL 维护着一个当前激活纹理单元的状态。<strong>调用 glActiveTexture 函数会改变这个状态，将当前激活的纹理单元从一个切换到另一个</strong>，而<strong>当调用 glBindTexture 函数时，会改变当前激活纹理单元所绑定的纹理对象</strong>。</p>
 <p>OpenGL的原本设计中，状态切换是很频繁的，在图形技术和方法发展的越来越快的时候，这带来了不少的问题。</p>
-<h1 id="状态切换的缺点"><a href="#状态切换的缺点" class="headerlink" title="状态切换的缺点"></a>状态切换的缺点</h1><p>在现在发展的越来越复杂、步骤越来越长的图形算法的影响下，一次渲染可能需要非常多次的OpenGL中的状态切换。</p>
+<h1>状态切换的缺点</h1>
+<p>在现在发展的越来越复杂、步骤越来越长的图形算法的影响下，一次渲染可能需要非常多次的OpenGL中的状态切换。</p>
 <p>比如KongEngine也实现了的延迟渲染，它需要先将部分信息渲染到帧缓存上，分别放置于不同的几张纹理之中，然后利用这些纹理再做一次渲染得到结果。而这个结果可能要再次经过几个不同的后处理才能最终在屏幕上呈现。这个渲染流程很长很复杂，其中涉及到的状态切换非常多。</p>
 <p>而状态切换这个操作是有一定的性能损耗的：</p>
 <ul>
-<li><p>硬件寄存器的修改损耗：每次状态变化都需要GPU修改其内部的硬件寄存器。这些寄存器存储了当前渲染所需的参数，如深度测试、混合模式等。<strong>频繁的状态切换导致GPU不断重新配置这些寄存器，增加了硬件的处理负担</strong>。</p>
+<li>
+<p>硬件寄存器的修改损耗：每次状态变化都需要GPU修改其内部的硬件寄存器。这些寄存器存储了当前渲染所需的参数，如深度测试、混合模式等。<strong>频繁的状态切换导致GPU不断重新配置这些寄存器，增加了硬件的处理负担</strong>。</p>
 </li>
-<li><p>驱动程序的处理消耗：状态变化需要通过驱动程序进行处理。<strong>驱动程序将这些变化转换为GPU可以执行的命令传输到GPU。这一过程消耗了CPU资源和总线带宽</strong>，尤其是在频繁切换的情况下，性能损失更为明显。</p>
+<li>
+<p>驱动程序的处理消耗：状态变化需要通过驱动程序进行处理。<strong>驱动程序将这些变化转换为GPU可以执行的命令传输到GPU。这一过程消耗了CPU资源和总线带宽</strong>，尤其是在频繁切换的情况下，性能损失更为明显。</p>
 </li>
-<li><p>CPU和GPU的同步损耗：状态切换通常需要CPU和GPU之间的同步操作。<strong>频繁的状态变化导致更多的同步开销，增加了CPU的负载，同时也可能造成GPU的等待时间</strong>，进而降低了整体渲染效率。</p>
+<li>
+<p>CPU和GPU的同步损耗：状态切换通常需要CPU和GPU之间的同步操作。<strong>频繁的状态变化导致更多的同步开销，增加了CPU的负载，同时也可能造成GPU的等待时间</strong>，进而降低了整体渲染效率。</p>
 </li>
-<li><p>GPU渲染管线的重构损耗：OpenGL的渲染管线包括多个阶段，如顶点处理、光栅化和着色器执行。<strong>状态变化可能导致管线的某些部分需要重新初始化</strong>，例如切换着色器时需要重新编译和加载新的程序。这会引入额外的延迟，尤其是在需要频繁切换渲染状态时。</p>
+<li>
+<p>GPU渲染管线的重构损耗：OpenGL的渲染管线包括多个阶段，如顶点处理、光栅化和着色器执行。<strong>状态变化可能导致管线的某些部分需要重新初始化</strong>，例如切换着色器时需要重新编译和加载新的程序。这会引入额外的延迟，尤其是在需要频繁切换渲染状态时。</p>
 </li>
 </ul>
 <p>所以在图形算法流程复杂度不变的情况下，减少OpenGL状态切换能够帮助性能提升，这正是DSA的主要作用。</p>
-<h1 id="直接状态访问"><a href="#直接状态访问" class="headerlink" title="直接状态访问"></a>直接状态访问</h1><p>DSA，直接状态访问，是用来解决OpenGL状态切换引起的性能损耗的方法之一。它是OpenGL 4.5引入的一个重要特性，它允许开发者直接访问和修改 OpenGL 对象的状态，而不需要将这些对象绑定到全局状态机上。</p>
+<h1>直接状态访问</h1>
+<p>DSA，直接状态访问，是用来解决OpenGL状态切换引起的性能损耗的方法之一。它是OpenGL 4.5引入的一个重要特性，它允许开发者直接访问和修改 OpenGL 对象的状态，而不需要将这些对象绑定到全局状态机上。</p>
 <p>我们同样是以上面那个代码来举例：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">auto</span> mesh_shader = water_comp-&gt;shader_data;<br><br>mesh_shader-&gt;<span class="hljs-built_in">Use</span>();<br><br><span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">0</span>, water_render_helper_.water_reflection_texture);<br><span class="hljs-built_in">glBindTextureUnit</span>(<span class="hljs-number">1</span>, water_render_helper_.water_refraction_texture);<br><br>mesh_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;model&quot;</span>, water_actor-&gt;<span class="hljs-built_in">GetModelMatrix</span>());<br>mesh_shader-&gt;<span class="hljs-built_in">SetFloat</span>(<span class="hljs-string">&quot;move_factor&quot;</span>,<span class="hljs-built_in">fmodf</span>(water_render_helper_.total_move*water_render_helper_.move_speed, <span class="hljs-number">1.0</span>));<br><br>water_comp-&gt;<span class="hljs-built_in">Draw</span>(scene_render_info);<br></code></pre></td></tr></table></figure>
-
 <p>和之前的代码对比可以看到，glActiveTexture和glBindTexture这两个函数被替换成了<strong>glBindTextureUnit</strong>，这个函数可以不需要OpenGL进行状态的转换，而是直接将纹理资源对应到shader指定的输入上。</p>
 <p>和glBindTextureUnit类似的方法还有很多：</p>
-<h2 id="缓存对象操作"><a href="#缓存对象操作" class="headerlink" title="缓存对象操作"></a>缓存对象操作</h2><p>不使用DSA：</p>
+<h2 id="缓存对象操作">缓存对象操作</h2>
+<p>不使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成缓冲区对象</span><br>GLuint VBO;<br><span class="hljs-built_in">glGenBuffers</span>(<span class="hljs-number">1</span>, &amp;VBO);<br><br><span class="hljs-comment">// 绑定缓冲区对象</span><br><span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, VBO);<br><br><span class="hljs-comment">// 设置缓冲区数据</span><br><span class="hljs-built_in">glBufferData</span>(GL_ARRAY_BUFFER, <span class="hljs-built_in">sizeof</span>(vertices), vertices, GL_STATIC_DRAW);<br><br><span class="hljs-comment">// 解绑缓冲区对象</span><br><span class="hljs-built_in">glBindBuffer</span>(GL_ARRAY_BUFFER, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
-
 <p>使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成缓冲区对象</span><br>GLuint VBO;<br><span class="hljs-built_in">glCreateBuffers</span>(<span class="hljs-number">1</span>, &amp;VBO);<br><br><span class="hljs-comment">// 直接设置缓冲区数据</span><br><span class="hljs-built_in">glNamedBufferData</span>(VBO, <span class="hljs-built_in">sizeof</span>(vertices), vertices, GL_STATIC_DRAW);<br></code></pre></td></tr></table></figure>
-
 <p>使用DSA后，创建VBO后的绑定和解绑步骤可以省略。</p>
-<h2 id="纹理对象操作"><a href="#纹理对象操作" class="headerlink" title="纹理对象操作"></a>纹理对象操作</h2><p>不使用DSA：</p>
+<h2 id="纹理对象操作">纹理对象操作</h2>
+<p>不使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成纹理对象</span><br>GLuint textureID;<br><span class="hljs-built_in">glGenTextures</span>(<span class="hljs-number">1</span>, &amp;textureID);<br><br><span class="hljs-comment">// 绑定纹理对象</span><br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, textureID);<br><br><span class="hljs-comment">// 设置纹理参数</span><br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br><br><span class="hljs-comment">// 解绑纹理对象</span><br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
-
 <p>使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成纹理对象</span><br>GLuint textureID;<br><span class="hljs-built_in">glCreateTextures</span>(GL_TEXTURE_2D, <span class="hljs-number">1</span>, &amp;textureID);<br><br><span class="hljs-comment">// 直接设置纹理参数</span><br><span class="hljs-built_in">glTextureParameteri</span>(textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);<br><span class="hljs-built_in">glTextureParameteri</span>(textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);<br><span class="hljs-built_in">glTextureParameteri</span>(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br><span class="hljs-built_in">glTextureParameteri</span>(textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br></code></pre></td></tr></table></figure>
-
 <p>使用DSA后，纹理生成对象生成后可以直接设置他的参数，不需要绑定和解绑</p>
-<h2 id="帧缓冲对象"><a href="#帧缓冲对象" class="headerlink" title="帧缓冲对象"></a>帧缓冲对象</h2><p>不使用DSA：</p>
+<h2 id="帧缓冲对象">帧缓冲对象</h2>
+<p>不使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成帧缓冲对象</span><br>GLuint FBO;<br><span class="hljs-built_in">glGenFramebuffers</span>(<span class="hljs-number">1</span>, &amp;FBO);<br><br><span class="hljs-comment">// 绑定帧缓冲对象</span><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, FBO);<br><br><span class="hljs-comment">// 附加纹理到帧缓冲</span><br>GLuint texture;<br><span class="hljs-comment">// 假设 texture 已经正确创建和设置</span><br><span class="hljs-built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, <span class="hljs-number">0</span>);<br><br><span class="hljs-comment">// 解绑帧缓冲对象</span><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
-
 <p>使用DSA：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 生成帧缓冲对象</span><br>GLuint FBO;<br><span class="hljs-built_in">glCreateFramebuffers</span>(<span class="hljs-number">1</span>, &amp;FBO);<br><br><span class="hljs-comment">// 附加纹理到帧缓冲</span><br>GLuint texture;<br><span class="hljs-comment">// 假设 texture 已经正确创建和设置</span><br><span class="hljs-built_in">glNamedFramebufferTexture</span>(FBO, GL_COLOR_ATTACHMENT0, texture, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
 <p>使用DSA后，创建帧缓存后对其进行设置的时候，可以不需要绑定和解绑操作。</p>
 <p>当然以上只是几个DSA的用法，除此之外还有很多，可以参考<a target="_blank" rel="noopener" href="https://www.khronos.org/opengl/wiki/Direct_State_Access">官方wiki</a>上的介绍来进一步了解。</p>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>综上所述，深入了解 OpenGL 状态机有助于我们把握图形渲染的底层逻辑，而 DSA 则为解决传统状态切换带来的性能问题提供了有效途径。虽然在实际使用中，DSA 的优化效果可能因各种因素而异，但它在减少状态切换开销、提高代码可读性和可维护性等方面的优势不容忽视。<br>对于开发者而言，应根据具体的应用场景和硬件环境，合理运用 DSA 进行优化。通过不断地实践和总结，我们能够更好地发挥 OpenGL 的性能，为用户带来更加优质的图形体验。</p>
+<h1>结语</h1>
+<p>综上所述，深入了解 OpenGL 状态机有助于我们把握图形渲染的底层逻辑，而 DSA 则为解决传统状态切换带来的性能问题提供了有效途径。虽然在实际使用中，DSA 的优化效果可能因各种因素而异，但它在减少状态切换开销、提高代码可读性和可维护性等方面的优势不容忽视。<br>
+对于开发者而言，应根据具体的应用场景和硬件环境，合理运用 DSA 进行优化。通过不断地实践和总结，我们能够更好地发挥 OpenGL 的性能，为用户带来更加优质的图形体验。</p>
 
                 
               </div>
@@ -444,6 +457,12 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/02/28/ibl-diffuse-irradiance/" title="基于图像的光照-漫反射辐照度">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">基于图像的光照-漫反射辐照度</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
@@ -506,6 +525,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -698,6 +723,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 

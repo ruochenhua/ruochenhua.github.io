@@ -19,12 +19,12 @@
   <meta name="author" content="晨">
   <meta name="keywords" content="">
   
-    <meta name="description" content="距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形上一篇教程我们已经创建出了绵延的山脉，如下图所示：看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一">
+    <meta name="description" content="距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算">
 <meta property="og:type" content="article">
 <meta property="og:title" content="程序化地形生成-2">
 <meta property="og:url" content="https://ruochenhua.github.io/2024/11/04/ProceduralTerrainGeneration2/index.html">
 <meta property="og:site_name" content="晨小屋">
-<meta property="og:description" content="距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形上一篇教程我们已经创建出了绵延的山脉，如下图所示：看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一">
+<meta property="og:description" content="距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png">
 <meta property="article:published_time" content="2024-11-04T13:50:18.000Z">
@@ -91,7 +91,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -295,56 +299,65 @@
               <div class="markdown-body">
                 
                 <p>距离上一篇将程序化地形生成的<a href="https://ruochenhua.github.io/2024/10/11/ProceduralTerrainGeneration/">教程</a>也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。</p>
-<h1 id="丰富地形"><a href="#丰富地形" class="headerlink" title="丰富地形"></a>丰富地形</h1><p>上一篇教程我们已经创建出了绵延的山脉，如下图所示：<br><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_no_grass.png" srcset="/img/loading.gif" lazyload alt="上次渲染的结果"><br>看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。</p>
+<h1>丰富地形</h1>
+<p>上一篇教程我们已经创建出了绵延的山脉，如下图所示：<br>
+<img src="terrain_no_grass.png" srcset="/img/loading.gif" lazyload alt="上次渲染的结果"><br>
+看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。</p>
 <p>接下来我们就计划丰富一下这个场景。</p>
-<h2 id="增加绿植"><a href="#增加绿植" class="headerlink" title="增加绿植"></a>增加绿植</h2><p>我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。</p>
+<h2 id="增加绿植">增加绿植</h2>
+<p>我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。</p>
 <p>我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。</p>
 <p>那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> dirt_color = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.8549</span>, <span class="hljs-number">0.5255</span>, <span class="hljs-number">0.3098</span>);<br><span class="hljs-type">vec3</span> grass_color = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.3137</span>, <span class="hljs-number">0.5412</span>, <span class="hljs-number">0.0157</span>);<br><span class="hljs-comment">// ..</span><br><br><span class="hljs-keyword">if</span>(rd.y &lt; <span class="hljs-number">0.05</span> &amp;&amp; rayMarchingTerrain(ro, rd, maxt, res_t))<br>&#123;<br>    <span class="hljs-type">vec3</span> height_pos = ro+res_t*rd;<br><br>    <span class="hljs-comment">// calculate normla</span><br>    <span class="hljs-type">vec3</span> normal = getNormal(height_pos);<br>    <span class="hljs-type">float</span> grass_ratio = <span class="hljs-built_in">smoothstep</span>(<span class="hljs-number">0.7</span>, <span class="hljs-number">0.98</span>, normal.y);<br>    <span class="hljs-type">vec3</span> ground_color = <span class="hljs-built_in">mix</span>(dirt_color, grass_color, grass_ratio);<br>&#125;<br><br></code></pre></td></tr></table></figure>
-
 <p>上面是一段实例代码，我们预先设定山体和绿植的颜色，在光线步进山体的时候，获取normal，根据法线的y方向的大小（也可以用dot来判定）做smoothstep取一个合适的值作为当前平面草地的比例，最后混合山体和草地的比例。得到的结果如下：</p>
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_grass.png" srcset="/img/loading.gif" lazyload alt="增加绿植"><br>这样一来场景的丰富程度一下子就提升了。</p>
-<h1 id="天空"><a href="#天空" class="headerlink" title="天空"></a>天空</h1><p>现在最终结果还是挺奇怪的，很大一部分的原因是场景的背景还是黑咕隆咚的。我们的大场景急需增加天空的部分。</p>
-<h2 id="天空的颜色"><a href="#天空的颜色" class="headerlink" title="天空的颜色"></a>天空的颜色</h2><p>天空的颜色我之前有写过一个<a href="https://ruochenhua.github.io/2024/10/15/single-scatter-atmosphere/">教程</a>，是利用单次散射的方法来计算天空大气的颜色。当然这个方法在这依然是可用的。</p>
+<p><img src="terrain_with_grass.png" srcset="/img/loading.gif" lazyload alt="增加绿植"><br>
+这样一来场景的丰富程度一下子就提升了。</p>
+<h1>天空</h1>
+<p>现在最终结果还是挺奇怪的，很大一部分的原因是场景的背景还是黑咕隆咚的。我们的大场景急需增加天空的部分。</p>
+<h2 id="天空的颜色">天空的颜色</h2>
+<p>天空的颜色我之前有写过一个<a href="https://ruochenhua.github.io/2024/10/15/single-scatter-atmosphere/">教程</a>，是利用单次散射的方法来计算天空大气的颜色。当然这个方法在这依然是可用的。</p>
 <p>不过如果你说，我不想用那么复杂的方法，只想快速出效果呢？那也是很简单，给地形光线步近没有结果的像素设定为蓝色就行了，哈哈。</p>
 <p>如果想再复杂一点，可以做一个小细节的优化。也就是在晴朗的情况下，一般靠近地平线的天的蓝色是更加浅的，所以在给天空像素上色的时候，可以根据当前像素的方向的y值作为判定，在深蓝色和浅蓝色做线性插值。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> low_sky_blue = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.5137</span>, <span class="hljs-number">0.7804</span>, <span class="hljs-number">0.9608</span>);<br><span class="hljs-type">vec3</span> high_sky_blue = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.3216</span>, <span class="hljs-number">0.4706</span>, <span class="hljs-number">0.9725</span>);<br><br><span class="hljs-type">vec3</span> sky_color = <span class="hljs-built_in">mix</span>(low_sky_blue, high_sky_blue, <span class="hljs-built_in">clamp</span>(rd.y, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>));<br></code></pre></td></tr></table></figure>
-
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_sky.png" srcset="/img/loading.gif" lazyload alt="增加天空"></p>
-<h2 id="雾气增强层次感"><a href="#雾气增强层次感" class="headerlink" title="雾气增强层次感"></a>雾气增强层次感</h2><p>在增加了天空之后，我们的渲染结果有了很显著的提升，终于像室外的场景了。</p>
+<p><img src="terrain_with_sky.png" srcset="/img/loading.gif" lazyload alt="增加天空"></p>
+<h2 id="雾气增强层次感">雾气增强层次感</h2>
+<p>在增加了天空之后，我们的渲染结果有了很显著的提升，终于像室外的场景了。</p>
 <p>不过仔细看后，还是觉得怪怪的，远处的山和天空根本不在一个图层上；山的远近层次感也不足，远处的山太清晰了。</p>
 <p>这是因为缺少雾气的结果，雾气能够很好的增加大场景体量感，能够很好的处理场景和天空衔接的感觉。</p>
 <p>增加雾气也十分简单，仅需根据地形光线步近的结果的大小（也就是地形离相机的距离）来计算一个比例，根据这个比例来做场景颜色和雾气颜色的插值即可。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// cal fog density, different between r,g,b so the fog has a blue hue</span><br><span class="hljs-type">vec3</span> calcFog(<span class="hljs-type">float</span> dist)<br>&#123;    <br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">exp</span>(<span class="hljs-number">-5e-3</span>*dist*<span class="hljs-type">vec3</span>(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">4</span>));<br>&#125;<br><br><span class="hljs-comment">// ...</span><br><span class="hljs-type">vec3</span> fog_amount = calcFog(res_t);<br>color = <span class="hljs-built_in">mix</span>(<span class="hljs-type">vec3</span>(<span class="hljs-number">0.7</span>),color, fog_amount);<br></code></pre></td></tr></table></figure>
-<p>上面这段便是雾气的计算过程。雾气的比例通过*<em>exp(-5e-3</em>dist*vec3(1,2,4))**计算，得到的雾的比例用于最终颜色的线性插值。</p>
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_sky_fog.png" srcset="/img/loading.gif" lazyload alt="增加雾气"><br>有了雾气的加持，我们场景的大体量感就有了，层次感也明显了很多。<br>关于雾气的更多内容，可以参考Inigo大神的<a target="_blank" rel="noopener" href="https://iquilezles.org/articles/fog/">这篇文章</a>。</p>
-<h2 id="漫反射光照细节"><a href="#漫反射光照细节" class="headerlink" title="漫反射光照细节"></a>漫反射光照细节</h2><p>接下来我想优化一下场景整体的漫反射细节。</p>
-<p>当前的渲染结果其实是有加一个默认的环境光**vec3(0.1)**的，主要是之前的场景太黑了。这是个临时的处理，把这个环境光去掉。<br><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_sky_fog_less_ambient.png" srcset="/img/loading.gif" lazyload alt="去掉写死的环境光补偿"></p>
+<p>上面这段便是雾气的计算过程。雾气的比例通过**exp(-5e-3<em>dist</em>vec3(1,2,4))**计算，得到的雾的比例用于最终颜色的线性插值。</p>
+<p><img src="terrain_with_sky_fog.png" srcset="/img/loading.gif" lazyload alt="增加雾气"><br>
+有了雾气的加持，我们场景的大体量感就有了，层次感也明显了很多。<br>
+关于雾气的更多内容，可以参考Inigo大神的<a target="_blank" rel="noopener" href="https://iquilezles.org/articles/fog/">这篇文章</a>。</p>
+<h2 id="漫反射光照细节">漫反射光照细节</h2>
+<p>接下来我想优化一下场景整体的漫反射细节。</p>
+<p>当前的渲染结果其实是有加一个默认的环境光**vec3(0.1)**的，主要是之前的场景太黑了。这是个临时的处理，把这个环境光去掉。<br>
+<img src="terrain_with_sky_fog_less_ambient.png" srcset="/img/loading.gif" lazyload alt="去掉写死的环境光补偿"></p>
 <p>好了，我们再来看一下我们的场景。有没有感觉山体的阴影部分有点太黑了？是的，在现实世界中，处于阴影的场景，在大白天也会被场景的漫反射光给提亮的，这种一片漆黑的感觉是有些难看。所以接下来我们来增加一些场景中应该有的漫反射光。</p>
 <p>首先山体之间是会有漫反射光的影响的，也就是阴影部分的山体会被不在阴影的其他山的漫反射光照亮。当然这种影响我们是无法实时计算的，要计算的东西实在是太多了。但是可以通过一个很简单的方式来提单：我们计算当前点的发现和指向光源方向的点乘，当这个结果大于0的时候，用这个乘积乘以一个小的光照并加到原本的颜色上。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl">color += (<span class="hljs-built_in">max</span>(<span class="hljs-number">0.0</span>, <span class="hljs-built_in">dot</span>(-light_dir, normal))*ground_color/<span class="hljs-number">10.0</span>);<br></code></pre></td></tr></table></figure>
-
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_sky_fog_diffuse_from_mountain.png" srcset="/img/loading.gif" lazyload alt="增加地形的漫反射光"></p>
+<p><img src="terrain_with_sky_fog_diffuse_from_mountain.png" srcset="/img/loading.gif" lazyload alt="增加地形的漫反射光"></p>
 <p>加完地形的漫反射光后，天空其实也有各个方向的漫反射的光会影响地形的亮度。天空的漫反射光可以通过地形法线的y分量和天空颜色的一部分来计算，示例代码如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl">color += (normal.y + <span class="hljs-number">1.0</span>)/<span class="hljs-number">2.0</span>*low_sky_blue/<span class="hljs-number">10.0</span>;<br></code></pre></td></tr></table></figure>
-
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_sky_fog_diffuse_from_sky.png" srcset="/img/loading.gif" lazyload alt="增加天空的漫反射光"></p>
+<p><img src="terrain_with_sky_fog_diffuse_from_sky.png" srcset="/img/loading.gif" lazyload alt="增加天空的漫反射光"></p>
 <p>增加了这些漫反射细节，场景的真实度进一步得到了提升。</p>
-<h1 id="云朵"><a href="#云朵" class="headerlink" title="云朵"></a>云朵</h1><p>有了天空，再给天空上增加云的话会进一步增加场景的丰富度，下面就来介绍我给这个场景添加的两部分云的计算。</p>
-<h2 id="高层云"><a href="#高层云" class="headerlink" title="高层云"></a>高层云</h2><p>我给这个场景添加了两种云，高层云是我想模拟在高度很高的地方，云层看起来不厚并且相对静态的感觉。</p>
+<h1>云朵</h1>
+<p>有了天空，再给天空上增加云的话会进一步增加场景的丰富度，下面就来介绍我给这个场景添加的两部分云的计算。</p>
+<h2 id="高层云">高层云</h2>
+<p>我给这个场景添加了两种云，高层云是我想模拟在高度很高的地方，云层看起来不厚并且相对静态的感觉。</p>
 <p>高层云的纹理也是利用perlin noise来计算，由于高层的云没有厚实感其实用2D的perlin noise也足够了。</p>
 <p>另外需要注意的是，云的纹理需要根据远近来做处理。远处的云的纹理如果太清晰的话在最终效果上会显得太过于密集。下面是高层云的示例代码：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 高层云的高度</span><br><span class="hljs-type">float</span> top_sky_plane = <span class="hljs-number">3000.</span>;<br><br><span class="hljs-type">vec3</span> getSkyColor(<span class="hljs-type">vec3</span> ro, <span class="hljs-type">vec3</span> rd)<br>&#123;    <br>    <span class="hljs-type">vec3</span> hit_sky;<br>    hit_sky.y = top_sky_plane;<br>        <br>    hit_sky.xz = ro.xz + rd.xz * (top_sky_plane - ro.y)/rd.y;    <br>    <br>    <span class="hljs-comment">//降低远处云的密度，看起来效果更好</span><br>    <span class="hljs-type">float</span> hit_dist = <span class="hljs-built_in">distance</span>(hit_sky, ro);<br>    <span class="hljs-type">float</span> cloud_density_percentage = <span class="hljs-number">1.0</span>;<br>    <span class="hljs-keyword">if</span>(hit_dist &gt; cloud_view_distance)<br>    &#123;<br>        cloud_density_percentage *= <span class="hljs-built_in">exp</span>(-(hit_dist - cloud_view_distance)/ cloud_view_distance);<br>    &#125;    <br><br>    <span class="hljs-comment">// 根据云层采样点的远近处理云层的密度</span><br>    <span class="hljs-type">float</span> cloud_density = <span class="hljs-built_in">smoothstep</span>(getCloudDensity(hit_sky.xz/<span class="hljs-number">150.0</span>, <span class="hljs-number">3</span>), <span class="hljs-number">-0.99</span>, <span class="hljs-number">1.9</span>)*cloud_density_percentage * <span class="hljs-number">0.5</span>;<br>    <span class="hljs-type">float</span> res_t;<br><br>    <span class="hljs-comment">// sky color    </span><br>    <span class="hljs-type">vec3</span> sky_color = <span class="hljs-built_in">mix</span>(low_sky_blue, high_sky_blue, <span class="hljs-built_in">clamp</span>(rd.y, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>));<br>    <span class="hljs-type">vec3</span> cloud_color = <span class="hljs-type">vec3</span>(<span class="hljs-number">1.</span>);<br>    <span class="hljs-comment">// 根据云层密度得到最终的高层云和天空颜色</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">mix</span>(sky_color, cloud_color, cloud_density);<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_high_cloud.png" srcset="/img/loading.gif" lazyload alt="增加天空高层云"></p>
+<p><img src="terrain_with_high_cloud.png" srcset="/img/loading.gif" lazyload alt="增加天空高层云"></p>
 <p>增加了高层云之后，天空就显得不那么单调了。</p>
-<h2 id="体积云"><a href="#体积云" class="headerlink" title="体积云"></a>体积云</h2><p>最后就是体积云了，体积云的部分我不会在这里详细讨论，这是一个可以讨论的比较深的话题。我这个场景的体积云效果也并不是很理想，这里仅作为一个最后的点缀，在山峰上增加一点点动态效果。</p>
+<h2 id="体积云">体积云</h2>
+<p>最后就是体积云了，体积云的部分我不会在这里详细讨论，这是一个可以讨论的比较深的话题。我这个场景的体积云效果也并不是很理想，这里仅作为一个最后的点缀，在山峰上增加一点点动态效果。</p>
 <p>体积云的效果其实也是在一定区域内进行多个点的采样而来，这个区域内利用FBM来实现云的动态的随机效果。在这个场景内我使用了SDF来圈定体积云的范围，并且给SDF增加了随机现状来获取更好的随机效果。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> scene(<span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> pos)<br>&#123;    <br>    <span class="hljs-type">vec3</span> cloud_pos = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">15.0</span>);<br>    <br>    <span class="hljs-type">vec3</span> filter_pos = <span class="hljs-type">vec3</span>(pos.x, pos.y+iTime, pos.z+iTime);<br>    pos -= cloud_pos;<br>    <span class="hljs-type">float</span> rst = -(rm_box(pos)) + fbm_cloud(pos * <span class="hljs-number">0.1</span>+iTime*<span class="hljs-number">0.3</span>, <span class="hljs-number">5</span>);<br>    rst = rst / <span class="hljs-number">25.0</span> * <span class="hljs-built_in">max</span>(fbm_cloud(filter_pos*<span class="hljs-number">0.1</span>, <span class="hljs-number">1</span>) - <span class="hljs-number">1.2</span>, <span class="hljs-number">0.0</span>); <br>    <span class="hljs-keyword">return</span> rst;<br>&#125;<br><br><span class="hljs-type">float</span> max_cloud_dist = <span class="hljs-number">80.</span>;<br><span class="hljs-type">vec4</span> renderMidClouds(<span class="hljs-type">vec3</span> ro, <span class="hljs-type">vec3</span> rd)<br>&#123;    <br>    <span class="hljs-type">vec4</span> res = <span class="hljs-type">vec4</span>(<span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">float</span> depth = <span class="hljs-number">0.0</span>;    <br>    <br>    <span class="hljs-type">int</span> sample_count = <span class="hljs-number">64</span>;<br>    <span class="hljs-type">float</span> dt = max_cloud_dist / <span class="hljs-type">float</span>(sample_count);<br>    <br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; sample_count; ++i)<br>    &#123;<br>        <span class="hljs-type">vec3</span> p = ro + depth*rd;<br>        <span class="hljs-type">float</span> density = scene(p);<br>        <span class="hljs-keyword">if</span>(density &gt; <span class="hljs-number">0.0</span>)<br>        &#123;<br>            <span class="hljs-type">float</span> diffuse = <span class="hljs-built_in">clamp</span>((scene(p) - scene(p + <span class="hljs-number">0.3</span>*light_dir))/<span class="hljs-number">0.3</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>);<br>            <span class="hljs-type">vec3</span> lin = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.8</span>, <span class="hljs-number">0.8</span>, <span class="hljs-number">0.8</span>) * <span class="hljs-number">1.1</span> + <span class="hljs-number">0.8</span> * <span class="hljs-type">vec3</span>(<span class="hljs-number">0.9333</span>, <span class="hljs-number">0.702</span>, <span class="hljs-number">0.5255</span>)*diffuse;<br>            <span class="hljs-type">vec4</span> color = <span class="hljs-type">vec4</span>(<span class="hljs-built_in">mix</span>(<span class="hljs-type">vec3</span>(<span class="hljs-number">1.0</span>), <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>), density), density);<br>            color.rgb *= color.a;<br><br>            res += color * (<span class="hljs-number">1.0</span> - res.a);<br>        &#125;<br><br>        depth+=dt;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p><img src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" srcset="/img/loading.gif" lazyload alt="增加体积云"></p>
-<h1 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h1><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/4XByRV?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
-
+<p><img src="terrain_with_all_cloud.png" srcset="/img/loading.gif" lazyload alt="增加体积云"></p>
+<h1>最终效果</h1>
+<iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/4XByRV?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
 <p>以上便是我如何实现这个场景的简单介绍了。这是我初次尝试在ShaderToy上渲染大场景，也是第一次将整个步骤拆解讲解，可能还是会有不少地方讲的不过仔细和通透，也有些遗漏。</p>
 <p>后面我还是会继续尝试创作和讲解，希望能给人带来帮助，也有助于巩固我所学的知识。</p>
 
@@ -513,6 +526,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -705,6 +724,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 

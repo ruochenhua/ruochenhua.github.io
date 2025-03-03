@@ -74,7 +74,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -237,6 +241,79 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2025/02/28/ibl-diffuse-irradiance/" target="_self">
+          <img src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" srcset="/img/loading.gif" lazyload alt="基于图像的光照-漫反射辐照度">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2025/02/28/ibl-diffuse-irradiance/" target="_self">
+          基于图像的光照-漫反射辐照度
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/2025/02/28/ibl-diffuse-irradiance/" target="_self">
+        <div>
+          前言 KongEngine的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。 其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2025-02-28 22:32" pubdate>
+              2025-02-28
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/3D/">#3D</a>
+            
+              <a href="/tags/render/">#render</a>
+            
+              <a href="/tags/%E6%B8%B2%E6%9F%93/">#渲染</a>
+            
+              <a href="/tags/%E7%BC%96%E7%A8%8B/">#编程</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2025/02/22/opengl-dsa/" target="_self">
           <img src="/2025/02/22/opengl-dsa/OpenGL-logo.jpg" srcset="/img/loading.gif" lazyload alt="OpenGL优化技巧之DSA">
         </a>
@@ -253,7 +330,7 @@
       
       <a class="index-excerpt " href="/2025/02/22/opengl-dsa/" target="_self">
         <div>
-          前言最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个
+          前言 最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一
         </div>
       </a>
 
@@ -324,7 +401,7 @@
       
       <a class="index-excerpt " href="/2025/02/13/gerstner-wave/" target="_self">
         <div>
-          前言好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，KongEngine目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对Vulkan的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。 今天这篇文章，算是对之前水面渲染的一个小小的
+          前言 好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，KongEngine目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对Vulkan的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。 今天这篇文章，算是对之前水面渲染的一个小小
         </div>
       </a>
 
@@ -397,7 +474,7 @@
       
       <a class="index-excerpt " href="/2025/02/03/deepseek-local-deploy/" target="_self">
         <div>
-          前言蛇年新年好。最近因为过年有很多其他事情需要忙，KongEngine的重构工作也暂停了，文章也有一阵子没有更新。今天是大年初六，总算是回到了深圳家，自己也可以稍微的放松了一下。 今年过年的这段时间，最大的新闻应该就是DeepSeek了。他前几次模型的发布还不显山不漏水的，这次R1推理大模型的发布和开源不仅仅震动了科技圈、AI圈，而是完完全全的出圈了。我在过年的时候也花了很长时间去使用它的应用，它
+          前言 蛇年新年好。最近因为过年有很多其他事情需要忙，KongEngine的重构工作也暂停了，文章也有一阵子没有更新。今天是大年初六，总算是回到了深圳家，自己也可以稍微的放松了一下。 今年过年的这段时间，最大的新闻应该就是DeepSeek了。他前几次模型的发布还不显山不漏水的，这次R1推理大模型的发布和开源不仅仅震动了科技圈、AI圈，而是完完全全的出圈了。我在过年的时候也花了很长时间去使用它的应用，
         </div>
       </a>
 
@@ -468,7 +545,7 @@
       
       <a class="index-excerpt " href="/2025/01/19/water-effect-2/" target="_self">
         <div>
-          前言在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔
+          前言 在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象 如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲
         </div>
       </a>
 
@@ -541,7 +618,7 @@
       
       <a class="index-excerpt " href="/2025/01/12/water-effect-1/" target="_self">
         <div>
-          前言在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。  水面的渲染下面我们来介绍如何实现一个简单的水面渲染效果。 水面渲染的构成水面的渲染主要由两部分构成：反射和折射，分别对应着水面之上和之下的内容。我在之前已经
+          前言 在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。  水面的渲染 下面我们来介绍如何实现一个简单的水面渲染效果。 水面渲染的构成 水面的渲染主要由两部分构成：反射和折射，分别对应着水面之上和之下的内容。我在之
         </div>
       </a>
 
@@ -614,7 +691,7 @@
       
       <a class="index-excerpt " href="/2025/01/09/digital-human-render-4/" target="_self">
         <div>
-          前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是非真实感渲染（Non-photorealistic Rendering, NPR）技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPRNPR，我们一般指的是非真实感渲染（Non-photor
+          前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染 前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPR NPR，我们一般指的是非真实感渲染（Non
         </div>
       </a>
 
@@ -685,7 +762,7 @@
       
       <a class="index-excerpt " href="/2025/01/06/digital-human-render-3/" target="_self">
         <div>
-          前言这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根指向
+          前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发 在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根
         </div>
       </a>
 
@@ -756,7 +833,7 @@
       
       <a class="index-excerpt " href="/2025/01/04/digital-human-render-2/" target="_self">
         <div>
-          前言新年好。这是接着上次关于数字人渲染技术的第二部分，今天的这部分的分享，我会开始介绍一些关于数字人渲染的实际技术。 数字人渲染技术介绍接下来我们来聊一下数字人渲染技术方面的课题，我本身其实在这方面也不是什么大牛，在这里只是把一些我所学到的东西分享给大家。本次也不涉及到过深的技术讨论，如果想要对某个算法的细节想做更深的探讨，我们可以做后续的讨论。 在这里我提前预告一下，接下来的分享会包括哪些方面。
+          前言 新年好。这是接着上次关于数字人渲染技术的第二部分，今天的这部分的分享，我会开始介绍一些关于数字人渲染的实际技术。 数字人渲染技术介绍 接下来我们来聊一下数字人渲染技术方面的课题，我本身其实在这方面也不是什么大牛，在这里只是把一些我所学到的东西分享给大家。本次也不涉及到过深的技术讨论，如果想要对某个算法的细节想做更深的探讨，我们可以做后续的讨论。 在这里我提前预告一下，接下来的分享会包括哪些方
         </div>
       </a>
 
@@ -827,7 +904,7 @@
       
       <a class="index-excerpt " href="/2024/12/28/digital-human-render-1/" target="_self">
         <div>
-          前言在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。 这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部
+          前言 在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。 这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这
         </div>
       </a>
 
@@ -871,75 +948,6 @@
               <a href="/tags/%E6%B8%B2%E6%9F%93/">#渲染</a>
             
               <a href="/tags/%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F/">#数字孪生</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2024/12/22/ue-ai-texture-generation/" target="_self">
-          <img src="/2024/12/22/ue-ai-texture-generation/texgen_bp.png" srcset="/img/loading.gif" lazyload alt="虚幻引擎5基于AI的贴图生成方法">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/12/22/ue-ai-texture-generation/" target="_self">
-          虚幻引擎5基于AI的贴图生成方法
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2024/12/22/ue-ai-texture-generation/" target="_self">
-        <div>
-          前言今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-12-22 19:35" pubdate>
-              2024-12-22
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8E/">#虚幻引擎</a>
-            
-              <a href="/tags/AIGC/">#AIGC</a>
             
           </div>
         

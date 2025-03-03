@@ -74,7 +74,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -237,6 +241,75 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2024/12/22/ue-ai-texture-generation/" target="_self">
+          <img src="/2024/12/22/ue-ai-texture-generation/texgen_bp.png" srcset="/img/loading.gif" lazyload alt="虚幻引擎5基于AI的贴图生成方法">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/2024/12/22/ue-ai-texture-generation/" target="_self">
+          虚幻引擎5基于AI的贴图生成方法
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/2024/12/22/ue-ai-texture-generation/" target="_self">
+        <div>
+          前言 今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIG
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-22 19:35" pubdate>
+              2024-12-22
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8E/">#虚幻引擎</a>
+            
+              <a href="/tags/AIGC/">#AIGC</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2024/12/10/screen-space-reflection/" target="_self">
           <img src="/2024/12/10/screen-space-reflection/ssr_mugshot.png" srcset="/img/loading.gif" lazyload alt="屏幕空间反射">
         </a>
@@ -253,7 +326,7 @@
       
       <a class="index-excerpt " href="/2024/12/10/screen-space-reflection/" target="_self">
         <div>
-          什么是屏幕空间反射在前面的文章的一些配图中，其实已经揭露了之前在KongEngine中实现的一个不小的功能点，就是屏幕空间反射（screen space reflection）。加入了屏幕空间反射能力之后，在一些光滑和带有反射材质的表面上，能够实现不错的反射效果。  屏幕空间反射（后简称SSR）是一种在实时渲染中用于模拟物体表面反射的成熟技术。SSR 的核心原理是在屏幕空间中进行光线追踪，以此计算
+          什么是屏幕空间反射 在前面的文章的一些配图中，其实已经揭露了之前在KongEngine中实现的一个不小的功能点，就是屏幕空间反射（screen space reflection）。加入了屏幕空间反射能力之后，在一些光滑和带有反射材质的表面上，能够实现不错的反射效果。  屏幕空间反射（后简称SSR）是一种在实时渲染中用于模拟物体表面反射的成熟技术。SSR 的核心原理是在屏幕空间中进行光线追踪，以此计
         </div>
       </a>
 
@@ -324,7 +397,7 @@
       
       <a class="index-excerpt " href="/2024/12/08/soft-shadow/" target="_self">
         <div>
-          什么是软阴影在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴影
+          什么是软阴影 在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。 那么该如何在可接受的性能表现下实现软阴
         </div>
       </a>
 
@@ -397,7 +470,7 @@
       
       <a class="index-excerpt " href="/2024/11/24/reflective-shadow-map/" target="_self">
         <div>
-          反射阴影贴图简介反射阴影贴图（Reflective Shadow Map）是实现全局光照效果的一个非常经典的方法，它是在这篇论文中被提出。 直接光照和间接光照它的名字中带有“阴影贴图（Shadow Map）”几个字，所以乍看之下这个方法似乎是用来解决阴影问题，或者是提升阴影效果的。其实不然，它是用来解决间接光照的问题的方法。 在一般的场景中，光照可以大致分为两类：  一类是直接光照，也就是物体被光
+          反射阴影贴图简介 反射阴影贴图（Reflective Shadow Map）是实现全局光照效果的一个非常经典的方法，它是在这篇论文中被提出。 直接光照和间接光照 它的名字中带有“阴影贴图（Shadow Map）”几个字，所以乍看之下这个方法似乎是用来解决阴影问题，或者是提升阴影效果的。其实不然，它是用来解决间接光照的问题的方法。 在一般的场景中，光照可以大致分为两类：  一类是直接光照，也就是物体
         </div>
       </a>
 
@@ -464,7 +537,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2024/11/19/ProceduralTerrainGeneration2-optimize/" target="_self">
         <div>
-          性能优化的需求自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对实
+          性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对
         </div>
       </a>
 
@@ -539,7 +612,7 @@
       
       <a class="index-excerpt " href="/2024/11/04/ProceduralTerrainGeneration2/" target="_self">
         <div>
-          距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形上一篇教程我们已经创建出了绵延的山脉，如下图所示：看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一
+          距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算
         </div>
       </a>
 
@@ -614,7 +687,7 @@
       
       <a class="index-excerpt " href="/2024/10/28/depth-of-field/" target="_self">
         <div>
-          关于景深景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游
+          关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在
         </div>
       </a>
 
@@ -687,7 +760,7 @@
       
       <a class="index-excerpt " href="/2024/10/19/defer-render/" target="_self">
         <div>
-          想要在Kong引擎里面实现的场景慢慢复杂了起来，光源和模型的数量从原先的十以内的数量增长到几十甚至几百的数量级，是时候接入延迟渲染的方法了。 延迟渲染延迟渲染（Defer Rendering），或者延迟着色法（Defer Shading），是区别于正向渲染（Forward Shading）的一种计算场景光照的方式。 正向渲染方法就是遍历场景中的每一个模型，计算一个模型的光照表现后再继续下一个模型的
+          想要在Kong引擎里面实现的场景慢慢复杂了起来，光源和模型的数量从原先的十以内的数量增长到几十甚至几百的数量级，是时候接入延迟渲染的方法了。 延迟渲染 延迟渲染（Defer Rendering），或者延迟着色法（Defer Shading），是区别于正向渲染（Forward Shading）的一种计算场景光照的方式。 正向渲染方法就是遍历场景中的每一个模型，计算一个模型的光照表现后再继续下一个模型
         </div>
       </a>
 
@@ -833,7 +906,7 @@
       
       <a class="index-excerpt " href="/2024/10/13/cascade-shadow-map/" target="_self">
         <div>
-          阴影贴图的局限阴影贴图（shadow map）是3D场景中实现阴影效果的基础手段，它通过预先将光线方向的场景深度存储到贴图中，在渲染的时候取每个场景中的点到光源的距离和深度贴图作比较，来判定该点是否在阴影当中。 但是在较大的场景中，使用阴影贴图会有几个明显的不足：  阴影贴图只能覆盖部分场景，在渲染较大的场景的时候（如大世界），远处的场景基本上无法被阴影贴图所覆盖。 贴图的分辨率是有限的，太大的分
+          阴影贴图的局限 阴影贴图（shadow map）是3D场景中实现阴影效果的基础手段，它通过预先将光线方向的场景深度存储到贴图中，在渲染的时候取每个场景中的点到光源的距离和深度贴图作比较，来判定该点是否在阴影当中。 但是在较大的场景中，使用阴影贴图会有几个明显的不足：  阴影贴图只能覆盖部分场景，在渲染较大的场景的时候（如大世界），远处的场景基本上无法被阴影贴图所覆盖。 贴图的分辨率是有限的，太大的
         </div>
       </a>
 
@@ -879,81 +952,6 @@
               <a href="/tags/%E6%B8%B2%E6%9F%93/">#渲染</a>
             
               <a href="/tags/%E7%BC%96%E7%A8%8B/">#编程</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2024/10/11/ProceduralTerrainGeneration/" target="_self">
-          <img src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png" srcset="/img/loading.gif" lazyload alt="程序化地形生成-1">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2024/10/11/ProceduralTerrainGeneration/" target="_self">
-          程序化地形生成-1
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt " href="/2024/10/11/ProceduralTerrainGeneration/" target="_self">
-        <div>
-          ShaderToy是一个很有趣的网站，它上面有着非常多的渲染案例分享，最近一段时间我也是沉迷了。在看了不少大佬的作品之后，不禁手痒。前一段时间看了Inigo大佬的一个教程案例，想着把这个效果自己来实现一次，因此就有了今天的这篇文章。 我最终的成品也放到了shadertoy上面，有兴趣的同学可以一起讨论参考一下。看起来还不错对吧，虽然还有不少地方需要完善，但这个demo已经实现了我心中的大部分效果，
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2024-10-11 22:59" pubdate>
-              2024-10-11
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/3D/">#3D</a>
-            
-              <a href="/tags/render/">#render</a>
-            
-              <a href="/tags/%E6%B8%B2%E6%9F%93/">#渲染</a>
-            
-              <a href="/tags/%E7%BC%96%E7%A8%8B/">#编程</a>
-            
-              <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%8C%96%E7%94%9F%E6%88%90/">#程序化生成</a>
             
           </div>
         

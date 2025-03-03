@@ -19,12 +19,12 @@
   <meta name="author" content="晨">
   <meta name="keywords" content="">
   
-    <meta name="description" content="关于景深景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游">
+    <meta name="description" content="关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="景深的简单实现">
 <meta property="og:url" content="https://ruochenhua.github.io/2024/10/28/depth-of-field/index.html">
 <meta property="og:site_name" content="晨小屋">
-<meta property="og:description" content="关于景深景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游">
+<meta property="og:description" content="关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2024/10/28/depth-of-field/game1.jpg">
 <meta property="article:published_time" content="2024-10-28T14:11:58.000Z">
@@ -90,7 +90,11 @@
 
 
   
-<meta name="generator" content="Hexo 7.3.0"></head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -293,34 +297,41 @@
             
               <div class="markdown-body">
                 
-                <h1 id="关于景深"><a href="#关于景深" class="headerlink" title="关于景深"></a>关于景深</h1><p>景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。</p>
-<p><img src="/2024/10/28/depth-of-field/dof_butterfly.JPG" srcset="/img/loading.gif" lazyload alt="一张浅景深的照片"></p>
+                <h1>关于景深</h1>
+<p>景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。</p>
+<p><img src="dof_butterfly.JPG" srcset="/img/loading.gif" lazyload alt="一张浅景深的照片"></p>
 <p>有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游戏领域内也是应用广泛，可以表现出很独特的风格化美术效果（如八方旅人的浅景深效果）。</p>
-<p><img src="/2024/10/28/depth-of-field/game1.jpg" srcset="/img/loading.gif" lazyload alt="八方旅人"></p>
+<p><img src="game1.jpg" srcset="/img/loading.gif" lazyload alt="八方旅人"></p>
 <p>下面我来介绍一种基础的景深效果实现，这个方法也在最近接入了<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a></p>
-<h1 id="渲染散景"><a href="#渲染散景" class="headerlink" title="渲染散景"></a>渲染散景</h1><p>浅景深的主要应用是通过调整不同焦距上物体的成像清晰程度来突出渲染画面的重点。清晰的部分我们已经掌握了，就是正常的将场景渲染出来，那不清晰的部分（或者叫做散景）也有不少的实现方式，一般是通过模糊算法来实现。</p>
+<h1>渲染散景</h1>
+<p>浅景深的主要应用是通过调整不同焦距上物体的成像清晰程度来突出渲染画面的重点。清晰的部分我们已经掌握了，就是正常的将场景渲染出来，那不清晰的部分（或者叫做散景）也有不少的实现方式，一般是通过模糊算法来实现。</p>
 <p>模糊的算法有很多种，比如box blur，gaussian blur等等，效果最好的是扩张模糊(dilate blur)，这也是我们会采取的方法。</p>
-<h2 id="扩张模糊（dilate-blur"><a href="#扩张模糊（dilate-blur" class="headerlink" title="扩张模糊（dilate blur)"></a>扩张模糊（dilate blur)</h2><p>扩张模糊它的主要方式，是在给定一个模糊的窗口下，取得这个窗口下的最亮的颜色记录下来，然后将这个最亮的颜色扩张到整个窗口。这样一来经过扩张模糊的画面会有一种亮晶晶，并且很柔和的效果，很适合作为散景的表现效果。</p>
+<h2 id="扩张模糊（dilate-blur">扩张模糊（dilate blur)</h2>
+<p>扩张模糊它的主要方式，是在给定一个模糊的窗口下，取得这个窗口下的最亮的颜色记录下来，然后将这个最亮的颜色扩张到整个窗口。这样一来经过扩张模糊的画面会有一种亮晶晶，并且很柔和的效果，很适合作为散景的表现效果。</p>
 <p>dilate blur的计算也比较简单，首先我们定义此次blur的窗口大小已经采样的间隔大小。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 窗口的大小，数值越大扩散越大，消耗越高 </span><br><span class="hljs-type">int</span> size = <span class="hljs-number">5</span>;	<br><span class="hljs-comment">// 采样间隔的大小，数值越大扩散越大，效果降低</span><br><span class="hljs-type">float</span> separation = <span class="hljs-number">1.0</span>;<br></code></pre></td></tr></table></figure>
-
 <p>在定义了窗口的尺寸之后，我们在窗口的范围内记录最亮的像素颜色，并保存下来。<strong>窗口的形状不限</strong>，可以是矩形，或者圆形。我们这里实现采取圆形的窗口。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 渲染场景的尺寸</span><br><span class="hljs-type">vec2</span> tex_size = <span class="hljs-type">vec2</span>(<span class="hljs-built_in">textureSize</span>(scene_texture, <span class="hljs-number">0</span>).xy);<br><span class="hljs-comment">// 获取场景的原本颜色</span><br>FragColor = <span class="hljs-built_in">texture</span>(scene_texture, TexCoords);<br><br><span class="hljs-keyword">if</span>(size &lt;= <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span>;<br><span class="hljs-type">float</span> mx = <span class="hljs-number">0.0</span>;<br><span class="hljs-type">vec4</span> cmx = FragColor;<br><br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = -size; i &lt;= size; ++i)<br>&#123;<br>	<span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> j = -size; j &lt;= size; ++j)<br>	&#123;<br>		<span class="hljs-comment">// dilate的形状可以多样，如圆形，矩形等等，根据采样点的形状来决定</span><br>		<span class="hljs-comment">// 这里使用圆形的dilate</span><br>		<span class="hljs-keyword">if</span>(<span class="hljs-built_in">distance</span>(<span class="hljs-type">vec2</span>(i,j), <span class="hljs-type">vec2</span>(<span class="hljs-number">0</span>)) &gt; size) <span class="hljs-keyword">continue</span>;<br><br>		<span class="hljs-comment">// 采样区域内点的颜色，不要越界出去了</span><br>		<span class="hljs-type">vec2</span> sample_coord = TexCoords + <span class="hljs-type">vec2</span>(i, j)*separation/tex_size;<br>		<span class="hljs-keyword">if</span>(sample_coord.x &gt; <span class="hljs-number">1.0</span> || sample_coord.x &lt; <span class="hljs-number">0.0</span> || sample_coord.y &gt; <span class="hljs-number">1.0</span> || sample_coord.y &lt; <span class="hljs-number">0.0</span>)<br>				<span class="hljs-keyword">continue</span>;<br><br>		<span class="hljs-comment">// 拿到采样点</span><br>		<span class="hljs-type">vec4</span> c = <span class="hljs-built_in">texture</span>(scene_texture, sample_coord);<br><br>		<span class="hljs-comment">// 和目标颜色做点乘，得到一个灰度值</span><br>		<span class="hljs-type">float</span> mxt = <span class="hljs-built_in">dot</span>(c.rgb, <span class="hljs-type">vec3</span>(<span class="hljs-number">0.3</span>, <span class="hljs-number">0.59</span>, <span class="hljs-number">0.11</span>));<br><br>		<span class="hljs-comment">// 保存区域内灰度值最大的颜色</span><br>		<span class="hljs-keyword">if</span>(mxt &gt; mx)<br>		&#123;<br>			mx = mxt;<br>			cmx = c;<br>		&#125;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>这里我们计算最亮区域的方式是通过和一个目标颜色**(0.3, 0.59, 0.11)**来做点乘，当然也可以通过和其他的目标颜色，或者其他的方式来实现。</p>
 <p>最后，我们得到窗口区域内最亮的颜色，我们的最终颜色是原本颜色和最亮颜色的差值。</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 模糊采样的颜色和原始颜色的mix上下限</span><br><span class="hljs-type">float</span> min_threshold = <span class="hljs-number">0.1</span>;<br><span class="hljs-type">float</span> max_threshold = <span class="hljs-number">0.3</span>;<br><br><span class="hljs-comment">// 最终颜色是原来颜色和区域内灰度值最大的采样颜色的混合，有上下限做限制</span><br>FragColor.rgb = <span class="hljs-built_in">mix</span>(FragColor.rgb, cmx.rgb, <span class="hljs-built_in">smoothstep</span>(min_threshold, max_threshold, mx));<br></code></pre></td></tr></table></figure>
 <p>这里我们还是采用了一个上下限，尽量控制增亮的程度。</p>
-<h2 id="散景的效果"><a href="#散景的效果" class="headerlink" title="散景的效果"></a>散景的效果</h2><p>这里给出经过扩张模糊得到的散景效果。下面这张图是扩张模糊之前的效果。<br><img src="/2024/10/28/depth-of-field/dilate_before.png" srcset="/img/loading.gif" lazyload alt="扩张模糊前"><br>下面这张图是扩张模糊之后的效果。<br><img src="/2024/10/28/depth-of-field/dilate_after.png" srcset="/img/loading.gif" lazyload alt="扩张模糊后"></p>
+<h2 id="散景的效果">散景的效果</h2>
+<p>这里给出经过扩张模糊得到的散景效果。下面这张图是扩张模糊之前的效果。<br>
+<img src="dilate_before.png" srcset="/img/loading.gif" lazyload alt="扩张模糊前"><br>
+下面这张图是扩张模糊之后的效果。<br>
+<img src="dilate_after.png" srcset="/img/loading.gif" lazyload alt="扩张模糊后"></p>
 <p>当然在实际的场景中，我们可能不会开这么大的扩散效果，此处只是作为对比。</p>
-<h1 id="结合场景"><a href="#结合场景" class="headerlink" title="结合场景"></a>结合场景</h1><p>好了，现在我们有原本场景的渲染效果和扩散后的效果，实现最终的景深效果需要将这两者结合起来。我们需要一种方法来决定画面上哪些部分是需要采用清晰的图像，哪些是采用模糊的图像。</p>
+<h1>结合场景</h1>
+<p>好了，现在我们有原本场景的渲染效果和扩散后的效果，实现最终的景深效果需要将这两者结合起来。我们需要一种方法来决定画面上哪些部分是需要采用清晰的图像，哪些是采用模糊的图像。</p>
 <p>为了实现这个效果我们需要获得画面上每个点的深度，或者每个点的实际世界坐标。幸运的是，我们在实现<a href="https://ruochenhua.github.io/2024/10/19/defer-render/">延迟渲染</a>的时候已经将这些存放到缓冲中去了，接下来就是实现景深效果了。</p>
 <p>最终的代码如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> TexCoords;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> scene_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> dilate_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> position_texture;<br><br><span class="hljs-comment">// 焦点距离</span><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">float</span> focus_distance = <span class="hljs-number">3.0</span>;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">vec2</span> focus_threshold;<br><span class="hljs-comment">// 景深的上下限</span><br><span class="hljs-type">float</span> min_dist = focus_threshold.x;<br><span class="hljs-type">float</span> max_dist = focus_threshold.y;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec4</span> focus_color = <span class="hljs-built_in">texture</span>(scene_texture, TexCoords);<br>    <span class="hljs-type">vec4</span> out_of_focus_color = <span class="hljs-built_in">texture</span>(dilate_texture, TexCoords);<br>    <span class="hljs-type">vec3</span> scene_position = <span class="hljs-built_in">texture</span>(position_texture, TexCoords).xyz; <br>    <br>	<span class="hljs-comment">// 这里采用了画面每个点的世界坐标和相机的距离作为判定模糊的标准</span><br>	<span class="hljs-comment">// 当然用深度信息也是可以的，性能上也更好，这里为了代码展示更好理解</span><br>    <span class="hljs-type">vec3</span> cam_pos = matrix_ubo.cam_pos.xyz;<br>	<br>    <span class="hljs-type">float</span> blur_amout = <span class="hljs-built_in">smoothstep</span>(min_dist, max_dist, <span class="hljs-built_in">abs</span>(focus_distance - <span class="hljs-built_in">distance</span>(scene_position, cam_pos)));<br>    <br>	<span class="hljs-comment">// 最后的颜色是焦距内和散景的混合</span><br>    FragColor = <span class="hljs-built_in">mix</span>(focus_color, out_of_focus_color, blur_amout);<br>&#125;<br></code></pre></td></tr></table></figure>
-
 <p>这段代码理解起来应该没有什么太大的难度。</p>
-<h1 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h1><p>这里展示一下最终的效果。</p>
-<p><img src="/2024/10/28/depth-of-field/dof_near.png" srcset="/img/loading.gif" lazyload alt="近焦点"><br><img src="/2024/10/28/depth-of-field/dof_far.png" srcset="/img/loading.gif" lazyload alt="远焦点"></p>
+<h1>最终效果</h1>
+<p>这里展示一下最终的效果。</p>
+<p><img src="dof_near.png" srcset="/img/loading.gif" lazyload alt="近焦点"><br>
+<img src="dof_far.png" srcset="/img/loading.gif" lazyload alt="远焦点"></p>
 <p>上面两张图分别展示了不同焦点的景深的表现结果。可以明显看到不同景深效果的加入可以很容易的将画面上想要着重表达出来的部分勾勒出来。优秀的散景效果也能给画面增加不少美感（虽然我这个测试场景也没有什么美感可言…）。</p>
 
                 
@@ -486,6 +497,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -678,6 +695,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script  src="/js/local-search.js" ></script>
 
