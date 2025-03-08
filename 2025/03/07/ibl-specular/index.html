@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) &#x3D;  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于图像的光照-镜面反射">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/03/07/ibl-specular/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) &#x3D;  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png">
+<meta property="article:published_time" content="2025-03-07T14:14:17.000Z">
+<meta property="article:modified_time" content="2025-03-08T03:12:16.885Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="render">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="编程">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png">
+  
+  
+  
+  <title>基于图像的光照-镜面反射 - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2025/02/28/ibl-diffuse-irradiance/ibl-final.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于图像的光照-镜面反射"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-07 22:14" pubdate>
+          2025年3月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          26 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">基于图像的光照-镜面反射</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>前言</h1>
+<p><a href="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/">上一篇文章</a>介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。</p>
+<h1>分割求和近似法</h1>
+<p>我们回到反射方程的镜面反射部分：</p>
+<p>$$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$</p>
+<p>我们发现这个积分的结果在积分上不是常数，他受入射光和观察视角两个因素影响。如果对所有入射光方向和所有可能的视角方向做积分，这个计算消耗十分昂贵，是没有办法这么做的。</p>
+<p>为了解决这个问题，<strong>Epic Games</strong>提出了一个解决方案，叫做<strong>分割求和近似法</strong>。它将方程的镜面部分分割成了两个独立的部分，分别对这两个部分求卷积，并在PBR着色器重求和，用于IBL的镜面反射部分。</p>
+<p>分割求和近似法包含两部分：</p>
+<ul>
+<li>预过滤环境贴图：对不同粗糙度的环境光进行卷积，存储为mipmap层级的立方体贴图。</li>
+<li>BRDF积分贴图：预计算BRDF的响应系数，存储为2D查找表。</li>
+</ul>
+<p>我们也可以从公式的层面上进行理解，我们将镜面反射部分的公式变换成以下的形式：</p>
+<p>$$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) \mathbf{n} \cdot \omega_i , d\omega_i * \int_{\Omega} L_i(p, \omega_i)  d\omega_i$$</p>
+<h2 id="BRDF积分贴图">BRDF积分贴图</h2>
+<p>卷积的第一部分是镜面反射的卷积部分，也就是<strong>BRDF积分贴图</strong>的部分。BRDF 积分贴图的原理是通过预计算将复杂的 BRDF 镜面反射积分转换为可快速查询的二维查找表。</p>
+<p>我们假设从每个方向的入射辐射度都为白色（1.0），在给定的粗糙度、光线和法线的夹角（$\mathbf{n} \cdot \omega_i$）下可以预计算BRDF的响应结果，并将这部分预处理好存储在一张查找纹理上。</p>
+<p><img src="brdf-lut.png" srcset="/img/loading.gif" lazyload alt="BRDF积分贴图"></p>
+<p>这张贴图分别以<strong>粗糙度</strong>和<strong>光线和法线的夹角</strong>作为坐标轴。存储的是菲涅尔响应的系数和偏差值。</p>
+<h2 id="预过滤环境贴图">预过滤环境贴图</h2>
+<p>卷积的第二部分是<strong>预过滤环境贴图</strong>，他也是预计算环境的卷积贴图，类似于上一篇文章的漫反射辐照度贴图。但是这里会跟进一步考虑到粗糙度的，粗糙度的不同会导致环境贴图的采样更加分散，反射更加模糊。我们将不同粗糙度级别的预处理结果存放在预过滤环境贴图的不同mipmap等级中，粗糙度越高mipmap等级越高。</p>
+<p><img src="pre-filtered-environment-map.png" srcset="/img/loading.gif" lazyload alt="预处理环境贴图"></p>
+<p>但是积分的这个部分需要考虑视角方向，而在预处理环境贴图的时候是不知道这部分数据的。Epic Games给出了一个妥协的方法，就是假设镜面反射的方向和输出的采样方向$\omega_o$是一致的。这样预处理环境卷积就可以不需要关心视角方向了，虽然在某些情况下会有些许失真，但是在大部分情况下都有不错的表现。</p>
+<p>结合上面两部分的贴图，我们就能得到近似的镜面反射结果。</p>
+<h1>计算预过滤环境贴图</h1>
+<p>下面是代码实现的部分，首先是预过滤环境贴图。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 和环境光辐照度积分不同，镜面反射依赖于材质表面的粗糙度。镜面反射光的形状，称为镜面波瓣(Specular lobe)依赖于入射方向和粗糙度</span><br><span class="hljs-comment">// 采用蒙特卡洛积分和重要性采样（大数定律）</span><br><span class="hljs-comment">// 从总体（理论上大小是无限）中挑选样本N生成采样值并求平均</span><br><span class="hljs-comment">// 用低差异序列随机采样的蒙特卡洛方法（拟蒙特卡洛积分）+ 重要性采样（可以做到实时求解）</span><br>prefilter_calculation_shader-&gt;<span class="hljs-built_in">Use</span>();<br>prefilter_calculation_shader-&gt;<span class="hljs-built_in">SetInt</span>(<span class="hljs-string">&quot;cube_map&quot;</span>, <span class="hljs-number">0</span>);<br>prefilter_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;projection&quot;</span>, projection);<br><span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);<br><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-comment">// 启用立方体贴图之间的正确过渡，去除面之间的接缝</span><br><span class="hljs-built_in">glEnable</span>(GL_TEXTURE_CUBE_MAP_SEAMLESS);<br><span class="hljs-type">int</span> map_mip_levels = <span class="hljs-number">5</span>;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> mip = <span class="hljs-number">0</span>; mip &lt; map_mip_levels; ++mip)<br>&#123;<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> mip_width = <span class="hljs-number">128</span> * <span class="hljs-built_in">pow</span>(<span class="hljs-number">0.5</span>, mip);<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> mip_height = <span class="hljs-number">128</span> * <span class="hljs-built_in">pow</span>(<span class="hljs-number">0.5</span>, mip);<br>    <br>    <span class="hljs-built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);<br>    <span class="hljs-built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mip_width, mip_height);<br>    <span class="hljs-built_in">glViewport</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, mip_width, mip_height);<br><br>    <span class="hljs-comment">// 不同的粗糙度对应不同的mip等级</span><br>    <span class="hljs-type">float</span> roughness = (<span class="hljs-type">float</span>)mip/((<span class="hljs-type">float</span>)map_mip_levels - <span class="hljs-number">1.0f</span>);<br>    prefilter_calculation_shader-&gt;<span class="hljs-built_in">SetFloat</span>(<span class="hljs-string">&quot;roughness&quot;</span>, roughness);<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>    &#123;<br>        prefilter_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;view&quot;</span>, skybox_views[i]);	<br>        <span class="hljs-built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, <br>                                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilter_map_id, mip);<br>        <span class="hljs-built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);<br><br>        box_mesh-&gt;<span class="hljs-built_in">Draw</span>();<br>    &#125;<br>&#125;<br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, GL_NONE);<br></code></pre></td></tr></table></figure>
+<p>首先我们创建预过滤环境贴图的资源。这里我们创建了5个mipmap层级，每个层级对应不同的粗糙度预处理。在渲染循环中，我们通过<strong>glFramebufferTexture2D</strong>函数来指定需要渲染目标的mip级别。</p>
+<p>接下来是<strong>shader</strong>的实现：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450 compatibility</span><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> WorldPos;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> cube_map;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">float</span> roughness;<br><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> PI = <span class="hljs-number">3.14159265359</span>;<br><br><span class="hljs-comment">//.......省略采样部分代码</span><br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec3</span> N = <span class="hljs-built_in">normalize</span>(WorldPos);<br>    <span class="hljs-type">vec3</span> R = N;<br>    <span class="hljs-type">vec3</span> V = R;<br><br>    <span class="hljs-keyword">const</span> <span class="hljs-type">uint</span> SAMPLE_COUNT = <span class="hljs-number">1024</span>u;<br>    <span class="hljs-type">float</span> totalWeight = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-type">vec3</span> prefilteredColor = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>);<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">uint</span> i = <span class="hljs-number">0</span>u; i &lt; SAMPLE_COUNT; ++i)<br>    &#123;<br>        <span class="hljs-type">vec2</span> Xi = Hammersley(i, SAMPLE_COUNT);<br>        <span class="hljs-type">vec3</span> H  = ImportanceSampleGGX(Xi, N, roughness);<br>        <span class="hljs-type">vec3</span> L  = <span class="hljs-built_in">normalize</span>(<span class="hljs-number">2.0</span> * <span class="hljs-built_in">dot</span>(V, H) * H - V);<br><br>        <span class="hljs-type">float</span> NdotL = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(N, L), <span class="hljs-number">0.0</span>);<br>        <span class="hljs-keyword">if</span>(NdotL &gt; <span class="hljs-number">0.0</span>)<br>        &#123;<br>            <span class="hljs-comment">// sample from the environment&#x27;s mip level based on roughness/pdf</span><br>            <span class="hljs-type">float</span> D   = DistributionGGX(N, H, roughness);<br>            <span class="hljs-type">float</span> NdotH = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(N, H), <span class="hljs-number">0.0</span>);<br>            <span class="hljs-type">float</span> HdotV = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(H, V), <span class="hljs-number">0.0</span>);<br>            <span class="hljs-type">float</span> pdf = D * NdotH / (<span class="hljs-number">4.0</span> * HdotV) + <span class="hljs-number">0.0001</span>;<br><br>            <span class="hljs-type">float</span> resolution = <span class="hljs-number">512.0</span>; <span class="hljs-comment">// resolution of source cubemap (per face)</span><br>            <span class="hljs-type">float</span> saTexel  = <span class="hljs-number">4.0</span> * PI / (<span class="hljs-number">6.0</span> * resolution * resolution);<br>            <span class="hljs-type">float</span> saSample = <span class="hljs-number">1.0</span> / (<span class="hljs-type">float</span>(SAMPLE_COUNT) * pdf + <span class="hljs-number">0.0001</span>);<br><br>            <span class="hljs-type">float</span> mipLevel = roughness == <span class="hljs-number">0.0</span> ? <span class="hljs-number">0.0</span> : <span class="hljs-number">0.5</span> * <span class="hljs-built_in">log2</span>(saSample / saTexel);<br><br>            prefilteredColor += <span class="hljs-built_in">textureLod</span>(cube_map, L, mipLevel).rgb * NdotL;<br>            totalWeight      += NdotL;<br>        &#125;<br>    &#125;<br>    prefilteredColor = prefilteredColor / totalWeight;<br><br>    FragColor = <span class="hljs-type">vec4</span>(prefilteredColor, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>输入的粗糙度对应预过滤的立方体贴图的不同mipmap等级，我们根据粗糙度预过滤环境贴图，并把结果存在<strong>prefilteredColor</strong>里。最后prefilteredColor再除以采样权重总和得到最终的结果。</p>
+<p>由于镜面反射的高频细节多，在某些环境的较为粗糙的mip贴图上，直接采样环境贴图可能会导致强光明亮的环境附近出现噪点。最直接的方法是增加采样数量，但是这往往不是最好的方法。所以示例代码里面采用的方法是不直接采样环境贴图，而是基于积分的PDF(Probability Density Function，即基于概率密度函数的方法)和粗糙度来采样环境贴图的mipmap。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> D   = DistributionGGX(N, H, roughness);<br><span class="hljs-type">float</span> NdotH = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(N, H), <span class="hljs-number">0.0</span>);<br><span class="hljs-type">float</span> HdotV = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(H, V), <span class="hljs-number">0.0</span>);<br><span class="hljs-type">float</span> pdf = D * NdotH / (<span class="hljs-number">4.0</span> * HdotV) + <span class="hljs-number">0.0001</span>;<br><br><span class="hljs-type">float</span> resolution = <span class="hljs-number">512.0</span>; <br><span class="hljs-type">float</span> saTexel  = <span class="hljs-number">4.0</span> * PI / (<span class="hljs-number">6.0</span> * resolution * resolution);<br><span class="hljs-type">float</span> saSample = <span class="hljs-number">1.0</span> / (<span class="hljs-type">float</span>(SAMPLE_COUNT) * pdf + <span class="hljs-number">0.0001</span>);<br><br><span class="hljs-type">float</span> mipLevel = roughness == <span class="hljs-number">0.0</span> ? <span class="hljs-number">0.0</span> : <span class="hljs-number">0.5</span> * <span class="hljs-built_in">log2</span>(saSample / saTexel);<br><span class="hljs-comment">// 这里不是直接 texture(cube_map, L).rgb * NdotL，而是采样cubemap的mipmap</span><br>prefilteredColor += <span class="hljs-built_in">textureLod</span>(cube_map, L, mipLevel).rgb * NdotL;<br></code></pre></td></tr></table></figure>
+<p>上面这种方法可以有效的减少噪点的情况。</p>
+<p>另外就是，示例代码中省略的采样部分其实就是<strong>重要性采样</strong>。和我们上一篇文章不同，上一篇文章是将采样半球平均划分成多个小块，对每个小块的结果进行平均得到最后的结果。而由于镜面反射是强方向性的，镜面反射的GGX分布有明显的<strong>各向异性</strong>，使用平均采样的话会导致大量的采样样本贡献低。而如果镜面反射的采样样本不够的话，会有展现很明显的噪点，对场景的渲染效果是影响非常大，因此我们对镜面反射一般会采用重要性采样的方法。</p>
+<p>采样可以延伸很多内容出来，这里我不做过多的介绍，有兴趣可以去参考资料里面的文章详细阅读。</p>
+<p><img src="prefiltered-cubemap.png" srcset="/img/loading.gif" lazyload alt="预过滤环境贴图作为天空盒在场景中展示"></p>
+<h1>计算BRDF积分贴图</h1>
+<p>接下来是BRDF积分贴图。</p>
+<p>在游戏里实时计算金属的反光效果的时候，我们每帧都要对每个像素做一次包含菲涅尔效应（边缘反光变强）、粗糙度模糊（表面颗粒感）、微平面分布（微观凹凸结构）的复杂积分计算。这在针对固定几个光源的场景是可以接受的，而在IBL中，光源可以是整个半球的方向，若对整个半球的光源做积分的话是无法满足实时渲染的要求的。</p>
+<p>因此我们需要预处理这部分数据存为贴图，BRDF积分贴图是提前把不同粗糙度和视角下的计算结果预先计算，并存储为纹理作为辅助光照计算的输入。</p>
+<p>打个比方就是，实时计算BRDF的这部分相当于手工炒菜，可能非常美味（准确度高）但是人力消耗大（性能低）；而BRDF积分贴图的方法类似吃预制菜，味道一般但可接受（准确度稍低一些），做起来快（性能高）。</p>
+<p>brdf积分贴图是一张2D贴图，只需要RG两位的信息。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">////////// brdf预计算贴图</span><br>TextureCreateInfo brdf_lut_map_create_info &#123;&#125;;<br>brdf_lut_map_create_info.width = brdf_lut_map_create_info.height = CUBE_MAP_RES;<br>brdf_lut_map_create_info.wrapS = brdf_lut_map_create_info.wrapR = brdf_lut_map_create_info.wrapT = GL_CLAMP_TO_EDGE;<br>brdf_lut_map_create_info.minFilter = brdf_lut_map_create_info.magFilter = GL_LINEAR;<br>brdf_lut_map_create_info.format = GL_RG;<br>brdf_lut_map_create_info.data_type = GL_FLOAT;<br>brdf_lut_map_create_info.internalFormat = GL_RG16F;<br><br>TextureBuilder::<span class="hljs-built_in">CreateTexture</span>(brdf_lut_map_id, brdf_lut_map_create_info);<br></code></pre></td></tr></table></figure>
+<p>下面是shader的实现：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450 compatibility</span><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec2</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> TexCoords;<br><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> PI = <span class="hljs-number">3.14159265359</span>;<br><span class="hljs-comment">// ......重要性采样部分省略</span><br><br><span class="hljs-type">vec2</span> IntegrateBRDF(<span class="hljs-type">float</span> NdotV, <span class="hljs-type">float</span> roughness)<br>&#123;<br>    <span class="hljs-type">vec3</span> V;<br>    V.x = <span class="hljs-built_in">sqrt</span>(<span class="hljs-number">1.0</span> - NdotV*NdotV);<br>    V.y = <span class="hljs-number">0.0</span>;<br>    V.z = NdotV;<br><br>    <span class="hljs-type">float</span> A = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-type">float</span> B = <span class="hljs-number">0.0</span>;<br><br>    <span class="hljs-type">vec3</span> N = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>);<br><br>    <span class="hljs-keyword">const</span> <span class="hljs-type">uint</span> SAMPLE_COUNT = <span class="hljs-number">1024</span>u;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">uint</span> i = <span class="hljs-number">0</span>u; i &lt; SAMPLE_COUNT; ++i)<br>    &#123;<br>        <span class="hljs-comment">// 创建一个基于某个指定方向，并按照重要性采样分布的采样方向        </span><br>        <span class="hljs-type">vec2</span> Xi = Hammersley(i, SAMPLE_COUNT);<br>        <span class="hljs-type">vec3</span> H = ImportanceSampleGGX(Xi, N, roughness);<br>        <span class="hljs-type">vec3</span> L = <span class="hljs-built_in">normalize</span>(<span class="hljs-number">2.0</span> * <span class="hljs-built_in">dot</span>(V, H) * H - V);<br><br>        <span class="hljs-type">float</span> NdotL = <span class="hljs-built_in">max</span>(L.z, <span class="hljs-number">0.0</span>);<br>        <span class="hljs-type">float</span> NdotH = <span class="hljs-built_in">max</span>(H.z, <span class="hljs-number">0.0</span>);<br>        <span class="hljs-type">float</span> VdotH = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(V, H), <span class="hljs-number">0.0</span>);<br><br>        <span class="hljs-keyword">if</span>(NdotL &gt; <span class="hljs-number">0.0</span>)<br>        &#123;<br>            <span class="hljs-type">float</span> G = GeometrySmith(N, V, L, roughness);<br>            <span class="hljs-type">float</span> G_Vis = (G * VdotH) / (NdotH * NdotV);<br>            <span class="hljs-type">float</span> Fc = <span class="hljs-built_in">pow</span>(<span class="hljs-number">1.0</span> - VdotH, <span class="hljs-number">5.0</span>);<br><br>            A += (<span class="hljs-number">1.0</span> - Fc) * G_Vis;<br>            B += Fc * G_Vis;<br>        &#125;<br>    &#125;<br>    A /= <span class="hljs-type">float</span>(SAMPLE_COUNT);<br>    B /= <span class="hljs-type">float</span>(SAMPLE_COUNT);<br>    <span class="hljs-keyword">return</span> <span class="hljs-type">vec2</span>(A, B);<br>&#125;<br><span class="hljs-comment">// ----------------------------------------------------------------------------</span><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec2</span> integratedBRDF = IntegrateBRDF(TexCoords.x, TexCoords.y);<br>    FragColor = integratedBRDF;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>BRDF预计算中，我们将角度和粗糙度作为输入（对应两个坐标轴）。按照重要性采样，计算每个样本上的菲涅尔系数$F_0$和偏差。</p>
+<p>另外在PBR中，BRDF的几何项在固定光源下是：<br>
+$$<br>
+K_{direction} = (\alpha+1)^2/8<br>
+$$<br>
+而在IBL中：<br>
+$$<br>
+K_{IBL} = \alpha ^ 2 / 2<br>
+$$<br>
+这里在计算的时候需要按照下面的公式来计算，即：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">float</span> GeometrySchlickGGX(<span class="hljs-type">float</span> NdotV, <span class="hljs-type">float</span> roughness)<br>&#123;<br>    <span class="hljs-type">float</span> a = roughness;<br>    <span class="hljs-type">float</span> k = (a * a) / <span class="hljs-number">2.0</span>;    <span class="hljs-comment">// 用IBL的k参数</span><br><br>    <span class="hljs-type">float</span> nom   = NdotV;<br>    <span class="hljs-type">float</span> denom = NdotV * (<span class="hljs-number">1.0</span> - k) + k;<br><br>    <span class="hljs-keyword">return</span> nom / denom;<br>&#125;<br><br><span class="hljs-type">float</span> GeometrySmith(<span class="hljs-type">vec3</span> N, <span class="hljs-type">vec3</span> V, <span class="hljs-type">vec3</span> L, <span class="hljs-type">float</span> roughness)<br>&#123;<br>    <span class="hljs-type">float</span> NdotV = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(N, V), <span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">float</span> NdotL = <span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(N, L), <span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">float</span> ggx2 = GeometrySchlickGGX(NdotV, roughness);<br>    <span class="hljs-type">float</span> ggx1 = GeometrySchlickGGX(NdotL, roughness);<br><br>    <span class="hljs-keyword">return</span> ggx1 * ggx2;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>最后得到的结果如前面展示过的这张图片类似：</p>
+<p><img src="brdf-lut.png" srcset="/img/loading.gif" lazyload alt="BRDF积分贴图"></p>
+<h1>PBR中应用</h1>
+<p>最后我们要在PBR中应用反射的结果。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> skybox_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> skybox_diffuse_irradiance_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> skybox_prefilter_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> skybox_brdf_lut_texture;<br><br>......<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    ......<br><br>    F0 = <span class="hljs-built_in">mix</span>(F0, env_albedo.xyz, env_metallic);<br>    <span class="hljs-type">vec3</span> kS = FresnelSchlickRoughness(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(frag_normal, view), <span class="hljs-number">0.0</span>), F0, env_roughness);<br>    <span class="hljs-type">vec3</span> kD = <span class="hljs-number">1.0</span> - kS;<br>    kD *= <span class="hljs-number">1.0</span> - env_metallic;<br>    <span class="hljs-comment">// IBL漫反射分量</span><br>    <span class="hljs-type">vec3</span> env_diffuse = env_albedo.xyz * skybox_irradiance;<br>    <span class="hljs-comment">// IBL镜面反射分量</span><br>    <span class="hljs-type">vec3</span> reflect_vec = <span class="hljs-built_in">reflect</span>(-view, frag_normal);<br>    <span class="hljs-keyword">const</span> <span class="hljs-type">float</span> MAX_REFLECTION_LOD = <span class="hljs-number">4.0</span>;<br>    <span class="hljs-type">vec3</span> prefiltered_color = <span class="hljs-built_in">textureLod</span>(skybox_prefilter_texture, reflect_vec, env_roughness*MAX_REFLECTION_LOD).xyz;<br><br>    <span class="hljs-type">vec2</span> env_BRDF = <span class="hljs-built_in">texture</span>(skybox_brdf_lut_texture, <span class="hljs-type">vec2</span>(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(frag_normal, view), <span class="hljs-number">0.0</span>), env_roughness)).rg;<br>    <span class="hljs-type">vec3</span> env_specular = prefiltered_color * (kS * env_BRDF.x + env_BRDF.y);<br>    ambient = (kD*env_diffuse + env_specular);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>得到最终的结果如下：</p>
+<p><img src="ibl-result.gif" srcset="/img/loading.gif" lazyload alt="最终的结果"></p>
+<h1>结语</h1>
+<p>以上就是IBL的简单实现流程。</p>
+<p>从环境贴图的卷积模糊到 BRDF 积分的查表优化，IBL 技术用预计算的智慧解决了实时渲染的核心难题。通过将复杂的物理光照模型转化为可快速查询的纹理数据，它让计算机生成的场景拥有了与真实世界媲美的光影互动能力。</p>
+<p>这项技术的突破在于空间换时间的极致应用：用离线计算的成本换取实时渲染的流畅，以有限的纹理存储替代无限的方向采样。当我们在游戏中看到金属表面反射出细腻的环境细节，或是在 VR 设备中感受材质与光照的自然交融时，背后正是 IBL 在默默支撑着每秒 60 帧的视觉魔法。</p>
+<p>IBL 甚至可以与动态 GI、神经渲染等技术深度融合，逐步突破静态环境的限制。随着硬件光线追踪的普及，预计算与实时计算的界限会进一步模糊，虚拟世界的光照将变得更加动态、智能。但无论技术如何演进，IBL 所奠定的 “将物理规律转化为高效算法” 的思想，仍将是图形学领域的重要方法论。</p>
+<h1>参考资料</h1>
+<p><a target="_blank" rel="noopener" href="https://learnopengl.com/PBR/IBL/Specular-IBL">https://learnopengl.com/PBR/IBL/Specular-IBL</a><br>
+<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/07%20PBR/03%20IBL/02%20Specular%20IBL/#brdf">https://learnopengl-cn.github.io/07 PBR/03 IBL/02 Specular IBL/#brdf</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
+      
+        <a href="/tags/render/" class="print-no-link">#render</a>
+      
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于图像的光照-镜面反射</div>
+      <div>https://ruochenhua.github.io/2025/03/07/ibl-specular/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>晨</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/28/ibl-diffuse-irradiance/" title="基于图像的光照-漫反射辐照度">
+                        <span class="hidden-mobile">基于图像的光照-漫反射辐照度</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
