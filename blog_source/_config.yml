@@ -108,3 +108,6 @@ deploy:
   repository: https://github.com/ruochenhua/ruochenhua.github.io.git
   branch: master
 
+# markdown:
+#   plugins:
+#     - "@traptitech/markdown-it-katex"
