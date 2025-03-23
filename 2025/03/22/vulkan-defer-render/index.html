@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vulkan中利用subpass实现延迟渲染">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/03/22/vulkan-defer-render/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png">
+<meta property="article:published_time" content="2025-03-22T04:37:57.000Z">
+<meta property="article:modified_time" content="2025-03-23T02:50:03.484Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="render">
+<meta property="article:tag" content="渲染">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="Vulkan">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png">
+  
+  
+  
+  <title>Vulkan中利用subpass实现延迟渲染 - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Vulkan中利用subpass实现延迟渲染"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-22 12:37" pubdate>
+          2025年3月22日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Vulkan中利用subpass实现延迟渲染</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>前言</h1>
+<p><img src="scene-defer.png" srcset="/img/loading.gif" lazyload alt="另外一张平平无奇的渲染图"></p>
+<p>这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是<strong>延迟渲染</strong>。</p>
+<p>延迟渲染这个概念在网上有很多的资料，我也在我<a href="https://ruochenhua.github.io/2024/10/19/defer-render/#">之前的一篇文章</a>介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。</p>
+<h1>在Vulkan中实现延迟渲染</h1>
+<p>当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：</p>
+<ul>
+<li>几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。</li>
+<li>传输到光照阶段计算出最终的结果。</li>
+</ul>
+<p>既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。</p>
+<h2 id="Vulkan中的Render-Pass和Subpass">Vulkan中的Render Pass和Subpass</h2>
+<p>在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程进行了定义。简单来说，Render Pass规定了渲染操作要用到的附件（像颜色附件、深度模板附件等）、这些附件的格式以及它们在渲染过程中的使用方式。</p>
+<p>Subpass（子通道）是 Render Pass 中的一个子集，代表了渲染过程中的一个特定阶段。每个Render Pass中至少都会有一个subpass，每个Subpass可以有自己的输入附件、颜色附件、深度模板附件等，并且可以定义这些附件的使用方式。<br>
+Subpass 的主要作用是将渲染过程拆分成多个步骤，每个步骤专注于完成特定的任务，例如几何阶段、光照阶段各自是一个单独的Subpass。通过使用 Subpass，可以在同一个渲染过程中高效地重用附件，避免不必要的内存读写操作。</p>
+<h2 id="延迟渲染的render-pass创建">延迟渲染的render pass创建</h2>
+<p>好的，在简单的介绍了一下render pass和subpass的关系之后，我们用实际的例子来介绍一下延迟渲染中具体怎么实现多个subpass的初始化。</p>
+<p>首先，我们几何阶段需要输出四个颜色附件（位置、法线、反照率和材质参数）作为光照阶段的输入，在光照阶段需要输出一个颜色附件和深度附件作为后续渲染阶段（天空盒、后处理）的输入。因此一共有5个颜色附件和1个深度附件共6个附件。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs c++">std::vector&lt;VkAttachmentDescription&gt; geoStageOutputAttachments = &#123;&#125;;<br>&#123;<br>    <span class="hljs-comment">// 位置</span><br>    VkAttachmentDescription positionAttachment = &#123;&#125;;<br>    positionAttachment.format = VK_FORMAT_R32G32B32A32_SFLOAT;<br>    positionAttachment.samples = VK_SAMPLE_COUNT_1_BIT;<br>    positionAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;<br>    positionAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; <span class="hljs-comment">// </span><br>    positionAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;<br>    positionAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;<br>    positionAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;<br>    positionAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;  <span class="hljs-comment">// </span><br>    geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(positionAttachment);<br>    <br>    <span class="hljs-comment">// 1法线</span><br>    VkAttachmentDescription normalAttachment = &#123;&#125;;<br>    <span class="hljs-comment">// ...和位置类似</span><br>    geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(normalAttachment);<br>    <br>    <span class="hljs-comment">// 2反照率</span><br>    VkAttachmentDescription albedoAttachment = &#123;&#125;;<br>    <span class="hljs-comment">// ...和位置类似</span><br>    geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(albedoAttachment);<br>    <br>    <span class="hljs-comment">// 3材质数据</span><br>    VkAttachmentDescription ormAttachment = &#123;&#125;;<br>    <span class="hljs-comment">// ...和位置类似</span><br>    geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(ormAttachment);<br><br>    <span class="hljs-comment">// 4输出颜色</span><br>    VkAttachmentDescription outputColorAttachment = &#123;&#125;;<br>    outputColorAttachment.format = VK_FORMAT_R8G8B8A8_SRGB;<br>    outputColorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;<br>    outputColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;<br>    outputColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;<br>    outputColorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;<br>    outputColorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;<br>    outputColorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;<br>    outputColorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;<br>    geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(outputColorAttachment);<br>&#125;<br><br><span class="hljs-comment">// 5深度</span><br>VkAttachmentDescription depthAttachment = &#123;&#125;;<br>depthAttachment.format = m_swapChain-&gt;<span class="hljs-built_in">FindDepthFormat</span>();<br>depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;        <br>depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;   <br><span class="hljs-comment">// depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;</span><br>depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;     <br><br>depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;<br>depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;<br>depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;      <br>depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;<br>geoStageOutputAttachments.<span class="hljs-built_in">push_back</span>(depthAttachment);<br></code></pre></td></tr></table></figure>
+<p>上面是创建了所有attachment，然后需要创建对应的attachment reference，其中前五个attachment是颜色附件的，最后一个是深度附件。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 颜色附件reference</span><br>std::vector&lt;VkAttachmentReference&gt; geoStageAttachmentRefs = &#123;&#125;;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; geoStageOutputAttachments.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>; i++)    <br>&#123;<br>    VkAttachmentReference colorAttachmentRef = &#123;&#125;;<br>    colorAttachmentRef.attachment = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint32_t</span>&gt;(i);  <br>    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;  <br>    geoStageAttachmentRefs.<span class="hljs-built_in">push_back</span>(colorAttachmentRef);<br>&#125;<br><br><span class="hljs-comment">// 深度附件reference</span><br>VkAttachmentReference depthAttachmentRef = &#123;&#125;;<br>depthAttachmentRef.attachment = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint32_t</span>&gt;(geoStageOutputAttachments.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>); <span class="hljs-comment">//depth位置在最后</span><br>depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;<br><br></code></pre></td></tr></table></figure>
+<p>接下来便是subpass的创建了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* 子通道依赖用于描述子通道之间的执行顺序和数据依赖关系。</span><br><span class="hljs-comment">* 它确保一个子通道在另一个子通道完成特定操作后才开始执行，从而保证渲染结果的正确性。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-comment">// 子通道依赖:定义子通道之间的依赖关系，确保渲染操作按正确顺序执行。</span><br><span class="hljs-function">std::vector&lt;VkSubpassDescription&gt; <span class="hljs-title">subpasses</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span></span>;<br><span class="hljs-comment">// 两个subpass</span><br>subpasses[<span class="hljs-number">0</span>].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;<span class="hljs-comment">// 指定绑定的管线类型(这里表示绑定图形管线)</span><br>subpasses[<span class="hljs-number">0</span>].colorAttachmentCount = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint32_t</span>&gt;(geoStageAttachmentRefs.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>); <span class="hljs-comment">// 颜色附件数量</span><br>subpasses[<span class="hljs-number">0</span>].pColorAttachments = geoStageAttachmentRefs.<span class="hljs-built_in">data</span>(); <span class="hljs-comment">// 颜色附件引用的指针</span><br>subpasses[<span class="hljs-number">0</span>].pDepthStencilAttachment = &amp;depthAttachmentRef;<span class="hljs-comment">// 深度模板附件引用的指针</span><br><br><span class="hljs-comment">// 几何阶段作为光照阶段输入的attachment refs</span><br>std::vector&lt;VkAttachmentReference&gt; inputAttachmentRefs;<br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; geoStageOutputAttachments.<span class="hljs-built_in">size</span>()<span class="hljs-number">-2</span>; i++)<br>&#123;<br>    VkAttachmentReference inputAttachmentRef = &#123;&#125;;<br>    inputAttachmentRef.attachment = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint32_t</span>&gt;(i);<br>    inputAttachmentRef.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;<br>    inputAttachmentRefs.<span class="hljs-built_in">push_back</span>(inputAttachmentRef);<br>&#125;<br><br>VkAttachmentReference outputAttachmentRef = &#123;&#125;;<br>outputAttachmentRef.attachment = geoStageOutputAttachments.<span class="hljs-built_in">size</span>() - <span class="hljs-number">2</span>;  <br>outputAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;<br>subpasses[<span class="hljs-number">1</span>].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;<br>subpasses[<span class="hljs-number">1</span>].inputAttachmentCount = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">uint32_t</span>&gt;(inputAttachmentRefs.<span class="hljs-built_in">size</span>());<br>subpasses[<span class="hljs-number">1</span>].pInputAttachments = inputAttachmentRefs.<span class="hljs-built_in">data</span>();<br>subpasses[<span class="hljs-number">1</span>].colorAttachmentCount = <span class="hljs-number">1</span>;<br>subpasses[<span class="hljs-number">1</span>].pColorAttachments = &amp;outputAttachmentRef;<br><span class="hljs-comment">// !光照阶段不要修改depth，不需要深度附件否则后面的步骤会出</span><br>subpasses[<span class="hljs-number">1</span>].pDepthStencilAttachment = &amp;depthAttachmentRef;<br></code></pre></td></tr></table></figure>
+<p>这里可以看到我们创建了两个subpass：</p>
+<ul>
+<li>subpasses[0]是几何阶段的subpass，它的结果输出到四张颜色附件上，因此它的ColorAttachmentCount是总的颜色附件数量（5）减一等于4。</li>
+<li>subpasses[1]是光照阶段的subpass，它需要几何阶段的输出作为输入。我们可以将几何阶段的输出保存写到纹理里面，再利用纹理数据传输到光照阶段，这种处理和OpenGL类似，但是效率不高。Vulkan中可以利用InputAttachment将前面subpass的结果作为后续subpass的输入。</li>
+</ul>
+ <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">Input Attachment 是 <span class="hljs-keyword">Subpass </span>可以使用的一种特殊类型的附件。它允许在一个 <span class="hljs-keyword">Subpass </span>中写入数据到附件，然后在后续的 <span class="hljs-keyword">Subpass </span>中直接读取这些数据，而无需将数据从显存中复制到内存再进行传递。这种机制使得数据可以在不同的渲染阶段之间快速共享，提高了渲染效率。<br></code></pre></td></tr></table></figure>
+<p>最后，我们需要定义subpass之间的依赖（dependency）信息。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* 子通道依赖用于描述子通道之间的执行顺序和数据依赖关系。</span><br><span class="hljs-comment">* 它确保一个子通道在另一个子通道完成特定操作后才开始执行，从而保证渲染结果的正确性。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-comment">// 子通道依赖:定义子通道之间的依赖关系，确保渲染操作按正确顺序执行。</span><br>VkSubpassDependency dependency = &#123;&#125;;<br>dependency.srcSubpass = <span class="hljs-number">0</span>;   <span class="hljs-comment">// 指定源子通道</span><br>dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;   <span class="hljs-comment">// 指定源子通道的访问掩码(这里表示对颜色附件写入数据）</span><br>dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT<br>| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;   <span class="hljs-comment">// 指定管线阶段(这里表示包括颜色附件输出阶段和早期片段测试阶段)</span><br><br>dependency.dstSubpass = <span class="hljs-number">1</span>;  <span class="hljs-comment">// 指定目标子通道</span><br>dependency.dstStageMask= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT<br>| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;   <span class="hljs-comment">// 指定目标子通道的管线阶段,和源子通道相同</span><br>dependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT<br>| VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; <span class="hljs-comment">// 指定目标子通道访问掩码,包括颜色附件写入和深度模板附件写入操作</span><br>dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT; <span class="hljs-comment">// VK_DEPENDENCY_BY_REGION_BIT表示存在subpass前后的依赖关系</span><br><br></code></pre></td></tr></table></figure>
+<p>如上的依赖关系设定子通道0（几何阶段）执行结束并对颜色附件进行写入操作之后，子通道1（光照阶段）才会进行执行。至此，多subpass的初始化便完成了。</p>
+<h2 id="InputAttachment在shader中的输入">InputAttachment在shader中的输入</h2>
+<p>上一小节我们介绍了子通道0的输出作为子通道1的输入，这个流程不需要经过纹理的写入和读取，而是可以经过<strong>InputAttachment</strong>的传递。在shader中，我们想要读取InputAttachment的数据的话，需要经过如下的设定。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-keyword">layout</span>(input_attachment_index = <span class="hljs-number">0</span>, set = <span class="hljs-number">1</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">uniform</span> subpassInput inPosition;<br><span class="hljs-keyword">layout</span>(input_attachment_index = <span class="hljs-number">1</span>, set = <span class="hljs-number">1</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">uniform</span> subpassInput inNormal;<br><span class="hljs-keyword">layout</span>(input_attachment_index = <span class="hljs-number">2</span>, set = <span class="hljs-number">1</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">2</span>) <span class="hljs-keyword">uniform</span> subpassInput inAlbedo;<br><span class="hljs-keyword">layout</span>(input_attachment_index = <span class="hljs-number">3</span>, set = <span class="hljs-number">1</span>, <span class="hljs-keyword">binding</span> = <span class="hljs-number">3</span>) <span class="hljs-keyword">uniform</span> subpassInput inOrm;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>layout(input_attachment_index = 0)：input_attachment_index 是一个布局限定符，用于指定要读取的输入附件的索引。在 Render Pass 中，每个附件都有一个唯一的索引，这里的 0 表示从索引为 0 的颜色附件中读取数据。</p>
+</li>
+<li>
+<p>set = 1：set 用于指定描述符集的编号。在 Vulkan 中，描述符集是一组描述符的集合，用于向着色器传递数据。这里的 1 表示该输入附件属于编号为 1 的描述符集。</p>
+</li>
+<li>
+<p>binding = 0：binding 用于指定描述符在描述符集中的绑定点。同一个描述符集中的不同描述符通过绑定点来区分。这里的 0 表示该输入附件在编号为 1 的描述符集中的绑定点为 0。</p>
+</li>
+<li>
+<p>uniform subpassInput：uniform 表示这是一个统一变量，意味着在整个着色器调用过程中其值保持不变。subpassInput 是 Vulkan 着色器语言中特有的类型，用于表示从 Subpass 输入附件中读取的数据。</p>
+</li>
+<li>
+<p>inPosition：这是变量的名称，用于在着色器代码中引用从索引为 0 的颜色附件中读取的数据。</p>
+</li>
+</ul>
+<p>需要注意的是，InputAttachment的也需要设定对应的DescriptorSetLayout信息，以便在DescriptorSet中被正确的引用，这里我简单用KongEngine封装过的函数来示意一下。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">auto</span> textureLayout = VulkanDescriptorSetLayout::<span class="hljs-built_in">Builder</span>()<br>    <span class="hljs-comment">// VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</span><br>    .<span class="hljs-built_in">AddBinding</span>(<span class="hljs-number">0</span>, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, <span class="hljs-number">1</span>) <span class="hljs-comment">// position texture</span><br>    .<span class="hljs-built_in">AddBinding</span>(<span class="hljs-number">1</span>, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, <span class="hljs-number">1</span>) <span class="hljs-comment">// normal texture</span><br>    .<span class="hljs-built_in">AddBinding</span>(<span class="hljs-number">2</span>, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, <span class="hljs-number">1</span>) <span class="hljs-comment">// albedo texture</span><br>    .<span class="hljs-built_in">AddBinding</span>(<span class="hljs-number">3</span>, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, <span class="hljs-number">1</span>) <span class="hljs-comment">// orm texture</span><br>    .<span class="hljs-built_in">AddBinding</span>(<span class="hljs-number">4</span>, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, <span class="hljs-number">1</span>) <span class="hljs-comment">// direct shadow map   </span><br>    .<span class="hljs-built_in">Build</span>();<br></code></pre></td></tr></table></figure>
+<p>另外还需要注意的是，InputAttachment它并不是纹理，所以并不能按照以往用纹理传递几何阶段的信息那样对InputAttachment的数据做<strong>texture()</strong>，而是需要使用<strong>subpassLoad</strong>函数。</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> fragPos = subpassLoad(inPosition).xyz;<br><span class="hljs-type">vec3</span> objNormal = subpassLoad(inNormal).xyz;<br><span class="hljs-type">vec4</span> orm = subpassLoad(inOrm);<br></code></pre></td></tr></table></figure>
+<p>subpassLoad函数不需要提供额外的索引输入。在 Render Pass 的不同 Subpass 中，每个像素的处理是一一对应的。也就是说，在第一个 Subpass 里某个像素位置写入的数据，在后续使用 Input Attachment 的 Subpass 中，相同像素位置就能读取到对应的数据。</p>
+<p>subpassLoad 函数默认读取的是当前正在处理的像素位置的数据，它会自动关联到当前片段着色器所处理的像素。所以，不需要额外提供像 UV 坐标这类信息来指定读取位置，因为当前片段的位置就决定了要读取的数据位置。</p>
+<h2 id="其他注意事项">其他注意事项</h2>
+<p>至此，延迟渲染的关键步骤就是这些了。另外还需要注意的一点是，延迟渲染的光照subpass不能再对深度附件做写入了，否则后续的渲染阶段（尤其是天空盒这种需要获取场景深度信息的）的输出结果会受到影响。这里也花了我一些时间来debug。想要屏蔽掉光照阶段的深度写入，不把深度附件传入到光照阶段即可；另外一个比较推荐的方式则是在光照阶段的pipeline config里面，将depthWriteEnable关闭。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++">pipelineConfig.subpass = <span class="hljs-number">1</span>;<br><span class="hljs-comment">// !光照阶段修改深度附件，否则后面的步骤会出错</span><br>pipelineConfig.depthStencilInfo.depthWriteEnable = VK_FALSE;<br></code></pre></td></tr></table></figure>
+<h1>结语</h1>
+<p>好了，今天这篇文章的内容就到这了。可能Vulkan相关的内容似乎不可避免的需要贴很多代码，因为Vulkan相比较OpenGL还是太底层了，很多步骤都需要依靠调用者自己处理。但是对底层的灵活可定制化确实也体现出了它的强大，subpass的设计我认为就是很好的一个例子。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/3D/" class="print-no-link">#3D</a>
+      
+        <a href="/tags/render/" class="print-no-link">#render</a>
+      
+        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
+      
+        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
+      
+        <a href="/tags/Vulkan/" class="print-no-link">#Vulkan</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Vulkan中利用subpass实现延迟渲染</div>
+      <div>https://ruochenhua.github.io/2025/03/22/vulkan-defer-render/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>晨</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/03/15/kong-vulkan-intro/" title="Vulkan接入小总结">
+                        <span class="hidden-mobile">Vulkan接入小总结</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
