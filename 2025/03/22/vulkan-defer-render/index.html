@@ -26,9 +26,9 @@
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/03/22/vulkan-defer-render/scene-defer.png">
 <meta property="article:published_time" content="2025-03-22T04:37:57.000Z">
-<meta property="article:modified_time" content="2025-03-23T02:50:03.484Z">
+<meta property="article:modified_time" content="2025-03-23T02:52:16.989Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="render">
@@ -36,7 +36,7 @@
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="Vulkan">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/03/22/vulkan-defer-render/scene-defer.png">
   
   
   
@@ -216,7 +216,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png') no-repeat center center; background-size: cover;">
+     style="background: url('/2025/03/22/vulkan-defer-render/scene-defer.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -339,7 +339,9 @@ Subpass 的主要作用是将渲染过程拆分成多个步骤，每个步骤专
 <li>subpasses[0]是几何阶段的subpass，它的结果输出到四张颜色附件上，因此它的ColorAttachmentCount是总的颜色附件数量（5）减一等于4。</li>
 <li>subpasses[1]是光照阶段的subpass，它需要几何阶段的输出作为输入。我们可以将几何阶段的输出保存写到纹理里面，再利用纹理数据传输到光照阶段，这种处理和OpenGL类似，但是效率不高。Vulkan中可以利用InputAttachment将前面subpass的结果作为后续subpass的输入。</li>
 </ul>
- <figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">Input Attachment 是 <span class="hljs-keyword">Subpass </span>可以使用的一种特殊类型的附件。它允许在一个 <span class="hljs-keyword">Subpass </span>中写入数据到附件，然后在后续的 <span class="hljs-keyword">Subpass </span>中直接读取这些数据，而无需将数据从显存中复制到内存再进行传递。这种机制使得数据可以在不同的渲染阶段之间快速共享，提高了渲染效率。<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>Input Attachment 是 Subpass 可以使用的一种特殊类型的附件。它允许在一个 Subpass 中写入数据到附件，然后在后续的 Subpass 中直接读取这些数据，而无需将数据从显存中复制到内存再进行传递。这种机制使得数据可以在不同的渲染阶段之间快速共享，提高了渲染效率。</p>
+</blockquote>
 <p>最后，我们需要定义subpass之间的依赖（dependency）信息。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* 子通道依赖用于描述子通道之间的执行顺序和数据依赖关系。</span><br><span class="hljs-comment">* 它确保一个子通道在另一个子通道完成特定操作后才开始执行，从而保证渲染结果的正确性。</span><br><span class="hljs-comment">*/</span><br><span class="hljs-comment">// 子通道依赖:定义子通道之间的依赖关系，确保渲染操作按正确顺序执行。</span><br>VkSubpassDependency dependency = &#123;&#125;;<br>dependency.srcSubpass = <span class="hljs-number">0</span>;   <span class="hljs-comment">// 指定源子通道</span><br>dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;   <span class="hljs-comment">// 指定源子通道的访问掩码(这里表示对颜色附件写入数据）</span><br>dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT<br>| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;   <span class="hljs-comment">// 指定管线阶段(这里表示包括颜色附件输出阶段和早期片段测试阶段)</span><br><br>dependency.dstSubpass = <span class="hljs-number">1</span>;  <span class="hljs-comment">// 指定目标子通道</span><br>dependency.dstStageMask= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT<br>| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;   <span class="hljs-comment">// 指定目标子通道的管线阶段,和源子通道相同</span><br>dependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT<br>| VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; <span class="hljs-comment">// 指定目标子通道访问掩码,包括颜色附件写入和深度模板附件写入操作</span><br>dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT; <span class="hljs-comment">// VK_DEPENDENCY_BY_REGION_BIT表示存在subpass前后的依赖关系</span><br><br></code></pre></td></tr></table></figure>
 <p>如上的依赖关系设定子通道0（几何阶段）执行结束并对颜色附件进行写入操作之后，子通道1（光照阶段）才会进行执行。至此，多subpass的初始化便完成了。</p>
@@ -471,6 +473,12 @@ Subpass 的主要作用是将渲染过程拆分成多个步骤，每个步骤专
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2025/04/06/ue-android-setup/" title="虚幻引擎之Android环境配置">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">虚幻引擎之Android环境配置</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
