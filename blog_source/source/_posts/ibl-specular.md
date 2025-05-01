@@ -8,10 +8,10 @@ index_img: /2025/02/28/ibl-diffuse-irradiance/ibl-final.png
 banner_img: /2025/02/28/ibl-diffuse-irradiance/ibl-final.png
 ---
 
-# 前言
+## 前言
 [上一篇文章](https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/)介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。
 
-# 分割求和近似法
+## 分割求和近似法
 
 我们回到反射方程的镜面反射部分：
 
@@ -31,7 +31,7 @@ $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathb
 $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) \mathbf{n} \cdot \omega_i \, d\omega_i * \int_{\Omega} L_i(p, \omega_i)  d\omega_i$$
 
 
-## BRDF积分贴图
+### BRDF积分贴图
 卷积的第一部分是镜面反射的卷积部分，也就是**BRDF积分贴图**的部分。BRDF 积分贴图的原理是通过预计算将复杂的 BRDF 镜面反射积分转换为可快速查询的二维查找表。
 
 我们假设从每个方向的入射辐射度都为白色（1.0），在给定的粗糙度、光线和法线的夹角（$\mathbf{n} \cdot \omega_i$）下可以预计算BRDF的响应结果，并将这部分预处理好存储在一张查找纹理上。
@@ -41,7 +41,7 @@ $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathb
 这张贴图分别以**粗糙度**和**光线和法线的夹角**作为坐标轴。存储的是菲涅尔响应的系数和偏差值。
 
 
-## 预过滤环境贴图
+### 预过滤环境贴图
 卷积的第二部分是**预过滤环境贴图**，他也是预计算环境的卷积贴图，类似于上一篇文章的漫反射辐照度贴图。但是这里会跟进一步考虑到粗糙度的，粗糙度的不同会导致环境贴图的采样更加分散，反射更加模糊。我们将不同粗糙度级别的预处理结果存放在预过滤环境贴图的不同mipmap等级中，粗糙度越高mipmap等级越高。
 
 ![预处理环境贴图](pre-filtered-environment-map.png)
@@ -50,7 +50,7 @@ $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathb
 
 结合上面两部分的贴图，我们就能得到近似的镜面反射结果。
 
-# 计算预过滤环境贴图
+## 计算预过滤环境贴图
 下面是代码实现的部分，首先是预过滤环境贴图。
 
 ```c++
@@ -176,7 +176,7 @@ prefilteredColor += textureLod(cube_map, L, mipLevel).rgb * NdotL;
 ![预过滤环境贴图作为天空盒在场景中展示](prefiltered-cubemap.png)
 
 
-# 计算BRDF积分贴图
+## 计算BRDF积分贴图
 接下来是BRDF积分贴图。
 
 在游戏里实时计算金属的反光效果的时候，我们每帧都要对每个像素做一次包含菲涅尔效应（边缘反光变强）、粗糙度模糊（表面颗粒感）、微平面分布（微观凹凸结构）的复杂积分计算。这在针对固定几个光源的场景是可以接受的，而在IBL中，光源可以是整个半球的方向，若对整个半球的光源做积分的话是无法满足实时渲染的要求的。
@@ -293,7 +293,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 ![BRDF积分贴图](brdf-lut.png)
 
-# PBR中应用
+## PBR中应用
 
 最后我们要在PBR中应用反射的结果。
 ```glsl
@@ -328,7 +328,7 @@ void main()
 
 ![最终的结果](ibl-result.gif)
 
-# 结语
+## 结语
 以上就是IBL的简单实现流程。
 
 从环境贴图的卷积模糊到 BRDF 积分的查表优化，IBL 技术用预计算的智慧解决了实时渲染的核心难题。通过将复杂的物理光照模型转化为可快速查询的纹理数据，它让计算机生成的场景拥有了与真实世界媲美的光影互动能力。

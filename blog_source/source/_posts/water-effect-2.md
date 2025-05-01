@@ -9,10 +9,10 @@ index_img: /2025/01/19/water-effect-2/water-with-specular.png
 banner_img: /2025/01/19/water-effect-2/water-with-specular.png
 ---
 
-# 前言
+## 前言
 在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。
 
-# 菲涅尔现象
+## 菲涅尔现象
 
 如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔反射描述了**反射光和折射光的比例与光线入射角之间的关系**。
 
@@ -45,7 +45,7 @@ banner_img: /2025/01/19/water-effect-2/water-with-specular.png
     // ....
 ```
 
-# 水面的动态
+## 水面的动态
 
 好了，我们的水面现在看起来很棒，但是太过于平静了。现在的水面就像是一面镜子，一块玻璃，现实中的水面会因为风或者其他接触物的影响有波纹或者扰动产生，我们需要想办法增加这种效果。
 
@@ -53,7 +53,7 @@ banner_img: /2025/01/19/water-effect-2/water-with-specular.png
 
 我们今天就来介绍一种最为简单的方法，利用贴图来实现这个效果。
 
-## dudv map
+### dudv map
 
 我们在这里需要使用一种叫做dudv map的资源，常见的dudv map如下：
 
@@ -121,7 +121,7 @@ dudv map主要用于制造水面的扰动效果，实现的效果如下：
 
 哇，已经很有感觉了。当然最好在计算distorted_texcoords的时候增加一个随着时间变化的变量，加上动态效果的话会更有真实感。
 
-## 法线贴图
+### 法线贴图
 
 在上面我们已经提到了法线贴图，在渲染水面的时候其实也可以使用法线贴图来增加实感效果。
 
@@ -184,18 +184,18 @@ void main()
 在上面的代码中，我在最后增加了一点点蓝色的tint，增加表现效果。
 
 
-# 结语
+## 结语
 
 好了，这就是一个简单的水面效果渲染的流程了。这个流程很简单易懂，但是有这不错的效果，希望能够对大家有所帮助。
 
 另外上面所有的参数，可以根据实际的需求或者审美来调整。比如说调整reflectivity来改变高光的强度；调整fresnel的power系数来改变菲涅尔现象的表现。
 
-# what's more？
+## what's more？
 
 当然水的渲染，或者说模拟是个很深入的话题，除了我前面提到的gerstner wave和navior-stroke方法，还有很多其他的内容，比如说可以根据水的深度来让深水区的颜色有更深的蓝色晕染，浅水区的颜色更加透明。后续有时间可能会找其中的一两种优化方法再来讨论一下。
 
 
-# 参考资料
+## 参考资料
 [ThinMatrix’s OpenGL water guide](https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&ab_channel=ThinMatrix)
 
 [Simplest way to render pretty water in OpenGL](https://medium.com/@vincehnguyen/simplest-way-to-render-pretty-water-in-opengl-7bce40cbefbe)

@@ -9,24 +9,24 @@ index_img: /2025/01/12/water-effect-1/kong_water.png
 banner_img: /2025/01/12/water-effect-1/kong_water.png
 ---
 
-# 前言
+## 前言
 在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。
 
 ![KongEngine的地形效果](kong_terrain_cloud.png)
 
-# 水面的渲染
+## 水面的渲染
 
 下面我们来介绍如何实现一个简单的水面渲染效果。
 
-## 水面渲染的构成
+### 水面渲染的构成
 
 水面的渲染主要由两部分构成：**反射和折射**，分别对应着水面之上和之下的内容。我在之前已经有文章分享过屏幕空间反射（SSR）的实现细节，但是对于水面来说，反射的范围一般来说是会更大的，包含的内容也会更多。如果仅仅是只能反射屏幕空间的内容的话渲染效果其实并不理想，因此对于水面我们这里使用另外一种方式来实现反射效果。
 
-## 基础能力
+### 基础能力
 
 为了实现水面的渲染，需要下面几个基础能力的帮助。
 
-### 帧缓冲对象（Framebuffer Objects）
+#### 帧缓冲对象（Framebuffer Objects）
 在实现前面的很多渲染效果的过程中，我们多次使用了帧缓冲对象，应该对这个很了解了。我们使用的延迟渲染技术就和帧缓冲对象是分不开的。
 
 如果不熟悉这个的同学可以去翻看一下前面的文章，简单的来说帧缓冲对象能让我们将场景内容渲染到它上面，经过处理后再输出到屏幕。
@@ -42,7 +42,7 @@ banner_img: /2025/01/12/water-effect-1/kong_water.png
 
 用镜像相机得到的渲染得出的纹理作为水面反射的内容表现。
 
-### 裁切平面
+#### 裁切平面
 
 *水面的反射用来表现水面之上的场景，水面的折射用于表现水面只下的场景*。那么理论上来说我按照上面所述的方法渲染反射，很有可能会包含到水下的内容，这样反射的纹理就不对了。
 
@@ -59,7 +59,7 @@ glEnable(GL_CLIP_DISTANCE0)
 *在KongEngine的实现中，由于直接使用了延迟渲染的帧缓冲内容，所以这里并没有做平面裁切，因此折射和反射的表现其实会有一些问题。*
 
 
-### 投影纹理映射
+#### 投影纹理映射
 当我们有了水面的反射和折射的纹理后，我们接下来将这两张纹理应用于水面上就可以了。。。吗？
 
 ![直接使用纹理](water-normal-texcoord.png)
@@ -149,7 +149,7 @@ void main()
 ![正确的水面纹理效果](water-effect-correct.png)
 
 
-# 结语
+## 结语
 
 至此，其实我们已经初步实现了水面的效果了。从上面的效果图来看其实也颇有模有样，但是距离真正的结束还差的远呢。在后面的文章我会继续补充水面渲染的内容，最终我们的效果会如下图一般。
 
@@ -158,7 +158,7 @@ void main()
 如何实现这个效果就敬请期待后续的内容了。
 
 
-# 参考资料
+## 参考资料
 [ThinMatrix’s OpenGL water guide](https://www.youtube.com/watch?v=HusvGeEDU_U&list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&ab_channel=ThinMatrix)
 
 [Simplest way to render pretty water in OpenGL](https://medium.com/@vincehnguyen/simplest-way-to-render-pretty-water-in-opengl-7bce40cbefbe)

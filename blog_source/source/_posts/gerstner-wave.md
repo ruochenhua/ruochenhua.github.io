@@ -9,18 +9,18 @@ index_img: /2025/02/13/gerstner-wave/Gerstner-thumbnail.png
 banner_img: /2025/02/13/gerstner-wave/Gerstner-thumbnail.png
 ---
 
-# 前言
+## 前言
 好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，[KongEngine](https://github.com/ruochenhua/KongEngine)目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对**Vulkan**的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。
 
 今天这篇文章，算是对之前水面渲染的一个小小的延伸，也是填了之前埋得一个小小的坑。
 
-# 生成波浪
+## 生成波浪
 我在[《水面效果-1》](https://ruochenhua.github.io/2025/01/12/water-effect-1/)和[《水面效果-2》](https://ruochenhua.github.io/2025/01/19/water-effect-2/)这两篇文章中，我简单介绍了一种水面渲染效果的方法。这种方法最后的结果能输出出不错的水面效果，但是有一个比较大的缺陷就是，这种方法渲染出来的水面是平的。
 尽管在这两篇文章中，我们尝试使用了几种方法来让水面产生波纹扰动，包括dudv map和normal map。但是水面的mesh最终只是一个平面，如果你以相对平行的视角去看的话，水面是没有起伏的。
 
 如何解决这个问题呢？那有个很简单的思路，我们只要让水面不只是一个平面，让他是一个有波纹扰动的mesh就可以了。在《水面效果-2》的文章的最后提到了Gerstner波形和Navier-Strokes流体方程，这两种方法经常用在3D水体渲染方面。
 
-## 波浪的方法
+### 波浪的方法
 
 - Gerstner Wave是一种用于描述水面波动的数学模型，由奥地利数学家和工程师 Franz Ernst Gerstner 在 1802 年提出。它是一种精确的非线性表面波解，能够很好地描述有限深度水域中水波的传播，尤其适用于大振幅波的情况。
 
@@ -36,9 +36,9 @@ banner_img: /2025/02/13/gerstner-wave/Gerstner-thumbnail.png
 
 今天的重点会是介绍并实现**Gerstner波形**。
 
-# Gerstner波形
+## Gerstner波形
 
-## 什么是Gerstner波形
+### 什么是Gerstner波形
 我们从最简单的sin波形开始，一个基础的sin波形如下所示：
 
 ![sin波形](sin-wave.gif)
@@ -130,7 +130,7 @@ p.y = A * sin(f);
 
 ![Gerstner波形打结](Gerstner-wave-tangle.png)
 
-## Gerstner波形的实现
+### Gerstner波形的实现
 
 好了，我们已经知道了基本的Gerstner波形了，并且上面的代码已经介绍了2D的波形要如何生成。代入到3D的场景中也是类似的，我们只需要带入另外一个维度的移动（y或者z，取决于up方向是哪个轴，这里以y轴为up方向作为示例），根据波形的实际方向为x轴和z轴赋予不同的权重来计算y轴的值。下面是示例代码：
 
@@ -167,7 +167,7 @@ vec3 GerstnerWave(vec3 p, vec3 wave_direction, float steepness, float wave_lengt
 
 ![3D Gerstner波形](Gerstner-wave-3d.gif)
 
-## 波形的叠加
+### 波形的叠加
 
 Gerstner波形我们已经实现了，看起来好像还挺不错的，但是仅仅这样的话和实际上的海浪形态差距还是很大。为了让Gerstner波形更好的表现真实的波浪效果，就需要用到我们前面提到的概念：**波形叠加**。
 
@@ -204,7 +204,7 @@ Gerstner波形我们已经实现了，看起来好像还挺不错的，但是仅
 ```
 为了方便配置，这里我将所有波形的振幅都记录下来，然后做归一化处理，这样以来如果想要保持最终波形的样式不变，只是单纯改变他的振幅大小的话，处理起来就非常方便了。
 
-# 收尾
+## 收尾
 
 最后，我们将波纹作为水面的mesh带入原有的场景。为了保证还是有细小波纹的效果，我保留了对dudv map的使用。水面的顶点采用了地形类似的tessellation处理，最终得到的结果如下所示。
 
@@ -214,5 +214,5 @@ Gerstner波形我们已经实现了，看起来好像还挺不错的，但是仅
 
 在处理完Vulkan的接入后，会在这部分做进一步的工作。
 
- # 参考资料
- https://zhuanlan.zhihu.com/p/404778222
+## 参考资料
+https://zhuanlan.zhihu.com/p/404778222

@@ -8,24 +8,24 @@ index_img: /2025/02/28/ibl-diffuse-irradiance/ibl-final.png
 banner_img: /2025/02/28/ibl-diffuse-irradiance/ibl-final.png
 ---
 
-# 前言
+## 前言
 [KongEngine](https://github.com/ruochenhua/KongEngine)的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。
 
 其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文章打算讲讲基于图像的光照技术：**IBL**。
 
-# 什么是IBL
+## 什么是IBL
 IBL 即**Image-Based Lighting**，是基于物理的渲染（PBR）中一种重要的光照技术。传统的光照计算通常是基于光源的，例如点光源、方向光等，这些光源模型比较简单，难以模拟出复杂的真实世界光照环境。而 IBL 则是利用环境图像（通常是高动态范围图像，HDR）来捕捉场景周围的光照信息，将其作为场景中物体的光照来源，从而为物体提供更真实、更自然的光照效果。
 
 IBL 的核心思想是**将环境光照视为无数个微小的光源，这些光源分布在物体周围的各个方向上。通过对环境图像进行采样和处理，可以计算出物体表面从各个方向接收到的光线能量，进而模拟出物体在复杂光照环境下的外观**。
 
-# IBL的理论基础
+## IBL的理论基础
 在之前的光照计算中我们主要是计算点光源和方向光源的辐照度，这个十分简单，因为我们能够事先知道对辐照度有贡献的光的方向。而IBL中的光源是来自四面八方的，环境的每个方向都有可能对最终的辐照度有一定的影响，和我们之前所面对的问题是不一样的，因此我们需要换一个思路。
 
 那么为了实现IBL的效果，我们需要解决两个必要的条件：
  - 我们需要想办法获取场景中任意方向的辐照度贡献。
  - 要快，性能要在能接受的范围之内。
 
-## 漫反射辐照度
+### 漫反射辐照度
 我们来回顾一下PBR的反射方程。
 
 $$
@@ -43,7 +43,7 @@ $$L_o(p, \omega_o) = \frac{k_d c}{\pi} \int_{\Omega}  L_i(p, \omega_i) \mathbf{n
 
 上述公式表示的是一个是依赖于 $\omega_i$的积分。
 
-## 预计算辐照度贴图
+### 预计算辐照度贴图
 根据环境贴图，获取$\omega_i$方向上的辐照度的方法非常简单，如下：
 ```glsl
 vec3 radiance = texture(cubemap, w_i).rgb;
@@ -55,7 +55,7 @@ vec3 radiance = texture(cubemap, w_i).rgb;
 
 ![对所有方向进行卷积](Convolution.png)
 
-# IBL的实现
+## IBL的实现
 
 好了，其实理论非常简单，接下来是实际的实现部分。以下的代码都已经整合到KongEngine的OpenGL渲染的流程中。
 
@@ -63,7 +63,7 @@ vec3 radiance = texture(cubemap, w_i).rgb;
 
 ![等距柱状投影图](Equirectangular-Map.png)
 
-## 等距柱状投影图转换为立方体贴图
+### 等距柱状投影图转换为立方体贴图
 好了，下面就是实际的代码展示。
 首先我们需要创建对应的fbo，和立方体贴图作为预处理的输出：
 ```c++
@@ -186,7 +186,7 @@ void main()
 当然，这仅仅只是实现IBL漫反射辐照度的第一步。
 
 
-## 立方体贴图的卷积
+### 立方体贴图的卷积
 好了，现在我们有了从等距柱状投影图得来的立方体贴图，接下来的部分是重中之重：我们要计算所有方向的间接漫反射的积分。
 
 回到我们之前提到的方法，我们可以通过**预处理环境贴图**，对其进行**卷积处理**。
@@ -273,7 +273,7 @@ void main()
 
 ![预计算漫反射辐照图](irradiance-scene.png)
 
-# 应用在PBR算法中
+## 应用在PBR算法中
 有了预计算好的辐照贴图，我们需要将它应用于PBR的算法中。漫反射辐照度贴图用于表示周边环境中的间接光积累的结果，可以将它应用于环境光的部分：
 ```glsl
 vec3 skybox_irradiance = texture(skybox_diffuse_irradiance_texture, frag_normal).xyz;
@@ -305,11 +305,11 @@ vec3 env_diffuse = env_albedo.xyz * skybox_irradiance;
 加上漫反射环境贴图后，效果如下面的gif所示。
 ![漫反射环境贴图的表现](PixPin_2025-03-02_23-35-25.gif)
 
-# 结语
+## 结语
 好了，这部分主要是介绍IBL中漫反射的处理部分，下一篇文章我们会聚焦于IBL镜面反射的部分，实现完整的IBL效果。
 
 ![完整的IBL效果](ibl-final.png)
 
 
-# 参考资料
+## 参考资料
 整个IBL的实现是参照[Learn OpenGL上的Diffuse irradiance部分](https://learnopengl.com/PBR/IBL/Diffuse-irradiance)上的步骤来实现的，讲解的非常详细。[中文版](https://learnopengl-cn.github.io/07%20PBR/03%20IBL/01%20Diffuse%20irradiance/#_1)对应的是这一篇文章。

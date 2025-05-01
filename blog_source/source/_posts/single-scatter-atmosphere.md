@@ -20,7 +20,7 @@ banner_img: /2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png
 
 我打算将这个方法的基础思想和实现在此简单记录一下。
 
-# 单次散射模型
+## 单次散射模型
 星球的大气层是一种参与性介质，和在真空环境不同，光在大气层中传播的时候会因为大气中的微小颗粒（水、灰尘等等）发生散射（折射、反射）和吸收等情况。因此我们看向空中的一个点的时候，这个点的颜色是光经过多次散射得到的结果。
 
 光到达我们眼睛之前经过多少次反射和折射是不一定的，在实时渲染的需求下计算太多次光的变化显然也是不显示的。最简单的方法，是使用单次散射模型：我们假定光在进入我们眼睛之前，有且只发生了一次散射。光一般在第一次散射的时候，还会有最多的能量剩余，后面的多次散射能力相对少，对最后效果的呈现也影响不大，因此这种模型可以在保证性能的情况下，还有不错的效果。
@@ -44,7 +44,7 @@ banner_img: /2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png
 
 以上便是大气单次散射模型的基本思路。
 
-# 散射的计算
+## 散射的计算
 之前我们提到了计算光的散射，这里我们介绍一下散射的相关计算。会提及一些公式，但是不会做过多的数学推导工作，对推导过程感兴趣的可以看一下文章中的参考资料。
 
 一般来说，天空大气的散射主要包括两种，分别是**瑞利散射**和**米氏散射**。
@@ -216,7 +216,7 @@ banner_img: /2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png
 自此，我们关于单次散射的天空大气渲染方法的基本预备知识已经了解的差不多了，接下来介绍shader的相关代码。
 
 
-# Shader代码
+## Shader代码
 首先，为了计算AB、PC等视线和光线在大气层内的传播距离，我们需要一个函数来计算射线和球体的相交情况。
 
 ```glsl
@@ -365,6 +365,6 @@ return iSun * (pRlh * kRlh * total_scatter_rlh + pMie * kMie * total_scatter_mie
 <iframe src="single-scatter-atmosphere.mp4" scrolling="no" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
 
 
-# 参考资料
+## 参考资料
 - https://www.alanzucconi.com/2017/10/10/atmospheric-scattering-1/
 - https://www.xianlongok.site/post/8e5d3b12/

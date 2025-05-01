@@ -8,7 +8,7 @@ index_img: /2025/03/15/kong-vulkan-intro/Vulkan_Logo.png
 banner_img: /2025/03/15/kong-vulkan-intro/Vulkan_Logo.png
 ---
 
-# 前言
+## 前言
 
 ![一张平平无奇的渲染图](vulkan-scene.png)
 
@@ -18,7 +18,7 @@ banner_img: /2025/03/15/kong-vulkan-intro/Vulkan_Logo.png
 
 这篇文章也不是什么Vulkan入门教程，不会系统的讲Vulkan的初始化流程是怎么样的，Render Pass和Pipeline是什么，DescriptorSet要怎么设定等等。这些内容太复杂了，很难在一篇文章内讲清楚，况且我现在也不能说是很精通。这篇文章只是会大概介绍一下KongEngine目前的Vulkan结构。
 
-# KongEngine的Vulkan结构
+## KongEngine的Vulkan结构
 
 如下图所示:
 
@@ -106,7 +106,7 @@ void CQuadShape::InitRenderInfo()
 
 同样这么处理的还有**Texture**、**RenderInfo**等类型。Texture和RenderInfo这两个类型有很多可以细讲的内容，这篇文章就不深入了，会计划单独拿一篇文章来详细介绍（埋个坑）。
 
-# Vulkan的渲染系统
+## Vulkan的渲染系统
 
 Vulkan目前有三个渲染系统，分别是：**SimpleVulkanRenderSystem、VulkanPostProcessSystem和VulkanSkyBoxRenderSystem**。这三个渲染系统分别对应着PBR、后处理和天空盒。每个Vulkan的渲染系统有着独立的pipeline、renderpass和descriptor set，在创建系统的时候，会按照不同渲染系统的需求来初始化。下面的例子是SimpleVulkanRenderSystem的创建流程。
 
@@ -194,7 +194,7 @@ int KongRenderModule::Update(double delta)
 
 当然，这里面有很多东西可以讲的，比如说怎么创建对应的Pipeline和renderpass，怎么创建DescriptorSet等等，这些很细节的内容这里就不做介绍了，我会找时间整理一下，看看有没有机会系统的写一篇文章（再埋个坑）。
 
-# 接入ImGui
+## 接入ImGui
 
 为了方便，我在处理完几个渲染系统后还将ImGui接入了进来。
 
@@ -279,7 +279,7 @@ void KongUIManager::Init(GLFWwindow* windowHandle)
 代码如上面所示。目前最终的渲染代码放在VulkanPostprocessSystem的Draw函数中，EndRenderPass前了，因为后处理使用的是swapchain的render pass。这是临时的处理，后面会放到另外合适的地方。
 
 
-# shader预处理
+## shader预处理
 VUlkan的shader使用的是SPIR-V(SPV)二进制格式，而不是像OpenGL的glsl，所以在Vulkan中引用shader之前，所有的shader都需要进行编译转换为SPV格式。
 
 ```shell
@@ -372,7 +372,7 @@ layout(location=2) in vec2 fragUV;
 layout(location=3) in mat3 TBN;
 ```
 
-# 结语
+## 结语
 好了，不知不觉中已经贴了这么多代码了。今天的这篇文章可能略显无聊，并且都是大段的介绍性文字和代码，读起来可能并不怎么有趣。
 
 确实，这篇文章只是我对学习Vulkan，并将它的能力接入到KongEngine的第一阶段的成果，并不有趣也并没有什么了不起的，但也是一个里程碑，可以记录一下。
@@ -381,7 +381,7 @@ layout(location=3) in mat3 TBN;
 
 在同一个render pass的多段subpass可以共享附件，不需要等待前一个渲染命令将结果存到内存中，也缓解了GPU的带宽压力；同时subpass的出现可以减少状态切换的开销，也支持并行处理。还有其他很多好处，这里就不一一列举了。
 
-# 参考资料
+## 参考资料
 
 除了官方的资料外，我这次接入Vulkan很大程度上是依照了这个视频系列[Vulkan(C++) Game Engine Tutorials](https://youtu.be/Y9U9IE0gVHA?si=-JnDZWIx8WiipZi0)。作者深入浅出的将如何实现一个Vulkan渲染引擎的步骤讲解的非常明白，并且将很多图形学上的原理也讲解的十分生动，这里强烈推荐。
 

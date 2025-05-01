@@ -8,26 +8,26 @@ index_img: /2024/12/08/soft-shadow/soft-shadow-thumbnail.png
 banner_img: /2024/12/08/soft-shadow/soft-shadow-thumbnail.png
 ---
 
-# 什么是软阴影
+## 什么是软阴影
 在3D中实现阴影最基础的方法是使用阴影贴图shadowmap，根据shadowmap中存储的信息来判定当前渲染的像素是否在阴影当中。
 
 阴影贴图的方法很好理解，但是仅仅基于阴影贴图的阴影效果，在阴影的边缘会有锯齿的情况出现。这往往是由于阴影贴图的分辨率不够导致的，然而一味的提升阴影贴图的分辨率也不是方法，毕竟实时渲染的性能也是需要考虑的一个方面。
 
 那么该如何在可接受的性能表现下实现软阴影的效果呢，下面详细介绍两种方法：Percentage Closer Filtering（PCF）以及Percentage Closer Soft Shadows（PCSS）。
 
-# 柔和阴影边缘-PCF
+## 柔和阴影边缘-PCF
 下面是一个普通的阴影效果：
 ![普通的阴影效果](normal-shadow.png)
 这个阴影贴图的分辨率是2048，这是在[CSM](https://ruochenhua.github.io/2024/10/13/cascade-shadow-map/)的最低一级的阴影效果。可以看到阴影边缘的锯齿感非常的强烈，同时由于采样精度的问题，模型的腿上也出现了不正确的阴影区域。最简单的方法就是通过提高阴影贴图的分辨率来缓解这个问题，但是显而易见这不是最好的解决方案，而Percentage Closer Filtering（后简称PCF）可以帮助我们解决这个问题。
 
-## 什么是PCF
+### 什么是PCF
 Percentage Closer Filtering（PCF）是一种在计算机图形学中用于生成软阴影的技术。它主要用于解决硬阴影（如简单的阴影映射产生的锐利阴影边缘）不符合真实场景光照效果的问题。
 
 与简单的阴影映射不同，PCF 在判断像素是否在阴影中时，不是只比较单个点的深度。它会在像素点周围的一定区域内进行多次采样。例如，在一个以像素点为中心的小区域（通常是方形或圆形区域）内，对多个采样点进行深度比较。这些采样点的位置可以是均匀分布，也可以采用更复杂的分布方式，如泊松分布，以获得更自然的效果。
 
 对于每个采样点，比较其深度和阴影图中的深度来判断是否在阴影中。然后统计在阴影中的采样点的比例。设采样点总数为**N**，处于阴影中的采样点数量为**n**，则阴影强度可以通过公式计算**shadow=n/N**得到。这个阴影强度用于确定像素最终的阴影效果。如果阴影强度为1，表示像素完全处于阴影中；如果阴影强度为0，表示像素完全不在阴影中；介于两者之间的值表示不同程度的软阴影效果。
 
-## PCF的实现
+### PCF的实现
 转换为代码如下：
 ```glsl
 float CalculatePCFShadow(float current_depth, sampler2D shadow_map,  vec2 uv, int radius)
@@ -55,8 +55,8 @@ float CalculatePCFShadow(float current_depth, sampler2D shadow_map,  vec2 uv, in
 
 ![PCF阴影，采样半径3](pcf-shadow-3.png) 
 
-# 半影的产生-PCSS
-## 什么是本影和半影
+## 半影的产生-PCSS
+### 什么是本影和半影
 在实际的场景中，我们观察阴影，会发现下面这种情况：
 
 ![现实阴影](real_shadow.png)
@@ -70,7 +70,7 @@ float CalculatePCFShadow(float current_depth, sampler2D shadow_map,  vec2 uv, in
 
 ![本影和半影的对照区域](umbra-contrast.png)
 
-## 什么是PCSS
+### 什么是PCSS
 在弄明白什么是本影和半影之后，我们来介绍一下PCSS是什么。
 
 Percentage Closer Soft Shadows（PCSS）即百分比渐近软阴影，是计算机图形学中用于生成更逼真软阴影的一种技术，它是在 Percentage Closer Filtering（PCF）基础上发展而来的。
@@ -81,7 +81,7 @@ Percentage Closer Soft Shadows（PCSS）即百分比渐近软阴影，是计算�
 
 其原理总结起来就是根据采样一个区域内处于阴影的比例，来动态的调节这个区域对应的阴影的采样范围。
 
-## PCSS的实现步骤
+### PCSS的实现步骤
 PCSS的实现步骤如下：
 
 首先，计算平均的遮挡物距离。在阴影图中，以当前像素点为中心，在一个初始的较小采样区域内查找深度值小于当前像素点深度的采样点，这些采样点对应的物体即为遮挡物。通过计算这些遮挡物采样点深度的平均值，得到平均遮挡物距离**d_blocker**。
@@ -149,7 +149,7 @@ for(int pcss_i = 0; pcss_i < pcss_sample_count; pcss_i++)
 shadow = shadow_sum / pcss_sample_count;
 ```
 
-## PCSS的效果
+### PCSS的效果
 下面是PCSS开启和关闭的效果对比，其中PCSS关闭下PCF的采样半径是3：
 ![PCSS关闭](PCSS_OFF.png)
 
@@ -157,15 +157,15 @@ shadow = shadow_sum / pcss_sample_count;
 
 可以看到开启了PCSS的效果后，遮挡物体的阴影区域，随着离遮挡物越来越远，出现了越来越明显的半影效果，效果更加自然和真实。
 
-# 总结
-## Percentage Closer Filtering（PCF）的作用
+## 总结
+### Percentage Closer Filtering（PCF）的作用
 1. 软阴影生成基础：PCF 是一种用于生成软阴影的基础技术。它基于阴影映射，在判断像素是否在阴影中时，不是只比较单个点的深度，而是在像素点周围一定区域内进行多次采样。
 
 2. 阴影强度计算：通过统计采样区域内处于阴影中的采样点比例来计算阴影强度。这种方式能有效避免硬阴影边缘的锯齿问题，使阴影边缘过渡更加自然，产生软阴影效果，提升了阴影的真实感。
 
 3. 平衡性能和效果：相对一些复杂的物理软阴影算法，PCF 较为简单，在性能和效果之间取得了较好的平衡，适用于实时渲染场景，如游戏。
 
-## Percentage Closer Soft Shadows（PCSS）的作用
+### Percentage Closer Soft Shadows（PCSS）的作用
 1. 动态软阴影生成：PCSS 在 PCF 基础上进一步改进。它能够根据光源、遮挡物和接收阴影物体之间的几何关系动态调整采样区域的大小。
 
 2. 更自然的阴影过渡：通过计算平均遮挡物距离和估算半影半径，根据半影半径调整采样区域进行采样计算阴影强度。这样生成的软阴影更加符合物理规律，阴影从完全阴影到完全光照的过渡更加自然、真实，在需要高逼真度渲染的场景中能显著提升视觉质量。

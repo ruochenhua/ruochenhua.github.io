@@ -8,14 +8,14 @@ index_img: /2025/04/06/ue-android-setup/Android_thumbnail.png
 banner_img: /2025/04/06/ue-android-setup/Android_thumbnail.png 
 ---
 
-# 前言
+## 前言
 最近工作又出现了变动，去年我这个快十年游戏客户端和引擎开发经验的被调去做AI后端，迷茫了一年后今年又要被调去做安卓Native C++开发了，真的是这两年转的方向比我原来工作七八年的时间都要多。
 
 不过至少安卓Native C++开发比后端开发更加贴合我的工作了，说不定也是件好事。周末闲来无事，想着我好像从来没有自己构建过UE的安卓工程，打算来走走这个流程。
 
 
-# 构建安卓环境
-## Android Studio
+## 构建安卓环境
+### Android Studio
 要构建安卓包，首先需要下载[**Android Studio**](https://developer.android.google.cn/studio?hl=zh-cn)，在官网下载后安装即可。
 
 安装完运行Android studio，第一次打开会做Studio的初始化，需要安装一些默认的组件，选择需要的（一般是提示的都选了）的后等待下载安装完成即可。
@@ -26,7 +26,7 @@ banner_img: /2025/04/06/ue-android-setup/Android_thumbnail.png
 
 ![安装NDK和命令行工具](sdk_manager.png)
 
-## 运行虚幻引擎设定脚本
+### 运行虚幻引擎设定脚本
 好了，Android Studio的部分就到这了，接下来我们要打开引擎的安装路径，找到**Engine/Extra/Android**目录。这个目录下面有三个名为SetupAndroid的脚本，后缀为.bat是Windows平台下的脚本，.sh是Linux下，.command是MacOS的脚本。
 
 ![SetupAndroid脚本](setup_android_script.png)
@@ -39,7 +39,7 @@ banner_img: /2025/04/06/ue-android-setup/Android_thumbnail.png
 
 当脚本跑完之后，我们需要重启电脑，保证配置生效。
 
-## 虚幻引擎构建安卓包
+### 虚幻引擎构建安卓包
 
 然后打开对应的虚幻引擎项目，在**平台->Android中选择打包项目**：
 ![打包安卓项目](build_android_project.png)
@@ -69,10 +69,10 @@ banner_img: /2025/04/06/ue-android-setup/Android_thumbnail.png
 
 ![安装安卓包](install_android_package.png)
 
-### No Google Play Store Key (No OBB found and no store key)
+#### No Google Play Store Key (No OBB found and no store key)
 装完包，app打开可能会出现上面这个报错，在网上查了下可以通过将**项目设定 > 平台/Android > Package game data inside .apk**打开解决（参考资料2），不过这个可能并不是最终的原因，需要进一步的调查。
 
-### 直接快速启动
+#### 直接快速启动
 虚幻引擎还提供了直接快速启动的方式，也就是在检测到本地的安卓设备后（我使用的是Android Studio的模拟环境），可以从平台选择对应的设备快速打开：
 
 ![快速启动](android_quick_start.png)
@@ -81,10 +81,10 @@ banner_img: /2025/04/06/ue-android-setup/Android_thumbnail.png
 
 ![安卓模拟器的效果（似乎有点小bug）](Android_sim.gif)
 
-# 结语
+## 结语
 好了，这就是基础的虚幻引擎安卓打包流程了，其实这么看来虚幻项目在安卓上的流程还是比较简单的，当然难的是在实实在在的项目开发上，这就是我后面需要慢慢学习的东西了。
 
-# 参考资料
+## 参考资料
 https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-android-sdk-and-ndk-for-unreal?application_version=4.27
 
 https://forums.unrealengine.com/t/solution-no-google-play-store-key-no-obb-found-and-no-store-key/464902/14

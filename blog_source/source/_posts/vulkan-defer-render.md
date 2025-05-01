@@ -8,14 +8,14 @@ index_img: /2025/03/22/vulkan-defer-render/scene-defer.png
 banner_img: /2025/03/22/vulkan-defer-render/scene-defer.png
 ---
 
-# 前言
+## 前言
 ![另外一张平平无奇的渲染图](scene-defer.png)
 
 这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是**延迟渲染**。
 
 延迟渲染这个概念在网上有很多的资料，我也在我[之前的一篇文章](https://ruochenhua.github.io/2024/10/19/defer-render/#)介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。
 
-# 在Vulkan中实现延迟渲染
+## 在Vulkan中实现延迟渲染
 
 当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：
  - 几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。
@@ -23,13 +23,13 @@ banner_img: /2025/03/22/vulkan-defer-render/scene-defer.png
 
 既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。
 
-## Vulkan中的Render Pass和Subpass
+### Vulkan中的Render Pass和Subpass
 在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程进行了定义。简单来说，Render Pass规定了渲染操作要用到的附件（像颜色附件、深度模板附件等）、这些附件的格式以及它们在渲染过程中的使用方式。
 
 Subpass（子通道）是 Render Pass 中的一个子集，代表了渲染过程中的一个特定阶段。每个Render Pass中至少都会有一个subpass，每个Subpass可以有自己的输入附件、颜色附件、深度模板附件等，并且可以定义这些附件的使用方式。
 Subpass 的主要作用是将渲染过程拆分成多个步骤，每个步骤专注于完成特定的任务，例如几何阶段、光照阶段各自是一个单独的Subpass。通过使用 Subpass，可以在同一个渲染过程中高效地重用附件，避免不必要的内存读写操作。
 
-## 延迟渲染的render pass创建
+### 延迟渲染的render pass创建
 好的，在简单的介绍了一下render pass和subpass的关系之后，我们用实际的例子来介绍一下延迟渲染中具体怎么实现多个subpass的初始化。
 
 首先，我们几何阶段需要输出四个颜色附件（位置、法线、反照率和材质参数）作为光照阶段的输入，在光照阶段需要输出一个颜色附件和深度附件作为后续渲染阶段（天空盒、后处理）的输入。因此一共有5个颜色附件和1个深度附件共6个附件。
@@ -181,7 +181,7 @@ dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT; // VK_DEPENDENCY_BY_RE
 
 如上的依赖关系设定子通道0（几何阶段）执行结束并对颜色附件进行写入操作之后，子通道1（光照阶段）才会进行执行。至此，多subpass的初始化便完成了。
 
-## InputAttachment在shader中的输入
+### InputAttachment在shader中的输入
 
 上一小节我们介绍了子通道0的输出作为子通道1的输入，这个流程不需要经过纹理的写入和读取，而是可以经过**InputAttachment**的传递。在shader中，我们想要读取InputAttachment的数据的话，需要经过如下的设定。
 
@@ -226,7 +226,7 @@ subpassLoad函数不需要提供额外的索引输入。在 Render Pass 的不�
 
 subpassLoad 函数默认读取的是当前正在处理的像素位置的数据，它会自动关联到当前片段着色器所处理的像素。所以，不需要额外提供像 UV 坐标这类信息来指定读取位置，因为当前片段的位置就决定了要读取的数据位置。
 
-## 其他注意事项
+### 其他注意事项
 至此，延迟渲染的关键步骤就是这些了。另外还需要注意的一点是，延迟渲染的光照subpass不能再对深度附件做写入了，否则后续的渲染阶段（尤其是天空盒这种需要获取场景深度信息的）的输出结果会受到影响。这里也花了我一些时间来debug。想要屏蔽掉光照阶段的深度写入，不把深度附件传入到光照阶段即可；另外一个比较推荐的方式则是在光照阶段的pipeline config里面，将depthWriteEnable关闭。
 
 ```c++
@@ -235,6 +235,6 @@ pipelineConfig.subpass = 1;
 pipelineConfig.depthStencilInfo.depthWriteEnable = VK_FALSE;
 ```
 
-# 结语
+## 结语
 好了，今天这篇文章的内容就到这了。可能Vulkan相关的内容似乎不可避免的需要贴很多代码，因为Vulkan相比较OpenGL还是太底层了，很多步骤都需要依靠调用者自己处理。但是对底层的灵活可定制化确实也体现出了它的强大，subpass的设计我认为就是很好的一个例子。
 
