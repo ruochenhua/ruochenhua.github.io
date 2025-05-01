@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png">
 <meta property="article:published_time" content="2025-01-06T14:09:54.000Z">
-<meta property="article:modified_time" content="2025-01-09T14:25:30.790Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.186Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -309,9 +309,9 @@
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p>这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。</p>
-<h1>毛发</h1>
+<h2 id="毛发">毛发</h2>
 <p>在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。</p>
 <p>和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的<em>角质层</em>，角质层里面的<em>皮质</em>，以及<em>发髓</em>。</p>
 <p><img src="hair-structure.png" srcset="/img/loading.gif" lazyload alt="头发的结构"></p>
@@ -319,7 +319,7 @@
 <p><img src="simple-hair-structure.png" srcset="/img/loading.gif" lazyload alt="头发的简化结构"></p>
 <h2 id="Kajiya-Kay模型">Kajiya-Kay模型</h2>
 <p>下面我们来了解一下可能是游戏中毛发渲染最常用的毛发渲染模型，<strong>Kajiya-kay模型</strong>。</p>
-<h2 id="简介">简介</h2>
+<h3 id="简介">简介</h3>
 <p>首先需要说明的是，Kajiya-Kay模型是一个<strong>基于经验</strong>的模型，也就是说这个模型并不是根据头发的物理结构得出的，所以会有一些并不真实的地方。</p>
 <p>作为一个1989年的shading model，它具有算法简单，便于理解，计算量小。且头发的主高光的性价比高，效果明显。</p>
 <p>那么kajiya-kay模型的一个核心就是各向异性高光，不知道有没有对各向异性不熟悉的朋友，这里简单说明一下，各向异性就是物体的某些特征根据方向的不同而有所变化。</p>
@@ -332,12 +332,12 @@
 <p>我们是通过切线，光线和视线的方向来得到法线，kajiya-kay模型的公式其实也变成了和切线相关的.</p>
 <p>这里大概贴一下kajiya-kay模型的公式，这里我们不去推导这个公式。主要是大家可以看到公式的参数是和切线T，以及半程向量H（光线向量和视线向量的中间）相关的。</p>
 <p><img src="kajiya-kay.png" srcset="/img/loading.gif" lazyload alt="Kajiya-Kay公式"></p>
-<h3 id="对比">对比</h3>
+<h4 id="对比">对比</h4>
 <p>这里我们放一个高光的对比效果，黑球上的高光是普通的高光计算，绿球则是带有各向异性计算出来的高光，可以看见绿球的高光有种我们叫天使环的效果，这也是人物头发高光经常会出现的效果。</p>
 <p><img src="kajiya-kay-result.png" srcset="/img/loading.gif" lazyload alt="Kajiya-Kay效果"></p>
 <p>为了更加贴近头发我们添加一个头发的法线贴图看看效果，同时也给个纹理。</p>
 <p><img src="kajiya-kay-normal-result.png" srcset="/img/loading.gif" lazyload alt="添加了法线贴图的Kajiya-kay效果"></p>
-<h3 id="优化">优化</h3>
+<h4 id="优化">优化</h4>
 <p>但是其实仅仅出现天使环效果也不够理想，这是因为Kajiya-Kay模型只是基于经验而不是真正的物理。</p>
 <p>经过观察头发的高光，法线一般是有一个主要高光的，这个主要是受光源颜色的影响，大部分时候是白色。另外一个是受头发颜色的影响，会生成次一点的带颜色高光的。这个其实是有物理意义的，也就是光进入头发里面传输然后透射出来造成的效果。</p>
 <p><img src="kajiya-kay-optimize.png" srcset="/img/loading.gif" lazyload alt="优化Kajiya-Kay"></p>
@@ -352,7 +352,7 @@
 <p>不过kajika-kay模型虽然久经沙场，但它始终是基于经验的，他的模型过于简单。<br>
 并且kajika-kay模型假设头发纤维是光滑的圆柱体，而我们之前见到过头发真正的表面是粗糙的鳞片组成的不规则几何体，所以有很多细节是不够准确的。</p>
 <p>接下来我们来简单介绍一下基于物理的marschner模型。</p>
-<h2 id="Marschner模型">Marschner模型</h2>
+<h3 id="Marschner模型">Marschner模型</h3>
 <p>Marschner’s Model是基于头发纤维的结构，进行了相对准确的物理分析并得出的计算方法。</p>
 <p>头发纤维从微观角度来看，实际上是一个从外到内有很多层的结构，它的最外层像鳞片一样，光线在穿过层层头发纤维内部的过程中也会发生折射，反射等，因此我们看到的最终头发呈现的颜色实际上是多条光路综合作用的结果。</p>
 <p>该模型将毛发的光照分为三个部分</p>
@@ -373,13 +373,13 @@
 <p><img src="bsdf-lut.png" srcset="/img/loading.gif" lazyload alt="BSDF查找表"></p>
 <p>当然，Marschner模型的关键，也就是M和N函数的计算会涉及比较深入的数学推导和物理原理，今天这里我们就不深入了，有兴趣的同学可以看一下steve  marschner的论文。</p>
 <p>绝大部分的现代渲染器，包括虚幻引擎，目前使用的也是marschner模型来做毛发渲染。</p>
-<h1>其他领域</h1>
+<h2 id="其他领域">其他领域</h2>
 <p>目前，我们只是浅谈了一些写实数字人的部位的渲染技术，但是还有很多部位是需要特殊处理的。</p>
 <p>比如说作为心灵窗口的眼睛，有非常复杂的生态构造，且充满了液体。在渲染上也会遇到光线的反射散射折射。</p>
 <p>牙齿其实也需要用到次表面散射的模型，他的材质会有一种玉石的散射效果。</p>
 <p>这些部分其实都可以展开来讲。今天时间有限，我们暂时不深入去探讨。有兴趣并且对UE有了解的同学可以去看一下UE的metahuman工程。</p>
 <p><img src="ue-metahuman-face.png" srcset="/img/loading.gif" lazyload alt="人脸的其他部分"></p>
-<h1>结语</h1>
+<h2 id="结语">结语</h2>
 <p>今天这篇文章简短的介绍了一下数字人毛发渲染的技术，后面的分享将会介绍**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。</p>
 
                 

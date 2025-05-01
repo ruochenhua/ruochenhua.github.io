@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2025/04/06/ue-android-setup/Android_thumbnail.png">
 <meta property="article:published_time" content="2025-04-06T11:31:16.000Z">
-<meta property="article:modified_time" content="2025-04-06T13:02:39.177Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.180Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="虚幻引擎">
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -309,24 +309,24 @@
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p>最近工作又出现了变动，去年我这个快十年游戏客户端和引擎开发经验的被调去做AI后端，迷茫了一年后今年又要被调去做安卓Native C++开发了，真的是这两年转的方向比我原来工作七八年的时间都要多。</p>
 <p>不过至少安卓Native C++开发比后端开发更加贴合我的工作了，说不定也是件好事。周末闲来无事，想着我好像从来没有自己构建过UE的安卓工程，打算来走走这个流程。</p>
-<h1>构建安卓环境</h1>
-<h2 id="Android-Studio">Android Studio</h2>
+<h2 id="构建安卓环境">构建安卓环境</h2>
+<h3 id="Android-Studio">Android Studio</h3>
 <p>要构建安卓包，首先需要下载<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio?hl=zh-cn"><strong>Android Studio</strong></a>，在官网下载后安装即可。</p>
 <p>安装完运行Android studio，第一次打开会做Studio的初始化，需要安装一些默认的组件，选择需要的（一般是提示的都选了）的后等待下载安装完成即可。</p>
 <p><img src="android_studio_setup.png" srcset="/img/loading.gif" lazyload alt="AndroidStudio第一次打开配置"></p>
 <p>然后我们会进到Android Studio的欢迎界面，由于我们一般不用Android Studio来开发UE的工程，这里我们不打开我们的C++代码目录，而是直接打开<strong>More Actions-&gt;SDK Manager</strong>，在弹出来的设置界面中，选择<strong>SDK Tools</strong>，勾选<strong>NDK(Side by side)和Android SDK Command-line Tools(latest)</strong>，然后点击Apply或者OK，Android Studio会自动安装对应的NDK和SDK命令行工具。</p>
 <p><img src="sdk_manager.png" srcset="/img/loading.gif" lazyload alt="安装NDK和命令行工具"></p>
-<h2 id="运行虚幻引擎设定脚本">运行虚幻引擎设定脚本</h2>
+<h3 id="运行虚幻引擎设定脚本">运行虚幻引擎设定脚本</h3>
 <p>好了，Android Studio的部分就到这了，接下来我们要打开引擎的安装路径，找到<strong>Engine/Extra/Android</strong>目录。这个目录下面有三个名为SetupAndroid的脚本，后缀为.bat是Windows平台下的脚本，.sh是Linux下，.command是MacOS的脚本。</p>
 <p><img src="setup_android_script.png" srcset="/img/loading.gif" lazyload alt="SetupAndroid脚本"></p>
 <p>运行对应系统的脚本，这个脚本会自动配置虚幻引擎构建安卓平台所需要的内容，并且会自动下载缺少的部分。</p>
 <p><img src="run_setup_android.png" srcset="/img/loading.gif" lazyload alt="运行SetupAndroid脚本"></p>
 <p>（<em>注：上面这张图是我已经设定好一次后再运行一次脚本的结果，可能和第一次运行的表现不一样，但是结果返回都是成功。</em>）</p>
 <p>当脚本跑完之后，我们需要重启电脑，保证配置生效。</p>
-<h2 id="虚幻引擎构建安卓包">虚幻引擎构建安卓包</h2>
+<h3 id="虚幻引擎构建安卓包">虚幻引擎构建安卓包</h3>
 <p>然后打开对应的虚幻引擎项目，在<strong>平台-&gt;Android中选择打包项目</strong>：<br>
 <img src="build_android_project.png" srcset="/img/loading.gif" lazyload alt="打包安卓项目"><br>
 和构建Windows包类似，你需要选择一个目录，然后编辑器会自动烘焙、构建对应的APK包。</p>
@@ -350,16 +350,16 @@
 </blockquote>
 <p>命令将apk安装到设备上。</p>
 <p><img src="install_android_package.png" srcset="/img/loading.gif" lazyload alt="安装安卓包"></p>
-<h3 id="No-Google-Play-Store-Key-No-OBB-found-and-no-store-key">No Google Play Store Key (No OBB found and no store key)</h3>
+<h4 id="No-Google-Play-Store-Key-No-OBB-found-and-no-store-key">No Google Play Store Key (No OBB found and no store key)</h4>
 <p>装完包，app打开可能会出现上面这个报错，在网上查了下可以通过将<strong>项目设定 &gt; 平台/Android &gt; Package game data inside .apk</strong>打开解决（参考资料2），不过这个可能并不是最终的原因，需要进一步的调查。</p>
-<h3 id="直接快速启动">直接快速启动</h3>
+<h4 id="直接快速启动">直接快速启动</h4>
 <p>虚幻引擎还提供了直接快速启动的方式，也就是在检测到本地的安卓设备后（我使用的是Android Studio的模拟环境），可以从平台选择对应的设备快速打开：</p>
 <p><img src="android_quick_start.png" srcset="/img/loading.gif" lazyload alt="快速启动"></p>
 <p>这样极大的便利了安卓开发流程，并且Log可以在电脑上直接看到，推荐这种做法。</p>
 <p><img src="Android_sim.gif" srcset="/img/loading.gif" lazyload alt="安卓模拟器的效果（似乎有点小bug）"></p>
-<h1>结语</h1>
+<h2 id="结语">结语</h2>
 <p>好了，这就是基础的虚幻引擎安卓打包流程了，其实这么看来虚幻项目在安卓上的流程还是比较简单的，当然难的是在实实在在的项目开发上，这就是我后面需要慢慢学习的东西了。</p>
-<h1>参考资料</h1>
+<h2 id="参考资料">参考资料</h2>
 <p><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-android-sdk-and-ndk-for-unreal?application_version=4.27">https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-android-sdk-and-ndk-for-unreal?application_version=4.27</a></p>
 <p><a target="_blank" rel="noopener" href="https://forums.unrealengine.com/t/solution-no-google-play-store-key-no-obb-found-and-no-store-key/464902/14">https://forums.unrealengine.com/t/solution-no-google-play-store-key-no-obb-found-and-no-store-key/464902/14</a></p>
 

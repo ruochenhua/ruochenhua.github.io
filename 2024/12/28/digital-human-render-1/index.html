@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg">
 <meta property="article:published_time" content="2024-12-28T07:24:16.000Z">
-<meta property="article:modified_time" content="2025-01-06T14:43:26.145Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.186Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
@@ -76,7 +76,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -309,16 +309,16 @@
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p>在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。</p>
 <p>这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部分内容做个记录，整理成文章分享出来。</p>
 <p>由于PPT内容还是比较多的，哪怕是精简后的版本也还有50多页，于是乎会准备做成一个系列，当初精简掉的部分可能也会想办法补充回来，让内容尽量的充分。</p>
-<h1>数字人简介</h1>
-<h2 id="数字人的定义">数字人的定义</h2>
+<h2 id="数字人简介">数字人简介</h2>
+<h3 id="数字人的定义">数字人的定义</h3>
 <p>目前数字人缺乏一个统一的标准定义，我们从它的发展起源，从技术角度上选择一个最宽泛最简洁的标准：<strong>由计算机生成的人类。</strong></p>
 <p>中国人工智能产业发展联盟发布的《2020年虚拟数字人发展白皮书》中给了一个更加详细的定义：虚拟数字人意指具有数字化外形的虚拟人物，除了拥有人的<strong>外观</strong>、人的<strong>行为</strong>之外、还有拥有人的<strong>思想</strong>，具有<strong>识别外界环境</strong>、并能与<strong>人交流互动</strong>的能力。</p>
 <p>那其实这个定义里面，也描述了数字人相关的几个关键技术方向，包括：<em>渲染-外观，行为-驱动算法，思想-AI，识别外接环境-感知，与人交流互动-表达</em>。</p>
-<h2 id="数字人的发展历史">数字人的发展历史</h2>
+<h3 id="数字人的发展历史">数字人的发展历史</h3>
 <p>在上世纪80年代，其实就有虚拟形象引入到现实世界的想法。<br>
 1982 年，动画片《太空堡垒》中的女角色林明美作为虚拟歌姬出道，其专辑也成功打入当时的知名音乐排行榜。日本媒体率先提出了“虚拟偶像”的称号。1984 年，世界首位虚拟电影演员“Max Headroom”诞生，出演电影，并拍摄数支广告，在英国家喻户晓。</p>
 <p><img src="%E6%9E%97%E6%98%8E%E7%BE%8E.png" srcset="/img/loading.gif" lazyload alt="林明美"></p>
@@ -330,7 +330,7 @@
 <p>比如说2016年出现的miquela，她在ins上的出现引发了一场“真假辩论”。许多粉丝相信她是真实存在的人物，只是修图“狠”了点。直到黑客们入侵了她的账号，才最终确定了她是由 3 D 电脑动画公司制作的虚拟人。她甚至在2018年一起被美国《时代》周刊列为“25 位最有影响力的互联网人物”</p>
 <p>同样是在2018年，由腾讯、Epic Games推出了Siren项目。Siren 的所有动作表情都由实时捕捉以及实时渲染形成，并且整个过程只有15毫秒，60帧。Siren在渲染的真实性和交互性之间找到平衡，打造了具备实时交互能力的数字虚拟人。</p>
 <p><img src="siren.png" srcset="/img/loading.gif" lazyload alt="siren"></p>
-<h2 id="数字人的分类">数字人的分类</h2>
+<h3 id="数字人的分类">数字人的分类</h3>
 <p>数字人可以按照不同维度进行分类。</p>
 <p>按照美术风格：</p>
 <ul>
@@ -348,12 +348,12 @@
 <li>功能服务型</li>
 <li>虚拟分身</li>
 </ul>
-<h2 id="数字人的发展">数字人的发展</h2>
+<h3 id="数字人的发展">数字人的发展</h3>
 <p>近几年，虚拟数字人在电商、金融、影视、游戏和金融等行业都拥有不同大小的市场规模。<br>
 我们拿虚拟偶像的市场作为例子。虚拟偶像行业2020年中国的市场规模为34.6亿元，预计2023年将达到205.2亿元。带动的市场从2020的645.6亿元，预计2023年增长到3334.7亿元，是一个指数级的增长。</p>
 <p>当然除了虚拟偶像数字人还有很多其他方面的应用，所以市场前景是非常可观的。下面是一个虚拟偶像市场规模及预测的分析。</p>
 <p><img src="%E8%99%9A%E6%8B%9F%E5%81%B6%E5%83%8F%E5%B8%82%E5%9C%BA%E8%A7%84%E6%A8%A1.png" srcset="/img/loading.gif" lazyload alt="虚拟偶像市场规模"></p>
-<h1>数字人的制作流程简介</h1>
+<h2 id="数字人的制作流程简介">数字人的制作流程简介</h2>
 <p>数字人制作大致分4个阶段：</p>
 <ol>
 <li>
@@ -378,7 +378,7 @@
 </li>
 </ol>
 <p>目前虚幻引擎5的metahuman creator是一个很流程化且易于使用的数字人制作工具。</p>
-<h1>结语</h1>
+<h2 id="结语">结语</h2>
 <p>第一部分先总结到这里，在后面的部分我会更加详细的介绍一些数字人渲染技术，包括皮肤、头发的渲染以及卡通渲染等等。</p>
 
                 
@@ -484,8 +484,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/12/22/ue-ai-texture-generation/" title="虚幻引擎5基于AI的贴图生成方法">
-                        <span class="hidden-mobile">虚幻引擎5基于AI的贴图生成方法</span>
+                      <a href="/2024/12/22/ue-ai-texture-generation/" title="虚幻引擎之基于AI的贴图生成方法">
+                        <span class="hidden-mobile">虚幻引擎之基于AI的贴图生成方法</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

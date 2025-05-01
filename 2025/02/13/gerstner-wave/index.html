@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2025/02/13/gerstner-wave/Gerstner-thumbnail.png">
 <meta property="article:published_time" content="2025-02-13T14:50:46.000Z">
-<meta property="article:modified_time" content="2025-02-16T06:47:37.508Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.186Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -310,14 +310,14 @@
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p>好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对<strong>Vulkan</strong>的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。</p>
 <p>今天这篇文章，算是对之前水面渲染的一个小小的延伸，也是填了之前埋得一个小小的坑。</p>
-<h1>生成波浪</h1>
+<h2 id="生成波浪">生成波浪</h2>
 <p>我在<a href="https://ruochenhua.github.io/2025/01/12/water-effect-1/">《水面效果-1》</a>和<a href="https://ruochenhua.github.io/2025/01/19/water-effect-2/">《水面效果-2》</a>这两篇文章中，我简单介绍了一种水面渲染效果的方法。这种方法最后的结果能输出出不错的水面效果，但是有一个比较大的缺陷就是，这种方法渲染出来的水面是平的。<br>
 尽管在这两篇文章中，我们尝试使用了几种方法来让水面产生波纹扰动，包括dudv map和normal map。但是水面的mesh最终只是一个平面，如果你以相对平行的视角去看的话，水面是没有起伏的。</p>
 <p>如何解决这个问题呢？那有个很简单的思路，我们只要让水面不只是一个平面，让他是一个有波纹扰动的mesh就可以了。在《水面效果-2》的文章的最后提到了Gerstner波形和Navier-Strokes流体方程，这两种方法经常用在3D水体渲染方面。</p>
-<h2 id="波浪的方法">波浪的方法</h2>
+<h3 id="波浪的方法">波浪的方法</h3>
 <ul>
 <li>
 <p>Gerstner Wave是一种用于描述水面波动的数学模型，由奥地利数学家和工程师 Franz Ernst Gerstner 在 1802 年提出。它是一种精确的非线性表面波解，能够很好地描述有限深度水域中水波的传播，尤其适用于大振幅波的情况。</p>
@@ -330,8 +330,8 @@
 <p><img src="water-plugin-ue.png" srcset="/img/loading.gif" lazyload alt="虚幻引擎的water plugin"></p>
 <p>而<strong>Navier-Strokes方程</strong>则是用来进行更为复杂精度要求更高的流体物理模拟，它的效果惊人但是随之而来的性能消耗也是巨大，所以一般只是用在工业设计、大气模拟等对实时性能要求不是那么高的领域。</p>
 <p>今天的重点会是介绍并实现<strong>Gerstner波形</strong>。</p>
-<h1>Gerstner波形</h1>
-<h2 id="什么是Gerstner波形">什么是Gerstner波形</h2>
+<h2 id="Gerstner波形">Gerstner波形</h2>
+<h3 id="什么是Gerstner波形">什么是Gerstner波形</h3>
 <p>我们从最简单的sin波形开始，一个基础的sin波形如下所示：</p>
 <p><img src="sin-wave.gif" srcset="/img/loading.gif" lazyload alt="sin波形"></p>
 <p>sin波形非常常见且易懂，它的波形比较圆润。可以把位于sin波形上的每一个点想想成一个水分子，水分子随着x的变化上下摆动，公式如下。</p>
@@ -392,12 +392,12 @@
 <p><img src="gerstner-wave-simple.gif" srcset="/img/loading.gif" lazyload alt="Gerstner波形"></p>
 <p>我们可以调整Gerstner波形的波长和振幅来达到不同的效果，我们发现在<strong>振幅乘以2PI大于波长</strong>的时候，Gerstner波形会出现一种“打结”的情况，这是由于引入了x方向的位置变动所引起的，所以在实际上使用Gerstner波形的时候需要有一定的条件限制。</p>
 <p><img src="Gerstner-wave-tangle.png" srcset="/img/loading.gif" lazyload alt="Gerstner波形打结"></p>
-<h2 id="Gerstner波形的实现">Gerstner波形的实现</h2>
+<h3 id="Gerstner波形的实现">Gerstner波形的实现</h3>
 <p>好了，我们已经知道了基本的Gerstner波形了，并且上面的代码已经介绍了2D的波形要如何生成。代入到3D的场景中也是类似的，我们只需要带入另外一个维度的移动（y或者z，取决于up方向是哪个轴，这里以y轴为up方向作为示例），根据波形的实际方向为x轴和z轴赋予不同的权重来计算y轴的值。下面是示例代码：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-type">vec3</span> GerstnerWave(<span class="hljs-type">vec3</span> p, <span class="hljs-type">vec3</span> wave_direction, <span class="hljs-type">float</span> steepness, <span class="hljs-type">float</span> wave_length, <span class="hljs-type">float</span> speed_factor, <span class="hljs-keyword">inout</span> <span class="hljs-type">vec3</span> binormal, <span class="hljs-keyword">inout</span> <span class="hljs-type">vec3</span> tangent)<br>&#123;<br>    <span class="hljs-type">float</span> k = <span class="hljs-number">2.0</span> * PI / wave_length;<br>    <span class="hljs-comment">//    float wave_speed = 0.5;</span><br>    <span class="hljs-type">float</span> wave_speed = <span class="hljs-built_in">sqrt</span>(<span class="hljs-number">9.8</span> / k) * speed_factor;<br>    <span class="hljs-type">float</span> _amplitude = steepness / k;<br><br><br>    <span class="hljs-type">float</span> f = k * (<span class="hljs-built_in">dot</span>(wave_direction, p.xz) - wave_speed * <span class="hljs-type">float</span>(iTime));<br><br>    tangent += <span class="hljs-type">vec3</span>(-wave_direction.x*wave_direction.x * steepness * <span class="hljs-built_in">sin</span>(f),<br>                        wave_direction.x*steepness*<span class="hljs-built_in">cos</span>(f),<br>                        -wave_direction.z*wave_direction.x*steepness*<span class="hljs-built_in">sin</span>(f));<br><br>    binormal += <span class="hljs-type">vec3</span>(-wave_direction.x*wave_direction.z * steepness * <span class="hljs-built_in">sin</span>(f),<br>                        wave_direction.z*steepness*<span class="hljs-built_in">cos</span>(f),<br>                        -wave_direction.z*wave_direction.z*steepness*<span class="hljs-built_in">sin</span>(f));<br><br>    <span class="hljs-type">vec3</span> p;<br>    p.x = wave_direction.x * _amplitude * <span class="hljs-built_in">cos</span>(f);<br>    p.y = _amplitude*<span class="hljs-built_in">sin</span>(f);<br>    p.z = wave_direction.z * _amplitude * <span class="hljs-built_in">cos</span>(f);<br><br>    <span class="hljs-keyword">return</span> p;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>这里整体的思路和前面的2D计算方式是一样的，多了两个对<strong>tangent</strong>和<strong>binormal</strong>的计算。这两个参数的计算是为了得到正确的法线参数，用于计算波浪的正确光照表现。tangent和binormal的值是通过分别对方向x和z方向求偏导而得来的。</p>
 <p><img src="Gerstner-wave-3d.gif" srcset="/img/loading.gif" lazyload alt="3D Gerstner波形"></p>
-<h2 id="波形的叠加">波形的叠加</h2>
+<h3 id="波形的叠加">波形的叠加</h3>
 <p>Gerstner波形我们已经实现了，看起来好像还挺不错的，但是仅仅这样的话和实际上的海浪形态差距还是很大。为了让Gerstner波形更好的表现真实的波浪效果，就需要用到我们前面提到的概念：<strong>波形叠加</strong>。</p>
 <p>这个概念其实并不陌生，在我们实现<a href="https://ruochenhua.github.io/2024/10/11/ProceduralTerrainGeneration/#%E5%88%86%E5%BD%A2%E5%B8%83%E6%9C%97%E8%BF%90%E5%8A%A8">程序化地形生成</a>的时候就提到了类似的概念：<strong>分形布朗运动（FBM）</strong>。通过将不同频率，不同振幅，不同波长的波形叠加起来，可以得到更加随机，更加复杂的效果。</p>
 <p>在这里也是一样的，我们可以创建多个不同参数的Gerstner波形，将他们的效果叠加。下面是一个将8个波形叠加的效果：</p>
@@ -405,12 +405,12 @@
 <p>这个波形的配置如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-type">vec4</span> wave_list[wave_num] = <span class="hljs-type">vec4</span>[wave_num](<br> <span class="hljs-comment">// direction.x, direction.y, steepness, wave_length</span><br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.05</span>, <span class="hljs-number">201</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">6.0</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">0.10</span>, <span class="hljs-number">153</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">1.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">0.13</span>, <span class="hljs-number">98</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">-0.5</span>, <span class="hljs-number">-1.5</span>, <span class="hljs-number">0.22</span>, <span class="hljs-number">73</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">3.5</span>, <span class="hljs-number">1.5</span>, <span class="hljs-number">0.23</span>, <span class="hljs-number">52</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">-2.5</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">0.32</span>, <span class="hljs-number">37</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">4.5</span>, <span class="hljs-number">-2.4</span>, <span class="hljs-number">0.37</span>, <span class="hljs-number">13</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">0.75</span>, <span class="hljs-number">1.2</span>, <span class="hljs-number">0.08</span>, <span class="hljs-number">3.3</span>)<br>);<br><span class="hljs-type">float</span> total_steepness = <span class="hljs-number">0.0</span>;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; wave_num; i++)<br>&#123;<br>    total_steepness += wave_list[i].z;<br>&#125;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; wave_num; i++)<br>&#123;<br>   wave_list[i].z /= total_steepness;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>为了方便配置，这里我将所有波形的振幅都记录下来，然后做归一化处理，这样以来如果想要保持最终波形的样式不变，只是单纯改变他的振幅大小的话，处理起来就非常方便了。</p>
-<h1>收尾</h1>
+<h2 id="收尾">收尾</h2>
 <p>最后，我们将波纹作为水面的mesh带入原有的场景。为了保证还是有细小波纹的效果，我保留了对dudv map的使用。水面的顶点采用了地形类似的tessellation处理，最终得到的结果如下所示。</p>
 <p><img src="gerstner-scene.gif" srcset="/img/loading.gif" lazyload alt="Gerstner波形在场景中的效果"></p>
 <p>当然，水体渲染还有很多可以优化的部分，比如说浪花的泡沫、采用更加准确的Navier-Stroke方程模拟、水的颜色根据水深做调整、水和陆地接触部分的表现优化等等。</p>
 <p>在处理完Vulkan的接入后，会在这部分做进一步的工作。</p>
-<h1>参考资料</h1>
+<h2 id="参考资料">参考资料</h2>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/404778222">https://zhuanlan.zhihu.com/p/404778222</a></p>
 
                 

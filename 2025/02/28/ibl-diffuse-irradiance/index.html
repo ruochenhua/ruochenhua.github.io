@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png">
 <meta property="article:published_time" content="2025-02-28T14:32:36.000Z">
-<meta property="article:modified_time" content="2025-03-08T03:20:29.372Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.186Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="render">
@@ -77,7 +77,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -310,20 +310,20 @@
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p><a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。</p>
 <p>其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文章打算讲讲基于图像的光照技术：<strong>IBL</strong>。</p>
-<h1>什么是IBL</h1>
+<h2 id="什么是IBL">什么是IBL</h2>
 <p>IBL 即<strong>Image-Based Lighting</strong>，是基于物理的渲染（PBR）中一种重要的光照技术。传统的光照计算通常是基于光源的，例如点光源、方向光等，这些光源模型比较简单，难以模拟出复杂的真实世界光照环境。而 IBL 则是利用环境图像（通常是高动态范围图像，HDR）来捕捉场景周围的光照信息，将其作为场景中物体的光照来源，从而为物体提供更真实、更自然的光照效果。</p>
 <p>IBL 的核心思想是<strong>将环境光照视为无数个微小的光源，这些光源分布在物体周围的各个方向上。通过对环境图像进行采样和处理，可以计算出物体表面从各个方向接收到的光线能量，进而模拟出物体在复杂光照环境下的外观</strong>。</p>
-<h1>IBL的理论基础</h1>
+<h2 id="IBL的理论基础">IBL的理论基础</h2>
 <p>在之前的光照计算中我们主要是计算点光源和方向光源的辐照度，这个十分简单，因为我们能够事先知道对辐照度有贡献的光的方向。而IBL中的光源是来自四面八方的，环境的每个方向都有可能对最终的辐照度有一定的影响，和我们之前所面对的问题是不一样的，因此我们需要换一个思路。</p>
 <p>那么为了实现IBL的效果，我们需要解决两个必要的条件：</p>
 <ul>
 <li>我们需要想办法获取场景中任意方向的辐照度贡献。</li>
 <li>要快，性能要在能接受的范围之内。</li>
 </ul>
-<h2 id="漫反射辐照度">漫反射辐照度</h2>
+<h3 id="漫反射辐照度">漫反射辐照度</h3>
 <p>我们来回顾一下PBR的反射方程。</p>
 <p>$$<br>
 L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi} +  \frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i<br>
@@ -333,17 +333,17 @@ $$L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi}\right) L_i(p, \omega_
 <p>这篇文章我们主要关注的是漫反射部分，也就是公式的前一个部分.将常数项移除出积分后，我们得到下面的公式：</p>
 <p>$$L_o(p, \omega_o) = \frac{k_d c}{\pi} \int_{\Omega}  L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$</p>
 <p>上述公式表示的是一个是依赖于 $\omega_i$的积分。</p>
-<h2 id="预计算辐照度贴图">预计算辐照度贴图</h2>
+<h3 id="预计算辐照度贴图">预计算辐照度贴图</h3>
 <p>根据环境贴图，获取$\omega_i$方向上的辐照度的方法非常简单，如下：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> radiance = <span class="hljs-built_in">texture</span>(cubemap, w_i).rgb;<br></code></pre></td></tr></table></figure>
 <p>而有上面的公式可知,漫反射辐照度是一个依赖于$\omega_i$的积分，那么我们可以想到通过对环境贴图进行预处理，让它在每个采样方向中存储漫反射积分的结果，这样就能实时的在场景中获取IBL的漫反射辐照度了。</p>
 <p>预计算的核心在于对环境贴图进行<strong>卷积处理</strong>，生成一张新的纹理，也就是辐照度贴图（Irradiance Map）。这个过程我们会在渲染前完成的，性能更佳的方式是离线完成，不需要在每帧渲染时重复计算。在实际渲染时，只需从辐照度贴图中采样就能快速获取物体表面的漫反射辐照度，从而大大提高渲染效率。</p>
 <p><img src="Convolution.png" srcset="/img/loading.gif" lazyload alt="对所有方向进行卷积"></p>
-<h1>IBL的实现</h1>
+<h2 id="IBL的实现">IBL的实现</h2>
 <p>好了，其实理论非常简单，接下来是实际的实现部分。以下的代码都已经整合到KongEngine的OpenGL渲染的流程中。</p>
 <p>我们使用<a target="_blank" rel="noopener" href="https://github.com/nothings/stb/blob/master/stb_image.h">stb_image</a>库来加载图像，它能够支持HDR格式的图片。一般来说，HDR环境贴图是存储在一张等距柱状投影图(Equirectangular Map)中，我们可以直接使用等距柱状投影图来获取环境信息，但是这相对来说还是比较昂贵的，所以一般会先将等距柱状投影图转换为立方体贴图。</p>
 <p><img src="Equirectangular-Map.png" srcset="/img/loading.gif" lazyload alt="等距柱状投影图"></p>
-<h2 id="等距柱状投影图转换为立方体贴图">等距柱状投影图转换为立方体贴图</h2>
+<h3 id="等距柱状投影图转换为立方体贴图">等距柱状投影图转换为立方体贴图</h3>
 <p>好了，下面就是实际的代码展示。<br>
 首先我们需要创建对应的fbo，和立方体贴图作为预处理的输出：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 创建fbo</span><br><span class="hljs-built_in">glGenFramebuffers</span>(<span class="hljs-number">1</span>, &amp;preprocess_fbo);<br><span class="hljs-built_in">glGenRenderbuffers</span>(<span class="hljs-number">1</span>, &amp;preprocess_rbo);<br><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);<br><span class="hljs-built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBE_MAP_RES, CUBE_MAP_RES);<br><span class="hljs-built_in">glFramebufferRenderbuffer</span>(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, preprocess_rbo);<br><br><span class="hljs-comment">// 创建立方体贴图</span><br>GLuint cube_map_id;<br><span class="hljs-built_in">glGenTextures</span>(<span class="hljs-number">1</span>, &amp;cube_map_id);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>&#123;<br>    <span class="hljs-comment">// note that we store each face with 16 bit floating point values</span><br>    <span class="hljs-built_in">glTexImage2D</span>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, <span class="hljs-number">0</span>, GL_RGB16F, <br>                 CUBE_MAP_RES, CUBE_MAP_RES, <span class="hljs-number">0</span>, GL_RGB, GL_FLOAT, <span class="hljs-literal">nullptr</span>);<br>&#125;<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br></code></pre></td></tr></table></figure>
@@ -359,7 +359,7 @@ $$L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi}\right) L_i(p, \omega_
 <p>在片段着色器中，我们将一个球面环境纹理（通常是一个全景图）映射到一个三维场景中的物体表面。具体来说，它根据物体表面上每个片段的世界空间位置，计算出对应的球面纹理坐标，这个算法我不在这里深入，有兴趣可以深入了解一下<strong>球面坐标与三维空间向量的关系</strong>以及<strong>从三维向量到二维纹理坐标的转换</strong>。</p>
 <p>好了，经过了上面这些步骤，我们将一张等距柱状投影图转换成了立方体贴图。这个贴图可以按照原有的天空盒渲染流程渲染为天空背景。</p>
 <p>当然，这仅仅只是实现IBL漫反射辐照度的第一步。</p>
-<h2 id="立方体贴图的卷积">立方体贴图的卷积</h2>
+<h3 id="立方体贴图的卷积">立方体贴图的卷积</h3>
 <p>好了，现在我们有了从等距柱状投影图得来的立方体贴图，接下来的部分是重中之重：我们要计算所有方向的间接漫反射的积分。</p>
 <p>回到我们之前提到的方法，我们可以通过<strong>预处理环境贴图</strong>，对其进行<strong>卷积处理</strong>。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 预计算辐照度贴图</span><br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">Use</span>();<br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetInt</span>(<span class="hljs-string">&quot;cube_map&quot;</span>, <span class="hljs-number">0</span>);<br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;projection&quot;</span>, projection);<br>		<br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);<br><span class="hljs-built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>);<br><span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);<br><br><span class="hljs-built_in">glViewport</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>); <span class="hljs-comment">// don&#x27;t forget to configure the viewport to the capture dimensions.</span><br><br><span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>&#123;<br>	irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;view&quot;</span>, skybox_views[i]);<br>	<span class="hljs-built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, <br>							GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_tex_id, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);<br><br>	box_mesh-&gt;<span class="hljs-built_in">Draw</span>();<br>&#125;<br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
@@ -372,7 +372,7 @@ $$L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi}\right) L_i(p, \omega_
 <p>完成了这个流程后，我们就得到了一个预计算好的辐照度贴图。</p>
 <p><img src="original-scene.png" srcset="/img/loading.gif" lazyload alt="原场景图"></p>
 <p><img src="irradiance-scene.png" srcset="/img/loading.gif" lazyload alt="预计算漫反射辐照图"></p>
-<h1>应用在PBR算法中</h1>
+<h2 id="应用在PBR算法中">应用在PBR算法中</h2>
 <p>有了预计算好的辐照贴图，我们需要将它应用于PBR的算法中。漫反射辐照度贴图用于表示周边环境中的间接光积累的结果，可以将它应用于环境光的部分：</p>
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> skybox_irradiance = <span class="hljs-built_in">texture</span>(skybox_diffuse_irradiance_texture, frag_normal).xyz;<br></code></pre></td></tr></table></figure>
 <p>我们在之前的公式变换中，将光照拆分为漫反射和镜面反射两个部分。由于漫反射和镜面反射在间接光照中所起的作用不同，我们需要借助菲涅尔方程来确定物体表面的间接反射率，以此来对漫反射部分进行恰当的加权处理，以实现更精准的光照模拟。</p>
@@ -381,10 +381,10 @@ $$L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi}\right) L_i(p, \omega_
 <figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs glsl">F0 = <span class="hljs-built_in">mix</span>(F0, env_albedo.xyz, env_metallic);<br><span class="hljs-type">vec3</span> kS = FresnelSchlickRoughness(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(frag_normal, view), <span class="hljs-number">0.0</span>), F0, env_roughness);<br><span class="hljs-type">vec3</span> kD = <span class="hljs-number">1.0</span> - kS;<br>kD *= <span class="hljs-number">1.0</span> - env_metallic;<br><span class="hljs-comment">// IBL漫反射分量</span><br><span class="hljs-type">vec3</span> env_diffuse = env_albedo.xyz * skybox_irradiance;<br></code></pre></td></tr></table></figure>
 <p>加上漫反射环境贴图后，效果如下面的gif所示。<br>
 <img src="PixPin_2025-03-02_23-35-25.gif" srcset="/img/loading.gif" lazyload alt="漫反射环境贴图的表现"></p>
-<h1>结语</h1>
+<h2 id="结语">结语</h2>
 <p>好了，这部分主要是介绍IBL中漫反射的处理部分，下一篇文章我们会聚焦于IBL镜面反射的部分，实现完整的IBL效果。</p>
 <p><img src="ibl-final.png" srcset="/img/loading.gif" lazyload alt="完整的IBL效果"></p>
-<h1>参考资料</h1>
+<h2 id="参考资料">参考资料</h2>
 <p>整个IBL的实现是参照<a target="_blank" rel="noopener" href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance">Learn OpenGL上的Diffuse irradiance部分</a>上的步骤来实现的，讲解的非常详细。<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/07%20PBR/03%20IBL/01%20Diffuse%20irradiance/#_1">中文版</a>对应的是这一篇文章。</p>
 
                 

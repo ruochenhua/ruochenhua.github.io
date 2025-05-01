@@ -21,14 +21,14 @@
   
     <meta name="description" content="前言 今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIG">
 <meta property="og:type" content="article">
-<meta property="og:title" content="虚幻引擎5基于AI的贴图生成方法">
+<meta property="og:title" content="虚幻引擎之基于AI的贴图生成方法">
 <meta property="og:url" content="https://ruochenhua.github.io/2024/12/22/ue-ai-texture-generation/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="前言 今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。 这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIG">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ruochenhua.github.io/2024/12/22/ue-ai-texture-generation/texgen_bp.png">
 <meta property="article:published_time" content="2024-12-22T11:35:55.000Z">
-<meta property="article:modified_time" content="2024-12-22T13:35:11.233Z">
+<meta property="article:modified_time" content="2025-05-01T07:33:49.187Z">
 <meta property="article:author" content="晨">
 <meta property="article:tag" content="虚幻引擎">
 <meta property="article:tag" content="AIGC">
@@ -37,7 +37,7 @@
   
   
   
-  <title>虚幻引擎5基于AI的贴图生成方法 - 晨小屋</title>
+  <title>虚幻引擎之基于AI的贴图生成方法 - 晨小屋</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -75,7 +75,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":1,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -219,7 +219,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="虚幻引擎5基于AI的贴图生成方法"></span>
+            <span id="subtitle" data-typed-text="虚幻引擎之基于AI的贴图生成方法"></span>
           
         </div>
 
@@ -303,21 +303,21 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">虚幻引擎5基于AI的贴图生成方法</h1>
+            <h1 id="seo-header">虚幻引擎之基于AI的贴图生成方法</h1>
             
             
               <div class="markdown-body">
                 
-                <h1>前言</h1>
+                <h2 id="前言">前言</h2>
 <p>今年年初，由于公司部门的变动，我从原来的云服务部门调到了新成立的AI部门。<br>
 AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微有粗略的接触过一点点。再加上部门新成立没有什么业务上的压力，我便花了点时间去做了些预言，这个工具便是其中之一。</p>
 <p>这个工具是为了研究如何将AIGC和3D工作流结合起来的成果。当时选了几个方向，包括AIGC贴图、AIGC模型和3D结合controlnet来辅助AIGC文生图等等。研究的过程中用Unreal Engine搭了些简单的demo，很可惜后续有真正的项目推进后，这些预研的内容也并未有进一步的推进了，觉得有些许可惜，于是便打算在这里记录一下。</p>
 <p>同时这个项目也上传到了Git，有兴趣的欢迎查看：<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/UETextureGeneration">UETextureGeneration</a>。</p>
-<h1>介绍</h1>
-<h2 id="大体流程">大体流程</h2>
+<h2 id="介绍">介绍</h2>
+<h3 id="大体流程">大体流程</h3>
 <p>这个demo的流程非常简单，参照一般文生图的流程，填写提示词、负提示词、生成步数和种子等信息。这些参数将传入给到文生图的Python脚本，脚本会运行一个大模型来创建对应的结果。</p>
 <p><img src="run_texgen.png" srcset="/img/loading.gif" lazyload alt="运行工具得到生成的贴图"></p>
-<h2 id="安装步骤">安装步骤</h2>
+<h3 id="安装步骤">安装步骤</h3>
 <p>下面介绍一下这个工具所需要的准备工作。</p>
 <ul>
 <li>
@@ -340,25 +340,25 @@ AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微
 </ul>
 <p>python的版本可能不支持最新的pytorch版本，如ue5.3使用的python 3.9.7只能支持到pytorch2.1，需要根据版本来安装合适的版本，numpy支持到1.24.1版本，opencv-python支持到4.6.0版本。</p>
 <p>ue5.5的Python升级到了3.11，所以可以支持到更新的版本了，请在安装前检查一下，要不然很容易出现问题。</p>
-<h2 id="文件布局">文件布局</h2>
+<h3 id="文件布局">文件布局</h3>
 <p>三个脚本放在<strong>Scripts</strong>文件夹下，分别对应着漫反射贴图生成、法线和置换贴图生成以及提升贴图分辨率三个流程。</p>
 <p>下面简单介绍一下这个几个脚本对应的能力。</p>
-<h2 id="漫反射贴图生成：">漫反射贴图生成：</h2>
+<h3 id="漫反射贴图生成：">漫反射贴图生成：</h3>
 <p>脚本名称：<a target="_blank" rel="noopener" href="http://RunTexGen.py">RunTexGen.py</a></p>
 <p>漫反射贴图生成使用模型：<a target="_blank" rel="noopener" href="https://huggingface.co/dream-textures/texture-diffusion">texture diffusion</a></p>
 <p>模型基于stable diffusion 2 base，通过DreamBooth微调，可通过文生图的方式生成材质的漫反射贴图，尽量不包含光照和阴影信息。</p>
-<h2 id="法线贴图生成：">法线贴图生成：</h2>
+<h3 id="法线贴图生成：">法线贴图生成：</h3>
 <p>脚本名称：<a target="_blank" rel="noopener" href="http://RunNormalGen.py">RunNormalGen.py</a></p>
 <p>为了有更加真实的光照表现效果，贴图一般会配合法线贴图使用。<br>
 从漫反射贴图生成法线贴图的库有好几个，比如说<a target="_blank" rel="noopener" href="https://github.com/HugoTini/DeepBump">deepbump</a>，demo使用的是<a target="_blank" rel="noopener" href="https://github.com/joeyballentine/Material-Map-Generator">Material-Map-Generator(MMG)</a>，因为它还可以生成DisplacementMap和RoughnessMap，这两张贴图同样可以增强模型在3D光照环境下的表现。</p>
-<h3 id="置换贴图：">置换贴图：</h3>
+<h4 id="置换贴图：">置换贴图：</h4>
 <p>上文提到了置换贴图（DisplacementMap），这个资源也是一个提升模型显示效果的手段。法线贴图增加模型细节是不需要修改模型本身的顶点形状的，只是通过提供更为细致的平面法线信息辅助光照计算。</p>
 <p>置换贴图则是可以真实的修改模型的形状。</p>
 <p>在UE中可以使用模型工具通过<strong>DisplacementMap</strong>来丰富模型的细节，也有另外一种方法<strong>视差遮挡映射（ParallaxOcclusionMapping)</strong>，我在UE中使用的是这种方法。</p>
-<h2 id="Upscale：">Upscale：</h2>
+<h3 id="Upscale：">Upscale：</h3>
 <p>脚本名称：<a target="_blank" rel="noopener" href="http://RunUpScale.py">RunUpScale.py</a></p>
 <p>使用<a target="_blank" rel="noopener" href="https://huggingface.co/radames/stable-diffusion-x4-upscaler-img2img">Upscale Pipeline stable-diffusion-x4-upscaler-img2img</a>，将原有的贴图分辨率从512X512提升到2048X2048，模型精度有比较大的提升，但是显存需求显著增大，并且消耗时间显著增长。</p>
-<h1>使用</h1>
+<h2 id="使用">使用</h2>
 <p>最简单的方式是参照下面的蓝图方式调用即可。<br>
 <img src="texgen_bp.png" srcset="/img/loading.gif" lazyload alt="脚本调用蓝图"><br>
 <img src="texgen_bp_macro.png" srcset="/img/loading.gif" lazyload alt="参数包裹函数"></p>
@@ -411,7 +411,7 @@ AI是最近最火热的东西，我虽然肯定算不上专业，但是也稍微
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>虚幻引擎5基于AI的贴图生成方法</div>
+      <div>虚幻引擎之基于AI的贴图生成方法</div>
       <div>https://ruochenhua.github.io/2024/12/22/ue-ai-texture-generation/</div>
     </div>
     <div class="license-meta">
