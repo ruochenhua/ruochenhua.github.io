@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
+  <link rel="icon" href="/img/image.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="晨">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这里是展示窗，是我showcase一些自己的成果的地方，包括代码、github链接等等各种各样的小玩意。   ShaderToyShaderToy是一个很有趣的网站，它上面分享了很多实现很酷炫效果的着色器代码。我在上面也有一些分享，下面展示的是我认为可能还算不错作品，或者是对我有意义的学习内容。 大气渲染  这个demo是天空大气的渲染，基于单次散射模型（有一篇文章有提到过）。是个挺有趣的小例子，">
+<meta property="og:type" content="website">
+<meta property="og:title" content="展示窗">
+<meta property="og:url" content="https://ruochenhua.github.io/display-cabinet/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="这里是展示窗，是我showcase一些自己的成果的地方，包括代码、github链接等等各种各样的小玩意。   ShaderToyShaderToy是一个很有趣的网站，它上面分享了很多实现很酷炫效果的着色器代码。我在上面也有一些分享，下面展示的是我认为可能还算不错作品，或者是对我有意义的学习内容。 大气渲染  这个demo是天空大气的渲染，基于单次散射模型（有一篇文章有提到过）。是个挺有趣的小例子，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/img/og_tinyGL.png">
+<meta property="article:published_time" content="2024-10-29T14:01:23.000Z">
+<meta property="article:modified_time" content="2025-09-30T03:17:27.260Z">
+<meta property="article:author" content="晨">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ruochenhua.github.io/img/og_tinyGL.png">
+  
+  
+  
+  <title>展示窗 - 晨小屋</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 60vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>晨小屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/display-cabinet/" target="_self">
+                <i class="iconfont icon-exp-fill"></i>
+                <span>展示窗</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="我的作品展示"></span>
+          
+        </div>
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          >
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+<article class="page-content">
+  <p>这里是展示窗，是我showcase一些自己的成果的地方，包括代码、github链接等等各种各样的小玩意。</p>
+<div class="markdown-body">
+
+<h1 id="ShaderToy"><a href="#ShaderToy" class="headerlink" title="ShaderToy"></a>ShaderToy</h1><p>ShaderToy是一个很有趣的网站，它上面分享了很多实现很酷炫效果的着色器代码。我在上面也有一些分享，下面展示的是我认为可能还算不错作品，或者是对我有意义的学习内容。</p>
+<h2 id="大气渲染"><a href="#大气渲染" class="headerlink" title="大气渲染"></a>大气渲染</h2><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/XXBcRR?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
+
+<p>这个demo是天空大气的渲染，基于单次散射模型（有一篇文章有提到过）。是个挺有趣的小例子，修改Shader代码可以尝试将相机抬升，将会展示在外太空看向地球的大气效果。</p>
+<h2 id="简单海平面"><a href="#简单海平面" class="headerlink" title="简单海平面"></a>简单海平面</h2><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/X3ByDD?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
+
+<p>这个demo稍微复杂了那么一丢丢，它是由上面的天空大气的demo增加了一些细节而来。云和海水的纹理都是通过柏林噪声来生成的（这就是图形编程的魅力所在吧，仅仅通过代码就能生成逼真的画面）。</p>
+<p>流程大概是先计算天空大气的颜色；然后通过噪音生成3D空间的云的密度函数，通过采样一定范围的空气密度来在画面的上半部分渲染云。渲染完成后将云沿着横轴翻转，再配合上噪音生成的海水波纹。</p>
+<h2 id="程序化地形"><a href="#程序化地形" class="headerlink" title="程序化地形"></a>程序化地形</h2><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/4XByRV?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
+
+<p>这个demo的灵感来源于Inigo大佬的一篇教程：<a target="_blank" rel="noopener" href="https://www.shadertoy.com/view/4ttSWf%E3%80%82">https://www.shadertoy.com/view/4ttSWf。</a></p>
+<p>和教程有所差异的是我选择了使用无线地形的生成，而不是一个固定的角度。</p>
+<p>从效果来看是比较震撼的，不过性能上还是有诸多问题，raymarch地形在现在看来还是比较难做到高性能和高质量检具的结果。</p>
+<p>另外云（高层和低层）的效果我并不是特别满意，后续还想改成更为复杂一点的效果，并且加上阴影等。</p>
+<h2 id="domain-warp"><a href="#domain-warp" class="headerlink" title="domain warp"></a>domain warp</h2><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/lXfBWX?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
+
+<p>这个demo是用于学习domain warp的例子。domain warp实际上就是将FBM的输出作为另一个FBM的输入，调整合适的参数和迭代后得到的很特殊的效果。这个demo里面我默认将domain wrap的结果作为raymarch sphere的材质。</p>
+<h2 id="flow-effect"><a href="#flow-effect" class="headerlink" title="flow effect"></a>flow effect</h2><iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MXffDX?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
+
+<p>这个demo和上面的类似，是我学习flow效果的一个练手作品。<br>其实现过程是用FBM计算出平面上某个点的流动方向f，并在0帧初始化最初的颜色后，然后从往后的每一帧，每个像素的颜色都遵循f的方向流动并记录成材质，循环往复。</p>
+<p>另外这个flow上的阴影效果是根据颜色的blue值来决定的，只是调了一个好看的效果而已。</p>
+<h1 id="GitHub"><a href="#GitHub" class="headerlink" title="GitHub"></a>GitHub</h1><p>这里是我做的一些放在GitHub上面的工程。</p>
+<h2 id="KongEngine"><a href="#KongEngine" class="headerlink" title="KongEngine"></a>KongEngine</h2><p><a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">https://github.com/ruochenhua/KongEngine</a></p>
+<p>KongEngine是我在2019年开始的一个基于OpenGL的渲染项目，但是后面由于各种原因更新了没有多少功能就弃置了，在2020年提交了最后一个commit就没有动静，最终的效果也如下图所示。</p>
+<p><img src="/img/og_tinyGL.png" srcset="/img/loading.gif" lazyload alt="2020年的最后一次提交"></p>
+<p>2024年我重新拾起这个项目的开发，并在原来非常简单的渲染效果上增加了很多额外的功能，这也是我希望我能够一直进行下去的项目。</p>
+</div>
+
+  
+
+</article>
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
