@@ -1,45 +1,72 @@
 <svg version="1.1" width="1200" height="300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#1a1a2e"/>
-  <text x="600" y="80" font-family="Arial, sans-serif" font-size="48" fill="#ffffff" text-anchor="middle" font-weight="bold">UE中的变体</text>
-  <text x="600" y="120" font-family="Arial, sans-serif" font-size="24" fill="#4cc9f0" text-anchor="middle">TVariant &amp; FVariant 数据结构详解</text>
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#4cc9f0;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#4cc9f0;stop-opacity:0" />
+    </radialGradient>
+  </defs>
   
-  <!-- Left Graphic - TVariant -->
-  <g transform="translate(200, 150)">
-    <rect x="0" y="0" width="120" height="100" fill="#16213e" stroke="#0f3460" stroke-width="2" rx="5" ry="5"/>
-    <text x="60" y="35" font-family="Arial, sans-serif" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="bold">TVariant</text>
-    <text x="60" y="55" font-family="Arial, sans-serif" font-size="14" fill="#4cc9f0" text-anchor="middle">模板类</text>
-    <text x="60" y="75" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">编译时类型安全</text>
+  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+  
+  <!-- Title -->
+  <text x="600" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#4cc9f0" text-anchor="middle" opacity="0.9">
+    TVariant &amp; FVariant 详解
+  </text>
+  
+  <!-- Central Glow -->
+  <circle cx="600" cy="150" r="200" fill="url(#glow)" opacity="0.2"/>
+  
+  <!-- TVariant Card -->
+  <g transform="translate(415, 160)">
+    <rect x="0" y="0" width="150" height="120" fill="#16213e" stroke="#4361ee" stroke-width="2" rx="10" ry="10"/>
+    <rect x="4" y="4" width="142" height="112" fill="#0f3460" rx="6" ry="6"/>
+    <text x="75" y="38" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#4cc9f0" text-anchor="middle" font-weight="bold">
+      TVariant
+    </text>
+    <text x="75" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.8">
+      模板类
+    </text>
+    <text x="75" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" opacity="0.6">
+      编译时安全
+    </text>
   </g>
   
-  <!-- Center Graphic - Connection -->
-  <g transform="translate(500, 180)">
-    <circle cx="50" cy="30" r="40" fill="#16213e" stroke="#0f3460" stroke-width="2"/>
-    <text x="50" y="35" font-family="Arial, sans-serif" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="bold">+</text>
+  <!-- Connection -->
+  <g transform="translate(600, 220)">
+    <circle cx="0" cy="0" r="35" fill="#16213e" stroke="#4361ee" stroke-width="2"/>
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="32" fill="#4cc9f0" text-anchor="middle" dominant-baseline="middle" font-weight="bold">
+      +
+    </text>
   </g>
   
-  <!-- Right Graphic - FVariant -->
-  <g transform="translate(800, 150)">
-    <rect x="0" y="0" width="120" height="100" fill="#16213e" stroke="#0f3460" stroke-width="2" rx="5" ry="5"/>
-    <text x="60" y="35" font-family="Arial, sans-serif" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="bold">FVariant</text>
-    <text x="60" y="55" font-family="Arial, sans-serif" font-size="14" fill="#4cc9f0" text-anchor="middle">运行时类</text>
-    <text x="60" y="75" font-family="Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">反射与序列化</text>
+  <!-- FVariant Card -->
+  <g transform="translate(635, 160)">
+    <rect x="0" y="0" width="150" height="120" fill="#16213e" stroke="#4cc9f0" stroke-width="2" rx="10" ry="10"/>
+    <rect x="4" y="4" width="142" height="112" fill="#0f3460" rx="6" ry="6"/>
+    <text x="75" y="38" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#3a86ff" text-anchor="middle" font-weight="bold">
+      FVariant
+    </text>
+    <text x="75" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.8">
+      运行时类
+    </text>
+    <text x="75" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" opacity="0.6">
+      反射序列化
+    </text>
   </g>
+  
+
   
   <!-- Decorative Elements -->
-  <line x1="100" y1="200" x2="1100" y2="200" stroke="#0f3460" stroke-width="1" stroke-dasharray="5,5"/>
+  <circle cx="150" cy="100" r="6" fill="#4cc9f0" opacity="0.8"/>
+  <circle cx="1050" cy="100" r="6" fill="#3a86ff" opacity="0.8"/>
+  <circle cx="150" cy="200" r="6" fill="#3a86ff" opacity="0.8"/>
+  <circle cx="1050" cy="200" r="6" fill="#4cc9f0" opacity="0.8"/>
   
-  <rect x="100" y="220" width="100" height="30" fill="#16213e" stroke="#0f3460" stroke-width="1" rx="5" ry="5"/>
-  <text x="150" y="240" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">C++</text>
-  
-  <rect x="300" y="220" width="100" height="30" fill="#16213e" stroke="#0f3460" stroke-width="1" rx="5" ry="5"/>
-  <text x="350" y="240" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">UE5</text>
-  
-  <rect x="500" y="220" width="100" height="30" fill="#16213e" stroke="#0f3460" stroke-width="1" rx="5" ry="5"/>
-  <text x="550" y="240" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">变体</text>
-  
-  <rect x="700" y="220" width="100" height="30" fill="#16213e" stroke="#0f3460" stroke-width="1" rx="5" ry="5"/>
-  <text x="750" y="240" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">数据结构</text>
-  
-  <rect x="900" y="220" width="100" height="30" fill="#16213e" stroke="#0f3460" stroke-width="1" rx="5" ry="5"/>
-  <text x="950" y="240" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">类型系统</text>
+  <!-- Horizontal Line -->
+  <line x1="200" y1="145" x2="1000" y2="145" stroke="#4361ee" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
 </svg>
