@@ -1,25 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="前言 KongEngine的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。 其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>基于图像的光照-漫反射辐照度 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 KongEngine的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。 其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文">
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于图像的光照-漫反射辐照度">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/index.html">
@@ -34,283 +13,160 @@
 <meta property="article:tag" content="render">
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png">
-  
-  
-  
-  <title>基于图像的光照-漫反射辐照度 - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "基于图像的光照-漫反射辐照度",
+  "url": "https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/",
+  "image": "https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/ibl-final.png",
+  "datePublished": "2025-02-28T14:32:36.000Z",
+  "dateModified": "2025-05-01T07:33:49.186Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于图像的光照-漫反射辐照度',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/2025/02/28/ibl-diffuse-irradiance/ibl-final.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="基于图像的光照-漫反射辐照度"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-02-28 22:32" pubdate>
-          2025年2月28日 晚上
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          3k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          26 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">基于图像的光照-漫反射辐照度</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="前言">前言</h2>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/02/28/ibl-diffuse-irradiance/ibl-final.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">基于图像的光照-漫反射辐照度</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">基于图像的光照-漫反射辐照度</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-28T14:32:36.000Z" title="发表于 2025-02-28 22:32:36">2025-02-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.186Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
 <p><a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。</p>
 <p>其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文章打算讲讲基于图像的光照技术：<strong>IBL</strong>。</p>
 <h2 id="什么是IBL">什么是IBL</h2>
@@ -335,474 +191,55 @@ $$L_o(p, \omega_o) = \int_{\Omega} \left(\frac{k_d c}{\pi}\right) L_i(p, \omega_
 <p>上述公式表示的是一个是依赖于 $\omega_i$的积分。</p>
 <h3 id="预计算辐照度贴图">预计算辐照度贴图</h3>
 <p>根据环境贴图，获取$\omega_i$方向上的辐照度的方法非常简单，如下：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> radiance = <span class="hljs-built_in">texture</span>(cubemap, w_i).rgb;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> radiance = <span class="built_in">texture</span>(cubemap, w_i).rgb;</span><br></pre></td></tr></table></figure>
 <p>而有上面的公式可知,漫反射辐照度是一个依赖于$\omega_i$的积分，那么我们可以想到通过对环境贴图进行预处理，让它在每个采样方向中存储漫反射积分的结果，这样就能实时的在场景中获取IBL的漫反射辐照度了。</p>
 <p>预计算的核心在于对环境贴图进行<strong>卷积处理</strong>，生成一张新的纹理，也就是辐照度贴图（Irradiance Map）。这个过程我们会在渲染前完成的，性能更佳的方式是离线完成，不需要在每帧渲染时重复计算。在实际渲染时，只需从辐照度贴图中采样就能快速获取物体表面的漫反射辐照度，从而大大提高渲染效率。</p>
-<p><img src="Convolution.png" srcset="/img/loading.gif" lazyload alt="对所有方向进行卷积"></p>
+<p><img src="Convolution.png" alt="对所有方向进行卷积"></p>
 <h2 id="IBL的实现">IBL的实现</h2>
 <p>好了，其实理论非常简单，接下来是实际的实现部分。以下的代码都已经整合到KongEngine的OpenGL渲染的流程中。</p>
 <p>我们使用<a target="_blank" rel="noopener" href="https://github.com/nothings/stb/blob/master/stb_image.h">stb_image</a>库来加载图像，它能够支持HDR格式的图片。一般来说，HDR环境贴图是存储在一张等距柱状投影图(Equirectangular Map)中，我们可以直接使用等距柱状投影图来获取环境信息，但是这相对来说还是比较昂贵的，所以一般会先将等距柱状投影图转换为立方体贴图。</p>
-<p><img src="Equirectangular-Map.png" srcset="/img/loading.gif" lazyload alt="等距柱状投影图"></p>
+<p><img src="Equirectangular-Map.png" alt="等距柱状投影图"></p>
 <h3 id="等距柱状投影图转换为立方体贴图">等距柱状投影图转换为立方体贴图</h3>
 <p>好了，下面就是实际的代码展示。<br>
 首先我们需要创建对应的fbo，和立方体贴图作为预处理的输出：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 创建fbo</span><br><span class="hljs-built_in">glGenFramebuffers</span>(<span class="hljs-number">1</span>, &amp;preprocess_fbo);<br><span class="hljs-built_in">glGenRenderbuffers</span>(<span class="hljs-number">1</span>, &amp;preprocess_rbo);<br><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);<br><span class="hljs-built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBE_MAP_RES, CUBE_MAP_RES);<br><span class="hljs-built_in">glFramebufferRenderbuffer</span>(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, preprocess_rbo);<br><br><span class="hljs-comment">// 创建立方体贴图</span><br>GLuint cube_map_id;<br><span class="hljs-built_in">glGenTextures</span>(<span class="hljs-number">1</span>, &amp;cube_map_id);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>&#123;<br>    <span class="hljs-comment">// note that we store each face with 16 bit floating point values</span><br>    <span class="hljs-built_in">glTexImage2D</span>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, <span class="hljs-number">0</span>, GL_RGB16F, <br>                 CUBE_MAP_RES, CUBE_MAP_RES, <span class="hljs-number">0</span>, GL_RGB, GL_FLOAT, <span class="hljs-literal">nullptr</span>);<br>&#125;<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);<br><span class="hljs-built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建fbo</span></span><br><span class="line"><span class="built_in">glGenFramebuffers</span>(<span class="number">1</span>, &amp;preprocess_fbo);</span><br><span class="line"><span class="built_in">glGenRenderbuffers</span>(<span class="number">1</span>, &amp;preprocess_rbo);</span><br><span class="line"></span><br><span class="line"><span class="built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);</span><br><span class="line"><span class="built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);</span><br><span class="line"><span class="built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBE_MAP_RES, CUBE_MAP_RES);</span><br><span class="line"><span class="built_in">glFramebufferRenderbuffer</span>(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, preprocess_rbo);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建立方体贴图</span></span><br><span class="line">GLuint cube_map_id;</span><br><span class="line"><span class="built_in">glGenTextures</span>(<span class="number">1</span>, &amp;cube_map_id);</span><br><span class="line"><span class="built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);</span><br><span class="line"><span class="keyword">for</span> (<span class="type">unsigned</span> <span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; ++i)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// note that we store each face with 16 bit floating point values</span></span><br><span class="line">    <span class="built_in">glTexImage2D</span>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, <span class="number">0</span>, GL_RGB16F, </span><br><span class="line">                 CUBE_MAP_RES, CUBE_MAP_RES, <span class="number">0</span>, GL_RGB, GL_FLOAT, <span class="literal">nullptr</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</span><br><span class="line"><span class="built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);</span><br><span class="line"><span class="built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);</span><br><span class="line"><span class="built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);</span><br><span class="line"><span class="built_in">glTexParameteri</span>(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);</span><br></pre></td></tr></table></figure>
 <p>然后我们需要将面向立方体六个面对应的六个方向的视图矩阵准备好，每个投影矩阵的fov设置为90度，这样能够将所有方向都包含进来：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// projection和view矩阵</span><br>vec3 scene_center = <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>);<br>vector&lt;mat4&gt; skybox_views;<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>)));<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>)));<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>)));<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>)));<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>)));<br>skybox_views.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">lookAt</span>(scene_center, scene_center+<span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>), <span class="hljs-built_in">vec3</span>(<span class="hljs-number">0</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>)));<br><br>mat4 projection = glm::<span class="hljs-built_in">perspective</span>(glm::<span class="hljs-built_in">radians</span>(<span class="hljs-number">90.0f</span>), <span class="hljs-number">1.0f</span>, <span class="hljs-number">0.1f</span>, <span class="hljs-number">10.0f</span>);<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// projection和view矩阵</span></span><br><span class="line">vec3 scene_center = <span class="built_in">vec3</span>(<span class="number">0</span>);</span><br><span class="line">vector&lt;mat4&gt; skybox_views;</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">0</span>)));</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">-1</span>,<span class="number">0</span>,<span class="number">0</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">0</span>)));</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>)));</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">0</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">-1</span>)));</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">0</span>)));</span><br><span class="line">skybox_views.<span class="built_in">push_back</span>(<span class="built_in">lookAt</span>(scene_center, scene_center+<span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">-1</span>), <span class="built_in">vec3</span>(<span class="number">0</span>,<span class="number">-1</span>,<span class="number">0</span>)));</span><br><span class="line"></span><br><span class="line">mat4 projection = glm::<span class="built_in">perspective</span>(glm::<span class="built_in">radians</span>(<span class="number">90.0f</span>), <span class="number">1.0f</span>, <span class="number">0.1f</span>, <span class="number">10.0f</span>);</span><br></pre></td></tr></table></figure>
 <p>然后对每个面，我们将对应的投影矩阵传入并做一次draw，输出的结果。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 将等距柱状投影图转换为立方体贴图</span><br>equirectangular_to_cubemap_shader-&gt;<span class="hljs-built_in">Use</span>();<br>equirectangular_to_cubemap_shader-&gt;<span class="hljs-built_in">SetInt</span>(<span class="hljs-string">&quot;sphere_map&quot;</span>, <span class="hljs-number">0</span>);<br>equirectangular_to_cubemap_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;projection&quot;</span>, projection);<br><br><span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_2D, sphere_map_texture);<br><br><span class="hljs-built_in">glViewport</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, CUBE_MAP_RES, CUBE_MAP_RES); <span class="hljs-comment">// don&#x27;t forget to configure the viewport to the capture dimensions.</span><br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>&#123;<br>	equirectangular_to_cubemap_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;view&quot;</span>, skybox_views[i]);<br>	<span class="hljs-built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, <br>							GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cube_map_id, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);<br>	<br>	box_mesh-&gt;<span class="hljs-built_in">Draw</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将等距柱状投影图转换为立方体贴图</span></span><br><span class="line">equirectangular_to_cubemap_shader-&gt;<span class="built_in">Use</span>();</span><br><span class="line">equirectangular_to_cubemap_shader-&gt;<span class="built_in">SetInt</span>(<span class="string">&quot;sphere_map&quot;</span>, <span class="number">0</span>);</span><br><span class="line">equirectangular_to_cubemap_shader-&gt;<span class="built_in">SetMat4</span>(<span class="string">&quot;projection&quot;</span>, projection);</span><br><span class="line"></span><br><span class="line"><span class="built_in">glActiveTexture</span>(GL_TEXTURE0);</span><br><span class="line"><span class="built_in">glBindTexture</span>(GL_TEXTURE_2D, sphere_map_texture);</span><br><span class="line"></span><br><span class="line"><span class="built_in">glViewport</span>(<span class="number">0</span>, <span class="number">0</span>, CUBE_MAP_RES, CUBE_MAP_RES); <span class="comment">// don&#x27;t forget to configure the viewport to the capture dimensions.</span></span><br><span class="line"><span class="built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);</span><br><span class="line"><span class="keyword">for</span> (<span class="type">unsigned</span> <span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; ++i)</span><br><span class="line">&#123;</span><br><span class="line">	equirectangular_to_cubemap_shader-&gt;<span class="built_in">SetMat4</span>(<span class="string">&quot;view&quot;</span>, skybox_views[i]);</span><br><span class="line">	<span class="built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, </span><br><span class="line">							GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cube_map_id, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</span><br><span class="line">	</span><br><span class="line">	box_mesh-&gt;<span class="built_in">Draw</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>对应的shader如下：</p>
 <p>vert:</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450 compatibility</span><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> aPos;<br><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec3</span> WorldPos;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> projection;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> view;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    WorldPos = aPos;<br>    <span class="hljs-built_in">gl_Position</span> =  projection * view * <span class="hljs-type">vec4</span>(WorldPos, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 450 compatibility</span></span><br><span class="line"><span class="keyword">layout</span> (<span class="keyword">location</span> = <span class="number">0</span>) <span class="keyword">in</span> <span class="type">vec3</span> aPos;</span><br><span class="line"></span><br><span class="line"><span class="keyword">out</span> <span class="type">vec3</span> WorldPos;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> projection;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> view;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main()</span><br><span class="line">&#123;</span><br><span class="line">    WorldPos = aPos;</span><br><span class="line">    <span class="built_in">gl_Position</span> =  projection * view * <span class="type">vec4</span>(WorldPos, <span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>fragment</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450 compatibility</span><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> WorldPos;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> sphere_map;<br><br><span class="hljs-keyword">const</span> <span class="hljs-type">vec2</span> invAtan = <span class="hljs-type">vec2</span>(<span class="hljs-number">0.1591</span>, <span class="hljs-number">0.3183</span>);<br><span class="hljs-type">vec2</span> SampleSphericalMap(<span class="hljs-type">vec3</span> v)<br>&#123;<br>    <span class="hljs-type">vec2</span> uv = <span class="hljs-type">vec2</span>(<span class="hljs-built_in">atan</span>(v.z, v.x), <span class="hljs-built_in">asin</span>(v.y));<br>    uv *= invAtan;<br>    uv += <span class="hljs-number">0.5</span>;<br>    <span class="hljs-keyword">return</span> uv;<br>&#125;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-type">vec2</span> uv = SampleSphericalMap(<span class="hljs-built_in">normalize</span>(WorldPos));<br>    <span class="hljs-type">vec3</span> color = <span class="hljs-built_in">texture</span>(sphere_map, uv).rgb;<br><br>    FragColor = <span class="hljs-type">vec4</span>(color, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 450 compatibility</span></span><br><span class="line"><span class="keyword">out</span> <span class="type">vec4</span> FragColor;</span><br><span class="line"><span class="keyword">in</span> <span class="type">vec3</span> WorldPos;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">sampler2D</span> sphere_map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="type">vec2</span> invAtan = <span class="type">vec2</span>(<span class="number">0.1591</span>, <span class="number">0.3183</span>);</span><br><span class="line"><span class="type">vec2</span> SampleSphericalMap(<span class="type">vec3</span> v)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">vec2</span> uv = <span class="type">vec2</span>(<span class="built_in">atan</span>(v.z, v.x), <span class="built_in">asin</span>(v.y));</span><br><span class="line">    uv *= invAtan;</span><br><span class="line">    uv += <span class="number">0.5</span>;</span><br><span class="line">    <span class="keyword">return</span> uv;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">vec2</span> uv = SampleSphericalMap(<span class="built_in">normalize</span>(WorldPos));</span><br><span class="line">    <span class="type">vec3</span> color = <span class="built_in">texture</span>(sphere_map, uv).rgb;</span><br><span class="line"></span><br><span class="line">    FragColor = <span class="type">vec4</span>(color, <span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在片段着色器中，我们将一个球面环境纹理（通常是一个全景图）映射到一个三维场景中的物体表面。具体来说，它根据物体表面上每个片段的世界空间位置，计算出对应的球面纹理坐标，这个算法我不在这里深入，有兴趣可以深入了解一下<strong>球面坐标与三维空间向量的关系</strong>以及<strong>从三维向量到二维纹理坐标的转换</strong>。</p>
 <p>好了，经过了上面这些步骤，我们将一张等距柱状投影图转换成了立方体贴图。这个贴图可以按照原有的天空盒渲染流程渲染为天空背景。</p>
 <p>当然，这仅仅只是实现IBL漫反射辐照度的第一步。</p>
 <h3 id="立方体贴图的卷积">立方体贴图的卷积</h3>
 <p>好了，现在我们有了从等距柱状投影图得来的立方体贴图，接下来的部分是重中之重：我们要计算所有方向的间接漫反射的积分。</p>
 <p>回到我们之前提到的方法，我们可以通过<strong>预处理环境贴图</strong>，对其进行<strong>卷积处理</strong>。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 预计算辐照度贴图</span><br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">Use</span>();<br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetInt</span>(<span class="hljs-string">&quot;cube_map&quot;</span>, <span class="hljs-number">0</span>);<br>irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;projection&quot;</span>, projection);<br>		<br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);<br><span class="hljs-built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);<br><span class="hljs-built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>);<br><span class="hljs-built_in">glActiveTexture</span>(GL_TEXTURE0);<br><span class="hljs-built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);<br><br><span class="hljs-built_in">glViewport</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">32</span>, <span class="hljs-number">32</span>); <span class="hljs-comment">// don&#x27;t forget to configure the viewport to the capture dimensions.</span><br><br><span class="hljs-keyword">for</span> (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; ++i)<br>&#123;<br>	irradiance_calculation_shader-&gt;<span class="hljs-built_in">SetMat4</span>(<span class="hljs-string">&quot;view&quot;</span>, skybox_views[i]);<br>	<span class="hljs-built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, <br>							GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_tex_id, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);<br><br>	box_mesh-&gt;<span class="hljs-built_in">Draw</span>();<br>&#125;<br><span class="hljs-built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, <span class="hljs-number">0</span>);<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 预计算辐照度贴图</span></span><br><span class="line">irradiance_calculation_shader-&gt;<span class="built_in">Use</span>();</span><br><span class="line">irradiance_calculation_shader-&gt;<span class="built_in">SetInt</span>(<span class="string">&quot;cube_map&quot;</span>, <span class="number">0</span>);</span><br><span class="line">irradiance_calculation_shader-&gt;<span class="built_in">SetMat4</span>(<span class="string">&quot;projection&quot;</span>, projection);</span><br><span class="line">		</span><br><span class="line"><span class="built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, preprocess_fbo);</span><br><span class="line"><span class="built_in">glBindRenderbuffer</span>(GL_RENDERBUFFER, preprocess_rbo);</span><br><span class="line"><span class="built_in">glRenderbufferStorage</span>(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, <span class="number">32</span>, <span class="number">32</span>);</span><br><span class="line"><span class="built_in">glActiveTexture</span>(GL_TEXTURE0);</span><br><span class="line"><span class="built_in">glBindTexture</span>(GL_TEXTURE_CUBE_MAP, cube_map_id);</span><br><span class="line"></span><br><span class="line"><span class="built_in">glViewport</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">32</span>, <span class="number">32</span>); <span class="comment">// don&#x27;t forget to configure the viewport to the capture dimensions.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="type">unsigned</span> <span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; ++i)</span><br><span class="line">&#123;</span><br><span class="line">	irradiance_calculation_shader-&gt;<span class="built_in">SetMat4</span>(<span class="string">&quot;view&quot;</span>, skybox_views[i]);</span><br><span class="line">	<span class="built_in">glFramebufferTexture2D</span>(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, </span><br><span class="line">							GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradiance_tex_id, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">glClear</span>(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">	box_mesh-&gt;<span class="built_in">Draw</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">glBindFramebuffer</span>(GL_FRAMEBUFFER, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
 <p>如上面的代码所示，我们将转换后的立方体贴图传入到辐照度预计算的shader里面。<strong>irradiance_tex_id</strong>是创建的预处理的漫反射辐照度贴图，由于预处理的结果是对原辐照度贴图卷积而来，它丢失了原有贴图的大部分高频细节，因此可以用较低的分辨率来存储，这里使用的是32X32。</p>
 <p>接下来是对立方体贴图做卷积处理，卷积的处理方法有很多种，这里采用的是一个方法是将球体表面根据立体角平均划分为多个小区域，对每片区域采样固定数量的结果并取平均值。<br>
-<img src="sphere-coords.png" srcset="/img/loading.gif" lazyload alt="球体的坐标"></p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 330 core</span><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> WorldPos;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">samplerCube</span> cube_map;<br><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> PI = <span class="hljs-number">3.14159265359</span>;<br><br><span class="hljs-type">void</span> main()<br>&#123;<br>    <span class="hljs-comment">// 天空盒的模型空间顶点方向，计算该方向为中心的半球的辐照度的积分</span><br>    <span class="hljs-type">vec3</span> N = <span class="hljs-built_in">normalize</span>(WorldPos);<br><br>    <span class="hljs-type">vec3</span> irradiance = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>);<br><br>    <span class="hljs-comment">// 以切线空间为准</span><br>    <span class="hljs-type">vec3</span> up    = <span class="hljs-type">vec3</span>(<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>);<br>    <span class="hljs-type">vec3</span> right = <span class="hljs-built_in">normalize</span>(<span class="hljs-built_in">cross</span>(up, N));<br>    up         = <span class="hljs-built_in">normalize</span>(<span class="hljs-built_in">cross</span>(N, right));<br><br>    <span class="hljs-type">float</span> sampleDelta = <span class="hljs-number">0.025</span>;<br>    <span class="hljs-type">float</span> nrSamples = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">float</span> phi = <span class="hljs-number">0.0</span>; phi &lt; <span class="hljs-number">2.0</span> * PI; phi += sampleDelta)<br>    &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">float</span> theta = <span class="hljs-number">0.0</span>; theta &lt; <span class="hljs-number">0.5</span> * PI; theta += sampleDelta)<br>        &#123;<br>            <span class="hljs-comment">// 球面坐标系到笛卡尔坐标</span><br>            <span class="hljs-type">vec3</span> tangentSample = <span class="hljs-type">vec3</span>(<span class="hljs-built_in">sin</span>(theta) * <span class="hljs-built_in">cos</span>(phi),  <span class="hljs-built_in">sin</span>(theta) * <span class="hljs-built_in">sin</span>(phi), <span class="hljs-built_in">cos</span>(theta));<br>            <span class="hljs-comment">// 切线空间转换到世界坐标</span><br>            <span class="hljs-type">vec3</span> sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;<br><br>            irradiance += <span class="hljs-built_in">texture</span>(cube_map, sampleVec).rgb * <span class="hljs-built_in">cos</span>(theta) * <span class="hljs-built_in">sin</span>(theta);<br>            nrSamples++;<br>        &#125;<br>    &#125;<br>    irradiance = PI * irradiance * (<span class="hljs-number">1.0</span> / <span class="hljs-type">float</span>(nrSamples));<br><br>    FragColor = <span class="hljs-type">vec4</span>(irradiance, <span class="hljs-number">1.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<img src="sphere-coords.png" alt="球体的坐标"></p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line"><span class="keyword">out</span> <span class="type">vec4</span> FragColor;</span><br><span class="line"><span class="keyword">in</span> <span class="type">vec3</span> WorldPos;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">samplerCube</span> cube_map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="type">float</span> PI = <span class="number">3.14159265359</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 天空盒的模型空间顶点方向，计算该方向为中心的半球的辐照度的积分</span></span><br><span class="line">    <span class="type">vec3</span> N = <span class="built_in">normalize</span>(WorldPos);</span><br><span class="line"></span><br><span class="line">    <span class="type">vec3</span> irradiance = <span class="type">vec3</span>(<span class="number">0.0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以切线空间为准</span></span><br><span class="line">    <span class="type">vec3</span> up    = <span class="type">vec3</span>(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);</span><br><span class="line">    <span class="type">vec3</span> right = <span class="built_in">normalize</span>(<span class="built_in">cross</span>(up, N));</span><br><span class="line">    up         = <span class="built_in">normalize</span>(<span class="built_in">cross</span>(N, right));</span><br><span class="line"></span><br><span class="line">    <span class="type">float</span> sampleDelta = <span class="number">0.025</span>;</span><br><span class="line">    <span class="type">float</span> nrSamples = <span class="number">0.0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">float</span> phi = <span class="number">0.0</span>; phi &lt; <span class="number">2.0</span> * PI; phi += sampleDelta)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">float</span> theta = <span class="number">0.0</span>; theta &lt; <span class="number">0.5</span> * PI; theta += sampleDelta)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 球面坐标系到笛卡尔坐标</span></span><br><span class="line">            <span class="type">vec3</span> tangentSample = <span class="type">vec3</span>(<span class="built_in">sin</span>(theta) * <span class="built_in">cos</span>(phi),  <span class="built_in">sin</span>(theta) * <span class="built_in">sin</span>(phi), <span class="built_in">cos</span>(theta));</span><br><span class="line">            <span class="comment">// 切线空间转换到世界坐标</span></span><br><span class="line">            <span class="type">vec3</span> sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N;</span><br><span class="line"></span><br><span class="line">            irradiance += <span class="built_in">texture</span>(cube_map, sampleVec).rgb * <span class="built_in">cos</span>(theta) * <span class="built_in">sin</span>(theta);</span><br><span class="line">            nrSamples++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    irradiance = PI * irradiance * (<span class="number">1.0</span> / <span class="type">float</span>(nrSamples));</span><br><span class="line"></span><br><span class="line">    FragColor = <span class="type">vec4</span>(irradiance, <span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的shader代码，我们以WorldPos指向的方向为$\omega_o$，采样一个半球范围的辐照度数据。phi=$\phi$对应上图球体坐标的“经度”，范围是0到360度；theta=$\theta$对应着上图球体坐标的“纬度”，范围是0到90度。</p>
 <p>在循环中，我们将球面的坐标转换为3D世界坐标，以3D世界坐标作为索引去采样辐照度立方体贴图的数据，并对所有采样结果取平均值。</p>
 <p>完成了这个流程后，我们就得到了一个预计算好的辐照度贴图。</p>
-<p><img src="original-scene.png" srcset="/img/loading.gif" lazyload alt="原场景图"></p>
-<p><img src="irradiance-scene.png" srcset="/img/loading.gif" lazyload alt="预计算漫反射辐照图"></p>
+<p><img src="original-scene.png" alt="原场景图"></p>
+<p><img src="irradiance-scene.png" alt="预计算漫反射辐照图"></p>
 <h2 id="应用在PBR算法中">应用在PBR算法中</h2>
 <p>有了预计算好的辐照贴图，我们需要将它应用于PBR的算法中。漫反射辐照度贴图用于表示周边环境中的间接光积累的结果，可以将它应用于环境光的部分：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> skybox_irradiance = <span class="hljs-built_in">texture</span>(skybox_diffuse_irradiance_texture, frag_normal).xyz;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> skybox_irradiance = <span class="built_in">texture</span>(skybox_diffuse_irradiance_texture, frag_normal).xyz;</span><br></pre></td></tr></table></figure>
 <p>我们在之前的公式变换中，将光照拆分为漫反射和镜面反射两个部分。由于漫反射和镜面反射在间接光照中所起的作用不同，我们需要借助菲涅尔方程来确定物体表面的间接反射率，以此来对漫反射部分进行恰当的加权处理，以实现更精准的光照模拟。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// 和BRDF LUT相关的取值，</span><br><span class="hljs-comment">// Fresnel-Schlick近似法接收一个参数F0，被称为0°入射角的反射率，或者说是直接(垂直)观察表面时有多少光线会被反射。</span><br><span class="hljs-comment">// 这个参数F0会因为材料不同而不同，而且对于金属材质会带有颜色。</span><br><span class="hljs-type">vec3</span> FresnelSchlickRoughness(<span class="hljs-type">float</span> cosTheta, <span class="hljs-type">vec3</span> F0, <span class="hljs-type">float</span> roughness)<br>&#123;<br>    <span class="hljs-keyword">return</span> F0 + (<span class="hljs-built_in">max</span>(<span class="hljs-type">vec3</span>(<span class="hljs-number">1.0</span> - roughness), F0) - F0) * <span class="hljs-built_in">pow</span>(<span class="hljs-built_in">clamp</span>(<span class="hljs-number">1.0</span> - cosTheta, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>), <span class="hljs-number">5.0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 和BRDF LUT相关的取值，</span></span><br><span class="line"><span class="comment">// Fresnel-Schlick近似法接收一个参数F0，被称为0°入射角的反射率，或者说是直接(垂直)观察表面时有多少光线会被反射。</span></span><br><span class="line"><span class="comment">// 这个参数F0会因为材料不同而不同，而且对于金属材质会带有颜色。</span></span><br><span class="line"><span class="type">vec3</span> FresnelSchlickRoughness(<span class="type">float</span> cosTheta, <span class="type">vec3</span> F0, <span class="type">float</span> roughness)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> F0 + (<span class="built_in">max</span>(<span class="type">vec3</span>(<span class="number">1.0</span> - roughness), F0) - F0) * <span class="built_in">pow</span>(<span class="built_in">clamp</span>(<span class="number">1.0</span> - cosTheta, <span class="number">0.0</span>, <span class="number">1.0</span>), <span class="number">5.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面这个方法也被用在PBR光照计算中。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs glsl">F0 = <span class="hljs-built_in">mix</span>(F0, env_albedo.xyz, env_metallic);<br><span class="hljs-type">vec3</span> kS = FresnelSchlickRoughness(<span class="hljs-built_in">max</span>(<span class="hljs-built_in">dot</span>(frag_normal, view), <span class="hljs-number">0.0</span>), F0, env_roughness);<br><span class="hljs-type">vec3</span> kD = <span class="hljs-number">1.0</span> - kS;<br>kD *= <span class="hljs-number">1.0</span> - env_metallic;<br><span class="hljs-comment">// IBL漫反射分量</span><br><span class="hljs-type">vec3</span> env_diffuse = env_albedo.xyz * skybox_irradiance;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">F0 = <span class="built_in">mix</span>(F0, env_albedo.xyz, env_metallic);</span><br><span class="line"><span class="type">vec3</span> kS = FresnelSchlickRoughness(<span class="built_in">max</span>(<span class="built_in">dot</span>(frag_normal, view), <span class="number">0.0</span>), F0, env_roughness);</span><br><span class="line"><span class="type">vec3</span> kD = <span class="number">1.0</span> - kS;</span><br><span class="line">kD *= <span class="number">1.0</span> - env_metallic;</span><br><span class="line"><span class="comment">// IBL漫反射分量</span></span><br><span class="line"><span class="type">vec3</span> env_diffuse = env_albedo.xyz * skybox_irradiance;</span><br></pre></td></tr></table></figure>
 <p>加上漫反射环境贴图后，效果如下面的gif所示。<br>
-<img src="PixPin_2025-03-02_23-35-25.gif" srcset="/img/loading.gif" lazyload alt="漫反射环境贴图的表现"></p>
+<img src="PixPin_2025-03-02_23-35-25.gif" alt="漫反射环境贴图的表现"></p>
 <h2 id="结语">结语</h2>
 <p>好了，这部分主要是介绍IBL中漫反射的处理部分，下一篇文章我们会聚焦于IBL镜面反射的部分，实现完整的IBL效果。</p>
-<p><img src="ibl-final.png" srcset="/img/loading.gif" lazyload alt="完整的IBL效果"></p>
+<p><img src="ibl-final.png" alt="完整的IBL效果"></p>
 <h2 id="参考资料">参考资料</h2>
 <p>整个IBL的实现是参照<a target="_blank" rel="noopener" href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance">Learn OpenGL上的Diffuse irradiance部分</a>上的步骤来实现的，讲解的非常详细。<a target="_blank" rel="noopener" href="https://learnopengl-cn.github.io/07%20PBR/03%20IBL/01%20Diffuse%20irradiance/#_1">中文版</a>对应的是这一篇文章。</p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/render/" class="print-no-link">#render</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>基于图像的光照-漫反射辐照度</div>
-      <div>https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2025年2月28日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">基于图像的光照-镜面反射</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/02/22/opengl-dsa/" title="OpenGL优化技巧之DSA">
-                        <span class="hidden-mobile">OpenGL优化技巧之DSA</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/">https://ruochenhua.github.io/2025/02/28/ibl-diffuse-irradiance/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/render/">render</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a></div><div class="post-share"><div class="social-share" data-image="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射"><img class="cover" src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">基于图像的光照-镜面反射</div></div><div class="info-2"><div class="info-item-1">前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$ 我们发现这个积分的结果在积分上不是常数，他受入射光和观察视角两个因素影响。如果对所有入射光方向和所有可能的视角方向做积分，这个计算消耗十分昂贵，是没有办法这么做的。 为了解决这个问题，Epic Games提出了一个解决方案，叫做分割求和近似法。它将方程的镜面部分分割成了两个独立的部分，分别对这两个部分求卷积，并在PBR着色器重求和，用于IBL的镜面反射部分。 分割求和近似法包含两部分：  预过滤环境贴图：对不同粗糙度的环境光进行卷积，存储为mipmap层级的立方体贴图。 BR...</div></div></div></a><a class="pagination-related" href="/2025/02/22/opengl-dsa/" title="OpenGL优化技巧之DSA"><img class="cover" src="/2025/02/22/opengl-dsa/OpenGL-logo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">OpenGL优化技巧之DSA</div></div><div class="info-2"><div class="info-item-1">前言 最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个方面，Direct State Acess（DSA）。 为了聊明白Direct State Acess（以下简称DSA）是什么，以及为什么它可以作为一种优化OpenGL的方法，我们首先需要理解一个概念，即：OpenGL本质上是一个状态机。 OpenGL本质上是一个状态机 该如何理解这句话呢？我们来思考一下，状态机最核心的组成部分是各个不同的状态，以及状态之间的逻辑转换，对于到OpenGL可以做以下的理解：   状态：OpenGL有大量可配置的状态。例如，绘图模式（点、线、三角形等）、光照模型（是否启用光照、光源位置和属性等）、纹理参数（纹理过滤方式、纹理坐标模式等）、当前绑定的帧缓存以...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射"><img class="cover" src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-07</div><div class="info-item-2">基于图像的光照-镜面反射</div></div><div class="info-2"><div class="info-item-1">前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$ 我们发现这个积分的结果在积分上不是常数，他受入射光和观察视角两个因素影响。如果对所有入射光方向和所有可能的视角方向做积分，这个计算消耗十分昂贵，是没有办法这么做的。 为了解决这个问题，Epic Games提出了一个解决方案，叫做分割求和近似法。它将方程的镜面部分分割成了两个独立的部分，分别对这两个部分求卷积，并在PBR着色器重求和，用于IBL的镜面反射部分。 分割求和近似法包含两部分：  预过滤环境贴图：对不同粗糙度的环境光进行卷积，存储为mipmap层级的立方体贴图。 BR...</div></div></div></a><a class="pagination-related" href="/2025/03/15/kong-vulkan-intro/" title="Vulkan接入小总结"><img class="cover" src="/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-15</div><div class="info-item-2">Vulkan接入小总结</div></div><div class="info-2"><div class="info-item-1">前言  这是一张平平无奇的渲染图，没有阴影，没有IBL，也没有反射等各种酷炫高大上的效果。 但这张平平无奇的渲染图是我断断续续花了一个月的时间才完成的结果：这是KongEngine接入Vulkan后得到的最新效果。在前面的几篇文章我也提到过，我最近一直在处理这个事，为此我将KongEngine的渲染代码重构，并将Vulkan整合进来。当然原有的OpenGL能力我还是保留着，目前的目标是先利用Vulkan还原原有的OpenGL效果。 这篇文章也不是什么Vulkan入门教程，不会系统的讲Vulkan的初始化流程是怎么样的，Render Pass和Pipeline是什么，DescriptorSet要怎么设定等等。这些内容太复杂了，很难在一篇文章内讲清楚，况且我现在也不能说是很精通。这篇文章只是会大概介绍一下KongEngine目前的Vulkan结构。 KongEngine的Vulkan结构 如下图所示:  KongEngine目前将图形API的部分整合了起来，封装成了OpenGL部分和Vulkan的部分。目前这两个部分的流程还是有一定的区别，本来按照原有计划是将OpenGL的渲染流程按...</div></div></div></a><a class="pagination-related" href="/2024/10/19/defer-render/" title="延迟渲染实现"><img class="cover" src="/2024/10/19/defer-render/defer_render_banner.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-19</div><div class="info-item-2">延迟渲染实现</div></div><div class="info-2"><div class="info-item-1">想要在Kong引擎里面实现的场景慢慢复杂了起来，光源和模型的数量从原先的十以内的数量增长到几十甚至几百的数量级，是时候接入延迟渲染的方法了。 延迟渲染 延迟渲染（Defer Rendering），或者延迟着色法（Defer Shading），是区别于正向渲染（Forward Shading）的一种计算场景光照的方式。 正向渲染方法就是遍历场景中的每一个模型，计算一个模型的光照表现后再继续下一个模型的计算，根据深度测试的结果更新屏幕上最终像素显示的颜色。这种方法是很容易让人理解并实现的。但是当场景中的光照和模型数量变多的时候，模型重叠的区域会进行不必要的光照计算（被挡住的模型像素区域最终会被前面的模型遮挡，但是这篇被挡住的区域还是被计算了光照），而光照计算一般来说是渲染消耗的大头，这部分时间就被浪费了。 而延迟渲染的想法则是将光照计算分成两部分。第一个部分叫做几何处理阶段（Geometry Pass），它先将光照计算所需要的模型信息（顶点位置、法线、颜色、材质属性等等）先渲染到多张贴图上（消耗低），经由深度检测保留最终在屏幕上显示的模型部分的这些信息。    第二部分叫做光照处理阶...</div></div></div></a><a class="pagination-related" href="/2024/10/11/ProceduralTerrainGeneration/" title="程序化地形生成-1"><img class="cover" src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-11</div><div class="info-item-2">程序化地形生成-1</div></div><div class="info-2"><div class="info-item-1">ShaderToy是一个很有趣的网站，它上面有着非常多的渲染案例分享，最近一段时间我也是沉迷了。在看了不少大佬的作品之后，不禁手痒。前一段时间看了Inigo大佬的一个教程案例，想着把这个效果自己来实现一次，因此就有了今天的这篇文章。 我最终的成品也放到了shadertoy上面，有兴趣的同学可以一起讨论参考一下。看起来还不错对吧，虽然还有不少地方需要完善，但这个demo已经实现了我心中的大部分效果，包括无限的基于噪音的地形生成、地形阴影、雾气、云等等。  那么下面，就让我来一步步说明这个demo的实现过程吧。 基础知识 在ST上渲染地形 对ShaderToy上运行的Shader代码，对应着可编程渲染管线的片段着色器(或者叫像素着色器)。片段着色器主要是是图形光栅化后的像素信息，所以渲染3D场景需要进行一些额外的步骤。 ShaderToy的程序一般是这样的： 1234void mainImage(out vec4 fragColor, in vec2 fragCoord)&#123;	...&#125; fragColor是输出，代表这这个像素的最终颜色；fragCoord是输入，代...</div></div></div></a><a class="pagination-related" href="/2024/10/15/single-scatter-atmosphere/" title="基于单次散射的天空大气渲染方法"><img class="cover" src="/2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-15</div><div class="info-item-2">基于单次散射的天空大气渲染方法</div></div><div class="info-2"><div class="info-item-1">最近KongEngine实现了IBL(Image Based Lighting)，可以将HDR环境贴图映射作为3D场景的环境。  在实现了IBL之后我又产生了一个想法，能否实现类似UE中的大气环境的渲染效果呢？我尝试去寻找答案，发现如果要完全复刻UE中的效果确实需要一定的功夫的，但是最基础的天空大气渲染并没有想象中那么复杂，于是我便花了点时间在KongEngine中实现了这个功能。  我打算将这个方法的基础思想和实现在此简单记录一下。 单次散射模型 星球的大气层是一种参与性介质，和在真空环境不同，光在大气层中传播的时候会因为大气中的微小颗粒（水、灰尘等等）发生散射（折射、反射）和吸收等情况。因此我们看向空中的一个点的时候，这个点的颜色是光经过多次散射得到的结果。 光到达我们眼睛之前经过多少次反射和折射是不一定的，在实时渲染的需求下计算太多次光的变化显然也是不显示的。最简单的方法，是使用单次散射模型：我们假定光在进入我们眼睛之前，有且只发生了一次散射。光一般在第一次散射的时候，还会有最多的能量剩余，后面的多次散射能力相对少，对最后效果的呈现也影响不大，因此这种模型可以在保证性能的情...</div></div></div></a><a class="pagination-related" href="/2024/10/13/cascade-shadow-map/" title="级联阴影贴图实现"><img class="cover" src="/2024/10/13/cascade-shadow-map/sm_far.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-13</div><div class="info-item-2">级联阴影贴图实现</div></div><div class="info-2"><div class="info-item-1">阴影贴图的局限 阴影贴图（shadow map）是3D场景中实现阴影效果的基础手段，它通过预先将光线方向的场景深度存储到贴图中，在渲染的时候取每个场景中的点到光源的距离和深度贴图作比较，来判定该点是否在阴影当中。 但是在较大的场景中，使用阴影贴图会有几个明显的不足：  阴影贴图只能覆盖部分场景，在渲染较大的场景的时候（如大世界），远处的场景基本上无法被阴影贴图所覆盖。 贴图的分辨率是有限的，太大的分辨率会对性能造成非常大的影响。但是在覆盖较大场景的时候，贴图分辨率不足会导致阴影模糊，效果不佳。 阴影贴图的实现一开始其实并没有考虑玩家相机的视椎体，也就是说在玩家没有看的地方也会渲染阴影贴图，这对渲染资源来说显然是个浪费。  KongEngine计划在后面接入大地形的渲染，借此机会接入了级联阴影贴图的能力。 实现方法参考了LearnOpenGL的教程。 级联阴影贴图的实现 级联阴影贴图的基本概念包括如下几点：  将玩家的视椎体划分为几段，每一段视椎体构建一张阴影贴图覆盖，这个阴影贴图完美贴合从光源方向投射到这段视椎体中心点的正交投影。 和模型LOD的理念类似，离相机近的阴影贴图需要采...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFIBL"><span class="toc-number">2.</span> <span class="toc-text">什么是IBL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IBL%E7%9A%84%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80"><span class="toc-number">3.</span> <span class="toc-text">IBL的理论基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%AB%E5%8F%8D%E5%B0%84%E8%BE%90%E7%85%A7%E5%BA%A6"><span class="toc-number">3.1.</span> <span class="toc-text">漫反射辐照度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%84%E8%AE%A1%E7%AE%97%E8%BE%90%E7%85%A7%E5%BA%A6%E8%B4%B4%E5%9B%BE"><span class="toc-number">3.2.</span> <span class="toc-text">预计算辐照度贴图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IBL%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">IBL的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AD%89%E8%B7%9D%E6%9F%B1%E7%8A%B6%E6%8A%95%E5%BD%B1%E5%9B%BE%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%AB%8B%E6%96%B9%E4%BD%93%E8%B4%B4%E5%9B%BE"><span class="toc-number">4.1.</span> <span class="toc-text">等距柱状投影图转换为立方体贴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AB%8B%E6%96%B9%E4%BD%93%E8%B4%B4%E5%9B%BE%E7%9A%84%E5%8D%B7%E7%A7%AF"><span class="toc-number">4.2.</span> <span class="toc-text">立方体贴图的卷积</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%9C%A8PBR%E7%AE%97%E6%B3%95%E4%B8%AD"><span class="toc-number">5.</span> <span class="toc-text">应用在PBR算法中</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">6.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,25 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发 在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>浅谈数字人仿真的渲染技术（三） | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。 毛发 在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。 和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的角质层，角质层里面的皮质，以及发髓。  角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈数字人仿真的渲染技术（三）">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/index.html">
@@ -33,290 +12,167 @@
 <meta property="article:tag" content="3D">
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="数字孪生">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png">
-  
-  
-  
-  <title>浅谈数字人仿真的渲染技术（三） - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "浅谈数字人仿真的渲染技术（三）",
+  "url": "https://ruochenhua.github.io/2025/01/06/digital-human-render-3/",
+  "image": "https://ruochenhua.github.io/2025/01/06/digital-human-render-3/ue-metahuman-face.png",
+  "datePublished": "2025-01-06T14:09:54.000Z",
+  "dateModified": "2025-05-01T07:33:49.186Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '浅谈数字人仿真的渲染技术（三）',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/2025/01/06/digital-human-render-3/ue-metahuman-face.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="浅谈数字人仿真的渲染技术（三）"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-06 22:09" pubdate>
-          2025年1月6日 晚上
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          2.6k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          22 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">浅谈数字人仿真的渲染技术（三）</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="前言">前言</h2>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/01/06/digital-human-render-3/ue-metahuman-face.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">浅谈数字人仿真的渲染技术（三）</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">浅谈数字人仿真的渲染技术（三）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-06T14:09:54.000Z" title="发表于 2025-01-06 22:09:54">2025-01-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.186Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
 <p>这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的第三部分，在这一部分我会着重介绍数字人的毛发渲染的技术。</p>
 <h2 id="毛发">毛发</h2>
 <p>在前面的内容，我们大致了解了一些皮肤相关的技术，接下来我们再简单了解一些毛发的渲染算法。</p>
 <p>和皮肤一样，其实毛发的构造比我们预想的也要复杂许多，它包括表皮的<em>角质层</em>，角质层里面的<em>皮质</em>，以及<em>发髓</em>。</p>
-<p><img src="hair-structure.png" srcset="/img/loading.gif" lazyload alt="头发的结构"></p>
+<p><img src="hair-structure.png" alt="头发的结构"></p>
 <p>角质层有坑坑洼洼的表面，而且头发的坑坑洼洼具有较为统一的指向性，从发根指向发尾，简化后的头发模型如下图所示。</p>
-<p><img src="simple-hair-structure.png" srcset="/img/loading.gif" lazyload alt="头发的简化结构"></p>
+<p><img src="simple-hair-structure.png" alt="头发的简化结构"></p>
 <h2 id="Kajiya-Kay模型">Kajiya-Kay模型</h2>
 <p>下面我们来了解一下可能是游戏中毛发渲染最常用的毛发渲染模型，<strong>Kajiya-kay模型</strong>。</p>
 <h3 id="简介">简介</h3>
@@ -324,31 +180,31 @@
 <p>作为一个1989年的shading model，它具有算法简单，便于理解，计算量小。且头发的主高光的性价比高，效果明显。</p>
 <p>那么kajiya-kay模型的一个核心就是各向异性高光，不知道有没有对各向异性不熟悉的朋友，这里简单说明一下，各向异性就是物体的某些特征根据方向的不同而有所变化。</p>
 <p>如下图所示，头发在微观层面的一小段我们把它简化为一个圆柱体，圆柱体的一个截面的normal均匀分布。但是这个normal都是从横截面的中心向外扩散的，不会出现沿着这个圆柱体的法线，其实这就是一种各向异性的体现。</p>
-<p><img src="normal-to-fiber.png" srcset="/img/loading.gif" lazyload alt="头发的法线"></p>
+<p><img src="normal-to-fiber.png" alt="头发的法线"></p>
 <p>我们渲染头发的时候，单个像素里面是一根或者多根极其短且细的头发，按照普通的模型一般是获取单个像素的一个唯一法线的值，但是头发可能在一个像素里面存在着n个法线，法线的不唯一性导致不能再简单的用一个固定法线值去模拟了。</p>
 <p>因此根据经验，kajiya-kay算法采用了一种近似的方法。头发的发根到发尾的方向是这跟头发的<strong>切线方向</strong>，这个方向对于头发来说是统一的，同时也方便美术去制作，因为在一个圆柱体截面上，切线的方向都是一致的。</p>
 <p>如下图所示，L是光线方向在头发某点切线T方向上的分量，我们需要的法线N，它满足垂直于切线，且与L，T同平面，且点乘光线L大于0的方向，我们可以用这个作为N法线来近似高光所需要的法线。只要能够获取到发线，就可以按照我们前面提到的方法计算出这个点的高光了。</p>
-<p><img src="kajiya-get-normal.png" srcset="/img/loading.gif" lazyload alt="法线的计算"></p>
+<p><img src="kajiya-get-normal.png" alt="法线的计算"></p>
 <p>我们是通过切线，光线和视线的方向来得到法线，kajiya-kay模型的公式其实也变成了和切线相关的.</p>
 <p>这里大概贴一下kajiya-kay模型的公式，这里我们不去推导这个公式。主要是大家可以看到公式的参数是和切线T，以及半程向量H（光线向量和视线向量的中间）相关的。</p>
-<p><img src="kajiya-kay.png" srcset="/img/loading.gif" lazyload alt="Kajiya-Kay公式"></p>
+<p><img src="kajiya-kay.png" alt="Kajiya-Kay公式"></p>
 <h4 id="对比">对比</h4>
 <p>这里我们放一个高光的对比效果，黑球上的高光是普通的高光计算，绿球则是带有各向异性计算出来的高光，可以看见绿球的高光有种我们叫天使环的效果，这也是人物头发高光经常会出现的效果。</p>
-<p><img src="kajiya-kay-result.png" srcset="/img/loading.gif" lazyload alt="Kajiya-Kay效果"></p>
+<p><img src="kajiya-kay-result.png" alt="Kajiya-Kay效果"></p>
 <p>为了更加贴近头发我们添加一个头发的法线贴图看看效果，同时也给个纹理。</p>
-<p><img src="kajiya-kay-normal-result.png" srcset="/img/loading.gif" lazyload alt="添加了法线贴图的Kajiya-kay效果"></p>
+<p><img src="kajiya-kay-normal-result.png" alt="添加了法线贴图的Kajiya-kay效果"></p>
 <h4 id="优化">优化</h4>
 <p>但是其实仅仅出现天使环效果也不够理想，这是因为Kajiya-Kay模型只是基于经验而不是真正的物理。</p>
 <p>经过观察头发的高光，法线一般是有一个主要高光的，这个主要是受光源颜色的影响，大部分时候是白色。另外一个是受头发颜色的影响，会生成次一点的带颜色高光的。这个其实是有物理意义的，也就是光进入头发里面传输然后透射出来造成的效果。</p>
-<p><img src="kajiya-kay-optimize.png" srcset="/img/loading.gif" lazyload alt="优化Kajiya-Kay"></p>
+<p><img src="kajiya-kay-optimize.png" alt="优化Kajiya-Kay"></p>
 <p>所以现在一般kajiya-kay会加上两个高光的优化。这个效果有时会被称为近似Marschner模型。</p>
 <p>这里我们提到了一个Marschner模型，这个是基于物理建模的毛发渲染模型，我们后续再详细介绍。</p>
 <p>如何实现上述的双层高光效果呢？其实也很简单，就是<em>算两个高光，然后偏移其中一个</em>就好了。</p>
 <p>我们前面看过kajiya-kay的公式，公式的参数是切线和半程向量。按照切线从发根指向发梢，我们在切线上加上像素点的法线并归一化，其实就相当于将切线沿着头发上移或者下移了。</p>
-<p><img src="hair-tangent.png" srcset="/img/loading.gif" lazyload alt="头发切线方向"></p>
+<p><img src="hair-tangent.png" alt="头发切线方向"></p>
 <p>同时我们增加一个扰动的偏移贴图，可以让高光更有沿着发丝等表面的感觉。<br>
 左下是偏移贴图，右边是增加了高光偏移和偏移贴图的最终效果，可以看出效果有质的提升。</p>
-<p><img src="kajiya-kay-optimize-result.png" srcset="/img/loading.gif" lazyload alt="优化Kajiya-Kay的效果"></p>
+<p><img src="kajiya-kay-optimize-result.png" alt="优化Kajiya-Kay的效果"></p>
 <p>不过kajika-kay模型虽然久经沙场，但它始终是基于经验的，他的模型过于简单。<br>
 并且kajika-kay模型假设头发纤维是光滑的圆柱体，而我们之前见到过头发真正的表面是粗糙的鳞片组成的不规则几何体，所以有很多细节是不够准确的。</p>
 <p>接下来我们来简单介绍一下基于物理的marschner模型。</p>
@@ -361,16 +217,16 @@
 <li>传输-传输：光线照射并穿透毛囊，然后从另一边照射出去。这是光线在一定发量中的散射过程。</li>
 <li>传输-反射-传输路线，光线进入毛囊，从内表面边界反射出来，然后再照射出来。这样产生的是次高光。这也是我们在kajiya-kay近似marschner处理中所做的工作</li>
 </ul>
-<p><img src="Marschner-model.png" srcset="/img/loading.gif" lazyload alt="Marschner模型"></p>
+<p><img src="Marschner-model.png" alt="Marschner模型"></p>
 <p>其他的光线分量对视觉效果影响比重比较小，我们在实时渲染一般就忽略了。</p>
 <p>由于头发的复杂造型，为了便于分析光线的散射，一般把头发上光的散射行为分为两类，即<strong>纵向散射</strong>和<strong>方位角散射</strong>。</p>
-<p><img src="marschner-diffuse.png" srcset="/img/loading.gif" lazyload alt="Marschner模型的散射"></p>
+<p><img src="marschner-diffuse.png" alt="Marschner模型的散射"></p>
 <p><strong>纵向散射</strong>是沿着头发发根到发尾的散射，对于光滑的圆柱体，给定入射方向，反射方向确定的，如下图，但是头发纤维的表面是比较粗糙的，因此并不会发生精确的镜面反射，于是我们就需要一个函数来估计在给定的出射方向（观察方向）上，到底有多少比例的光线射出。这个函数和入射L1、出射方向L2有关，我们用M(L1,L2)来表示，可以简单的认为M就是一个高斯分布的概率密度函数。</p>
 <p><strong>方位角散射</strong>是表示垂直于发丝方向的散射角度和能量的变化，这期间可能会发生比较多的折射和透射，我们也可以用一个函数来估计发生方位角散射时给定出射方向上光线的比例，这个函数除了和入射方向、出射方向投影在圆柱法平面的方位角有关，还和头发内部的折射率n有关，我们用N函数来表示。</p>
 <p>那么每一个光路，R，TT，TRT，都包含了纵向散射和方向角散射，所以我们可以得出一个BSDF模型的公式，即Sp = Mp * Np, p = R,TT,TRT，</p>
-<p><img src="bsdf-model.png" srcset="/img/loading.gif" lazyload alt="BSDF模型"></p>
+<p><img src="bsdf-model.png" alt="BSDF模型"></p>
 <p>M和N的数值，一般是预处理做成两张LUT，在实时渲染点时候方便直接查找。这里和我们在皮肤渲染的方式有一些类似。不过这种方法一般只支持一种头发颜色和粗糙度。</p>
-<p><img src="bsdf-lut.png" srcset="/img/loading.gif" lazyload alt="BSDF查找表"></p>
+<p><img src="bsdf-lut.png" alt="BSDF查找表"></p>
 <p>当然，Marschner模型的关键，也就是M和N函数的计算会涉及比较深入的数学推导和物理原理，今天这里我们就不深入了，有兴趣的同学可以看一下steve  marschner的论文。</p>
 <p>绝大部分的现代渲染器，包括虚幻引擎，目前使用的也是marschner模型来做毛发渲染。</p>
 <h2 id="其他领域">其他领域</h2>
@@ -378,424 +234,7 @@
 <p>比如说作为心灵窗口的眼睛，有非常复杂的生态构造，且充满了液体。在渲染上也会遇到光线的反射散射折射。</p>
 <p>牙齿其实也需要用到次表面散射的模型，他的材质会有一种玉石的散射效果。</p>
 <p>这些部分其实都可以展开来讲。今天时间有限，我们暂时不深入去探讨。有兴趣并且对UE有了解的同学可以去看一下UE的metahuman工程。</p>
-<p><img src="ue-metahuman-face.png" srcset="/img/loading.gif" lazyload alt="人脸的其他部分"></p>
+<p><img src="ue-metahuman-face.png" alt="人脸的其他部分"></p>
 <h2 id="结语">结语</h2>
 <p>今天这篇文章简短的介绍了一下数字人毛发渲染的技术，后面的分享将会介绍**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。</p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F/" class="print-no-link">#数字孪生</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>浅谈数字人仿真的渲染技术（三）</div>
-      <div>https://ruochenhua.github.io/2025/01/06/digital-human-render-3/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2025年1月6日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/01/09/digital-human-render-4/" title="浅谈数字人仿真的渲染技术（四）">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">浅谈数字人仿真的渲染技术（四）</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/01/04/digital-human-render-2/" title="浅谈数字人仿真的渲染技术（二）">
-                        <span class="hidden-mobile">浅谈数字人仿真的渲染技术（二）</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/01/06/digital-human-render-3/">https://ruochenhua.github.io/2025/01/06/digital-human-render-3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E5%AD%97%E5%AD%AA%E7%94%9F/">数字孪生</a></div><div class="post-share"><div class="social-share" data-image="/2025/01/06/digital-human-render-3/ue-metahuman-face.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/01/09/digital-human-render-4/" title="浅谈数字人仿真的渲染技术（四）"><img class="cover" src="/2025/01/09/digital-human-render-4/npr-digi-human.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">浅谈数字人仿真的渲染技术（四）</div></div><div class="info-2"><div class="info-item-1">前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染 前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPR NPR，我们一般指的是非真实感渲染（Non-photorealistic Rendering），它是相对于**真实渲染（Photorealistic Rendering）**的。 真实感渲染的目的在于渲染出照片级别的高真实度画面；而非真实感渲染，他的目的多种多样，它可以模拟艺术化的绘制风格，呈现出手绘的效果。 这是游戏”犬神“的画面，它的渲染模拟出一种独特的水墨风格。  这是游戏”荒野之息“的画面，它就有点类似于日本动画的风格。  他们显然不是想游戏画面看起来和显示世界一模一样的，所以利用NPR来突出自己独特的美术基调，展现不同的美术风格，从而吸引玩家。 NPR在数字人的体现 在数字人的概念在互联网中异常火热的时候，业界也出现了...</div></div></div></a><a class="pagination-related" href="/2025/01/04/digital-human-render-2/" title="浅谈数字人仿真的渲染技术（二）"><img class="cover" src="/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">浅谈数字人仿真的渲染技术（二）</div></div><div class="info-2"><div class="info-item-1">前言 新年好。这是接着上次关于数字人渲染技术的第二部分，今天的这部分的分享，我会开始介绍一些关于数字人渲染的实际技术。 数字人渲染技术介绍 接下来我们来聊一下数字人渲染技术方面的课题，我本身其实在这方面也不是什么大牛，在这里只是把一些我所学到的东西分享给大家。本次也不涉及到过深的技术讨论，如果想要对某个算法的细节想做更深的探讨，我们可以做后续的讨论。 在这里我提前预告一下，接下来的分享会包括哪些方面。 首先是会介绍一些数字人常用的渲染技术，比如皮肤，头发的渲染技术。在介绍这些渲染技术的时候，我主要会解释一下这个算法的构成，他是基于哪些理论而得出的算法，他的流程大致是怎样的，以及效果的一些展示。 本次分享不会包括的方面有：   数学公式推导，当今很多渲染的算法都会遵循实际的物理意义，大多包含较为复杂的数学公式的推导，以辅助实现最后的算法。我们今天的分享是浅谈，所以不会讲的那么深，要是专注于数学公式推导的话会花上非常多的时间，门槛也会提升很多，这块并不是今天的目的。   另外一个是不会Review相关的Shader代码或者材质蓝图连线，今天主要是希望大家理解好概念就好，代码这些在理解...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/01/09/digital-human-render-4/" title="浅谈数字人仿真的渲染技术（四）"><img class="cover" src="/2025/01/09/digital-human-render-4/npr-digi-human.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-09</div><div class="info-item-2">浅谈数字人仿真的渲染技术（四）</div></div><div class="info-2"><div class="info-item-1">前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染 前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPR NPR，我们一般指的是非真实感渲染（Non-photorealistic Rendering），它是相对于**真实渲染（Photorealistic Rendering）**的。 真实感渲染的目的在于渲染出照片级别的高真实度画面；而非真实感渲染，他的目的多种多样，它可以模拟艺术化的绘制风格，呈现出手绘的效果。 这是游戏”犬神“的画面，它的渲染模拟出一种独特的水墨风格。  这是游戏”荒野之息“的画面，它就有点类似于日本动画的风格。  他们显然不是想游戏画面看起来和显示世界一模一样的，所以利用NPR来突出自己独特的美术基调，展现不同的美术风格，从而吸引玩家。 NPR在数字人的体现 在数字人的概念在互联网中异常火热的时候，业界也出现了...</div></div></div></a><a class="pagination-related" href="/2025/01/04/digital-human-render-2/" title="浅谈数字人仿真的渲染技术（二）"><img class="cover" src="/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-04</div><div class="info-item-2">浅谈数字人仿真的渲染技术（二）</div></div><div class="info-2"><div class="info-item-1">前言 新年好。这是接着上次关于数字人渲染技术的第二部分，今天的这部分的分享，我会开始介绍一些关于数字人渲染的实际技术。 数字人渲染技术介绍 接下来我们来聊一下数字人渲染技术方面的课题，我本身其实在这方面也不是什么大牛，在这里只是把一些我所学到的东西分享给大家。本次也不涉及到过深的技术讨论，如果想要对某个算法的细节想做更深的探讨，我们可以做后续的讨论。 在这里我提前预告一下，接下来的分享会包括哪些方面。 首先是会介绍一些数字人常用的渲染技术，比如皮肤，头发的渲染技术。在介绍这些渲染技术的时候，我主要会解释一下这个算法的构成，他是基于哪些理论而得出的算法，他的流程大致是怎样的，以及效果的一些展示。 本次分享不会包括的方面有：   数学公式推导，当今很多渲染的算法都会遵循实际的物理意义，大多包含较为复杂的数学公式的推导，以辅助实现最后的算法。我们今天的分享是浅谈，所以不会讲的那么深，要是专注于数学公式推导的话会花上非常多的时间，门槛也会提升很多，这块并不是今天的目的。   另外一个是不会Review相关的Shader代码或者材质蓝图连线，今天主要是希望大家理解好概念就好，代码这些在理解...</div></div></div></a><a class="pagination-related" href="/2024/12/28/digital-human-render-1/" title="浅谈数字人仿真的渲染技术（一）"><img class="cover" src="/2024/12/28/digital-human-render-1/metahuman_mugshot.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-28</div><div class="info-item-2">浅谈数字人仿真的渲染技术（一）</div></div><div class="info-2"><div class="info-item-1">前言 在2022年12月，我受邀在OGEEK上做过一次关于数字人渲染技术的分享，名为《浅谈数字人仿真的渲染技术》。为了这次分享我查阅了大量资料做了很多准备，但是很不幸的是在分享的前两天我便感染了新冠，身体开始发烧外加喉咙开始隐隐作痛。为了不影响OGEEK的流程我便在病情还未恶化的时候将分享提前录了下来，以播片的形式参加。 这段经历确实还挺难忘，近期又翻到了这篇准备的PPT，和演讲的录屏，于是想将这部分内容做个记录，整理成文章分享出来。 由于PPT内容还是比较多的，哪怕是精简后的版本也还有50多页，于是乎会准备做成一个系列，当初精简掉的部分可能也会想办法补充回来，让内容尽量的充分。 数字人简介 数字人的定义 目前数字人缺乏一个统一的标准定义，我们从它的发展起源，从技术角度上选择一个最宽泛最简洁的标准：由计算机生成的人类。 中国人工智能产业发展联盟发布的《2020年虚拟数字人发展白皮书》中给了一个更加详细的定义：虚拟数字人意指具有数字化外形的虚拟人物，除了拥有人的外观、人的行为之外、还有拥有人的思想，具有识别外界环境、并能与人交流互动的能力。 那其实这个定义里面，也描述了数字人相关的...</div></div></div></a><a class="pagination-related" href="/2025/03/15/kong-vulkan-intro/" title="Vulkan接入小总结"><img class="cover" src="/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-15</div><div class="info-item-2">Vulkan接入小总结</div></div><div class="info-2"><div class="info-item-1">前言  这是一张平平无奇的渲染图，没有阴影，没有IBL，也没有反射等各种酷炫高大上的效果。 但这张平平无奇的渲染图是我断断续续花了一个月的时间才完成的结果：这是KongEngine接入Vulkan后得到的最新效果。在前面的几篇文章我也提到过，我最近一直在处理这个事，为此我将KongEngine的渲染代码重构，并将Vulkan整合进来。当然原有的OpenGL能力我还是保留着，目前的目标是先利用Vulkan还原原有的OpenGL效果。 这篇文章也不是什么Vulkan入门教程，不会系统的讲Vulkan的初始化流程是怎么样的，Render Pass和Pipeline是什么，DescriptorSet要怎么设定等等。这些内容太复杂了，很难在一篇文章内讲清楚，况且我现在也不能说是很精通。这篇文章只是会大概介绍一下KongEngine目前的Vulkan结构。 KongEngine的Vulkan结构 如下图所示:  KongEngine目前将图形API的部分整合了起来，封装成了OpenGL部分和Vulkan的部分。目前这两个部分的流程还是有一定的区别，本来按照原有计划是将OpenGL的渲染流程按...</div></div></div></a><a class="pagination-related" href="/2025/03/22/vulkan-defer-render/" title="Vulkan中利用subpass实现延迟渲染"><img class="cover" src="/2025/03/22/vulkan-defer-render/scene-defer.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-22</div><div class="info-item-2">Vulkan中利用subpass实现延迟渲染</div></div><div class="info-2"><div class="info-item-1">前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：  几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。 传输到光照阶段计算出最终的结果。  既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。 Vulkan中的Render Pass和Subpass 在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程...</div></div></div></a><a class="pagination-related" href="/2024/10/13/cascade-shadow-map/" title="级联阴影贴图实现"><img class="cover" src="/2024/10/13/cascade-shadow-map/sm_far.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-13</div><div class="info-item-2">级联阴影贴图实现</div></div><div class="info-2"><div class="info-item-1">阴影贴图的局限 阴影贴图（shadow map）是3D场景中实现阴影效果的基础手段，它通过预先将光线方向的场景深度存储到贴图中，在渲染的时候取每个场景中的点到光源的距离和深度贴图作比较，来判定该点是否在阴影当中。 但是在较大的场景中，使用阴影贴图会有几个明显的不足：  阴影贴图只能覆盖部分场景，在渲染较大的场景的时候（如大世界），远处的场景基本上无法被阴影贴图所覆盖。 贴图的分辨率是有限的，太大的分辨率会对性能造成非常大的影响。但是在覆盖较大场景的时候，贴图分辨率不足会导致阴影模糊，效果不佳。 阴影贴图的实现一开始其实并没有考虑玩家相机的视椎体，也就是说在玩家没有看的地方也会渲染阴影贴图，这对渲染资源来说显然是个浪费。  KongEngine计划在后面接入大地形的渲染，借此机会接入了级联阴影贴图的能力。 实现方法参考了LearnOpenGL的教程。 级联阴影贴图的实现 级联阴影贴图的基本概念包括如下几点：  将玩家的视椎体划分为几段，每一段视椎体构建一张阴影贴图覆盖，这个阴影贴图完美贴合从光源方向投射到这段视椎体中心点的正交投影。 和模型LOD的理念类似，离相机近的阴影贴图需要采...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AF%9B%E5%8F%91"><span class="toc-number">2.</span> <span class="toc-text">毛发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kajiya-Kay%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.</span> <span class="toc-text">Kajiya-Kay模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">3.1.</span> <span class="toc-text">简介</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94"><span class="toc-number">3.1.1.</span> <span class="toc-text">对比</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8C%96"><span class="toc-number">3.1.2.</span> <span class="toc-text">优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Marschner%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.2.</span> <span class="toc-text">Marschner模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%A2%86%E5%9F%9F"><span class="toc-number">4.</span> <span class="toc-text">其他领域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

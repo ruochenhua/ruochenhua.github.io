@@ -1,25 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="前言 好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，KongEngine目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对Vulkan的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。 今天这篇文章，算是对之前水面渲染的一个小小">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Gerstner波形 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，KongEngine目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对Vulkan的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。 今天这篇文章，算是对之前水面渲染的一个小小">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Gerstner波形">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/02/13/gerstner-wave/index.html">
@@ -34,283 +13,160 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="水">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/02/13/gerstner-wave/Gerstner-thumbnail.png">
-  
-  
-  
-  <title>Gerstner波形 - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/02/13/gerstner-wave/Gerstner-thumbnail.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Gerstner波形",
+  "url": "https://ruochenhua.github.io/2025/02/13/gerstner-wave/",
+  "image": "https://ruochenhua.github.io/2025/02/13/gerstner-wave/Gerstner-thumbnail.png",
+  "datePublished": "2025-02-13T14:50:46.000Z",
+  "dateModified": "2025-05-01T07:33:49.186Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/02/13/gerstner-wave/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Gerstner波形',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/2025/02/13/gerstner-wave/Gerstner-thumbnail.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="Gerstner波形"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-02-13 22:50" pubdate>
-          2025年2月13日 晚上
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          2.2k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          19 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">Gerstner波形</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="前言">前言</h2>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/02/13/gerstner-wave/Gerstner-thumbnail.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">Gerstner波形</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Gerstner波形</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-13T14:50:46.000Z" title="发表于 2025-02-13 22:50:46">2025-02-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.186Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
 <p>好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，<a target="_blank" rel="noopener" href="https://github.com/ruochenhua/KongEngine">KongEngine</a>目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对<strong>Vulkan</strong>的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。</p>
 <p>今天这篇文章，算是对之前水面渲染的一个小小的延伸，也是填了之前埋得一个小小的坑。</p>
 <h2 id="生成波浪">生成波浪</h2>
@@ -327,13 +183,13 @@
 </li>
 </ul>
 <p>其中<strong>Gerstner波形</strong>由于性能优秀且有着不错的效果，被广泛的应用于游戏的水体模拟之上，比如说虚幻引擎的water plugin就采用的是这种方法。单个的Gerstner波形可以用来描述一种简单规则的水波形态，为了得到更好的水波效果，通常是采用将多个Gerstner波形叠加的方式来实现。</p>
-<p><img src="water-plugin-ue.png" srcset="/img/loading.gif" lazyload alt="虚幻引擎的water plugin"></p>
+<p><img src="water-plugin-ue.png" alt="虚幻引擎的water plugin"></p>
 <p>而<strong>Navier-Strokes方程</strong>则是用来进行更为复杂精度要求更高的流体物理模拟，它的效果惊人但是随之而来的性能消耗也是巨大，所以一般只是用在工业设计、大气模拟等对实时性能要求不是那么高的领域。</p>
 <p>今天的重点会是介绍并实现<strong>Gerstner波形</strong>。</p>
 <h2 id="Gerstner波形">Gerstner波形</h2>
 <h3 id="什么是Gerstner波形">什么是Gerstner波形</h3>
 <p>我们从最简单的sin波形开始，一个基础的sin波形如下所示：</p>
-<p><img src="sin-wave.gif" srcset="/img/loading.gif" lazyload alt="sin波形"></p>
+<p><img src="sin-wave.gif" alt="sin波形"></p>
 <p>sin波形非常常见且易懂，它的波形比较圆润。可以把位于sin波形上的每一个点想想成一个水分子，水分子随着x的变化上下摆动，公式如下。</p>
 <!-- wp:html -->
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
@@ -377,458 +233,39 @@
 <li><strong>v</strong>代表波形移动的速度，<strong>t</strong>是时间，所以<strong>vt</strong>代表波形当前的相位移动。</li>
 </ul>
 <p>如果用代码来表现的话，sin波形的2D表现方式大概是这样的:</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> p = vertex.xyz;<br><span class="hljs-type">float</span> k = <span class="hljs-number">2</span> * PI / l;<br><span class="hljs-type">float</span> f = k*(p.x - v*t);<br><br>p.y = A * <span class="hljs-built_in">sin</span>(f);<br><br><span class="hljs-comment">// ......</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> p = vertex.xyz;</span><br><span class="line"><span class="type">float</span> k = <span class="number">2</span> * PI / l;</span><br><span class="line"><span class="type">float</span> f = k*(p.x - v*t);</span><br><span class="line"></span><br><span class="line">p.y = A * <span class="built_in">sin</span>(f);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ......</span></span><br></pre></td></tr></table></figure>
 <p>Sin波中每个点是做上下运动，只涉及到y方向，得到的效果比较圆滑，比较适合用在平静的湖面上。在处理类似收到风力影响的海水的时候，它的波形往往会更加尖锐。</p>
 <p>Gerstner波为了更准确且真实的描述水分子的运动，它将每个水分子的运动不只是视为sin波形中的上下运动，而是在做一种圆周运动，设计到x和y方向。他们两种的对比如下图所示。</p>
-<p><img src="sin-gerstner.png" srcset="/img/loading.gif" lazyload alt="sin波形和Gerstner波形的对比"></p>
+<p><img src="sin-gerstner.png" alt="sin波形和Gerstner波形的对比"></p>
 <p>为了描述这种圆周运动，我们回忆一下圆形的公式。设圆的半径为r，在圆上的点和坐标轴的夹角为e，可得：</p>
 <ul>
 <li>x = r*cos(e)</li>
 <li>y = r*sin(e)</li>
 </ul>
 <p>那么转换为代码的话大概如下所示：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">vec3</span> p = vertex.xyz;<br><span class="hljs-type">float</span> k = <span class="hljs-number">2</span> * PI / l;<br><span class="hljs-type">float</span> f = k*(p.x - v*t);<br><br>p.x += A * <span class="hljs-built_in">cos</span>(f);	<span class="hljs-comment">//x点也会在原相位的位置波动</span><br>p.y = A * <span class="hljs-built_in">sin</span>(f);<br><br><span class="hljs-comment">// ......</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">vec3</span> p = vertex.xyz;</span><br><span class="line"><span class="type">float</span> k = <span class="number">2</span> * PI / l;</span><br><span class="line"><span class="type">float</span> f = k*(p.x - v*t);</span><br><span class="line"></span><br><span class="line">p.x += A * <span class="built_in">cos</span>(f);	<span class="comment">//x点也会在原相位的位置波动</span></span><br><span class="line">p.y = A * <span class="built_in">sin</span>(f);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ......</span></span><br></pre></td></tr></table></figure>
 <p>得到的结果如下图所示:</p>
-<p><img src="gerstner-wave-simple.gif" srcset="/img/loading.gif" lazyload alt="Gerstner波形"></p>
+<p><img src="gerstner-wave-simple.gif" alt="Gerstner波形"></p>
 <p>我们可以调整Gerstner波形的波长和振幅来达到不同的效果，我们发现在<strong>振幅乘以2PI大于波长</strong>的时候，Gerstner波形会出现一种“打结”的情况，这是由于引入了x方向的位置变动所引起的，所以在实际上使用Gerstner波形的时候需要有一定的条件限制。</p>
-<p><img src="Gerstner-wave-tangle.png" srcset="/img/loading.gif" lazyload alt="Gerstner波形打结"></p>
+<p><img src="Gerstner-wave-tangle.png" alt="Gerstner波形打结"></p>
 <h3 id="Gerstner波形的实现">Gerstner波形的实现</h3>
 <p>好了，我们已经知道了基本的Gerstner波形了，并且上面的代码已经介绍了2D的波形要如何生成。代入到3D的场景中也是类似的，我们只需要带入另外一个维度的移动（y或者z，取决于up方向是哪个轴，这里以y轴为up方向作为示例），根据波形的实际方向为x轴和z轴赋予不同的权重来计算y轴的值。下面是示例代码：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-type">vec3</span> GerstnerWave(<span class="hljs-type">vec3</span> p, <span class="hljs-type">vec3</span> wave_direction, <span class="hljs-type">float</span> steepness, <span class="hljs-type">float</span> wave_length, <span class="hljs-type">float</span> speed_factor, <span class="hljs-keyword">inout</span> <span class="hljs-type">vec3</span> binormal, <span class="hljs-keyword">inout</span> <span class="hljs-type">vec3</span> tangent)<br>&#123;<br>    <span class="hljs-type">float</span> k = <span class="hljs-number">2.0</span> * PI / wave_length;<br>    <span class="hljs-comment">//    float wave_speed = 0.5;</span><br>    <span class="hljs-type">float</span> wave_speed = <span class="hljs-built_in">sqrt</span>(<span class="hljs-number">9.8</span> / k) * speed_factor;<br>    <span class="hljs-type">float</span> _amplitude = steepness / k;<br><br><br>    <span class="hljs-type">float</span> f = k * (<span class="hljs-built_in">dot</span>(wave_direction, p.xz) - wave_speed * <span class="hljs-type">float</span>(iTime));<br><br>    tangent += <span class="hljs-type">vec3</span>(-wave_direction.x*wave_direction.x * steepness * <span class="hljs-built_in">sin</span>(f),<br>                        wave_direction.x*steepness*<span class="hljs-built_in">cos</span>(f),<br>                        -wave_direction.z*wave_direction.x*steepness*<span class="hljs-built_in">sin</span>(f));<br><br>    binormal += <span class="hljs-type">vec3</span>(-wave_direction.x*wave_direction.z * steepness * <span class="hljs-built_in">sin</span>(f),<br>                        wave_direction.z*steepness*<span class="hljs-built_in">cos</span>(f),<br>                        -wave_direction.z*wave_direction.z*steepness*<span class="hljs-built_in">sin</span>(f));<br><br>    <span class="hljs-type">vec3</span> p;<br>    p.x = wave_direction.x * _amplitude * <span class="hljs-built_in">cos</span>(f);<br>    p.y = _amplitude*<span class="hljs-built_in">sin</span>(f);<br>    p.z = wave_direction.z * _amplitude * <span class="hljs-built_in">cos</span>(f);<br><br>    <span class="hljs-keyword">return</span> p;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">vec3</span> GerstnerWave(<span class="type">vec3</span> p, <span class="type">vec3</span> wave_direction, <span class="type">float</span> steepness, <span class="type">float</span> wave_length, <span class="type">float</span> speed_factor, <span class="keyword">inout</span> <span class="type">vec3</span> binormal, <span class="keyword">inout</span> <span class="type">vec3</span> tangent)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">float</span> k = <span class="number">2.0</span> * PI / wave_length;</span><br><span class="line">    <span class="comment">//    float wave_speed = 0.5;</span></span><br><span class="line">    <span class="type">float</span> wave_speed = <span class="built_in">sqrt</span>(<span class="number">9.8</span> / k) * speed_factor;</span><br><span class="line">    <span class="type">float</span> _amplitude = steepness / k;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="type">float</span> f = k * (<span class="built_in">dot</span>(wave_direction, p.xz) - wave_speed * <span class="type">float</span>(iTime));</span><br><span class="line"></span><br><span class="line">    tangent += <span class="type">vec3</span>(-wave_direction.x*wave_direction.x * steepness * <span class="built_in">sin</span>(f),</span><br><span class="line">                        wave_direction.x*steepness*<span class="built_in">cos</span>(f),</span><br><span class="line">                        -wave_direction.z*wave_direction.x*steepness*<span class="built_in">sin</span>(f));</span><br><span class="line"></span><br><span class="line">    binormal += <span class="type">vec3</span>(-wave_direction.x*wave_direction.z * steepness * <span class="built_in">sin</span>(f),</span><br><span class="line">                        wave_direction.z*steepness*<span class="built_in">cos</span>(f),</span><br><span class="line">                        -wave_direction.z*wave_direction.z*steepness*<span class="built_in">sin</span>(f));</span><br><span class="line"></span><br><span class="line">    <span class="type">vec3</span> p;</span><br><span class="line">    p.x = wave_direction.x * _amplitude * <span class="built_in">cos</span>(f);</span><br><span class="line">    p.y = _amplitude*<span class="built_in">sin</span>(f);</span><br><span class="line">    p.z = wave_direction.z * _amplitude * <span class="built_in">cos</span>(f);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里整体的思路和前面的2D计算方式是一样的，多了两个对<strong>tangent</strong>和<strong>binormal</strong>的计算。这两个参数的计算是为了得到正确的法线参数，用于计算波浪的正确光照表现。tangent和binormal的值是通过分别对方向x和z方向求偏导而得来的。</p>
-<p><img src="Gerstner-wave-3d.gif" srcset="/img/loading.gif" lazyload alt="3D Gerstner波形"></p>
+<p><img src="Gerstner-wave-3d.gif" alt="3D Gerstner波形"></p>
 <h3 id="波形的叠加">波形的叠加</h3>
 <p>Gerstner波形我们已经实现了，看起来好像还挺不错的，但是仅仅这样的话和实际上的海浪形态差距还是很大。为了让Gerstner波形更好的表现真实的波浪效果，就需要用到我们前面提到的概念：<strong>波形叠加</strong>。</p>
 <p>这个概念其实并不陌生，在我们实现<a href="https://ruochenhua.github.io/2024/10/11/ProceduralTerrainGeneration/#%E5%88%86%E5%BD%A2%E5%B8%83%E6%9C%97%E8%BF%90%E5%8A%A8">程序化地形生成</a>的时候就提到了类似的概念：<strong>分形布朗运动（FBM）</strong>。通过将不同频率，不同振幅，不同波长的波形叠加起来，可以得到更加随机，更加复杂的效果。</p>
 <p>在这里也是一样的，我们可以创建多个不同参数的Gerstner波形，将他们的效果叠加。下面是一个将8个波形叠加的效果：</p>
-<p><img src="gerstner-wave-3d-complicate.gif" srcset="/img/loading.gif" lazyload alt="3D叠加Gerstner波形"></p>
+<p><img src="gerstner-wave-3d-complicate.gif" alt="3D叠加Gerstner波形"></p>
 <p>这个波形的配置如下：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-type">vec4</span> wave_list[wave_num] = <span class="hljs-type">vec4</span>[wave_num](<br> <span class="hljs-comment">// direction.x, direction.y, steepness, wave_length</span><br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">0.5</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">0.05</span>, <span class="hljs-number">201</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">6.0</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">0.10</span>, <span class="hljs-number">153</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">1.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">0.13</span>, <span class="hljs-number">98</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">-0.5</span>, <span class="hljs-number">-1.5</span>, <span class="hljs-number">0.22</span>, <span class="hljs-number">73</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">3.5</span>, <span class="hljs-number">1.5</span>, <span class="hljs-number">0.23</span>, <span class="hljs-number">52</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">-2.5</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">0.32</span>, <span class="hljs-number">37</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">4.5</span>, <span class="hljs-number">-2.4</span>, <span class="hljs-number">0.37</span>, <span class="hljs-number">13</span>),<br>    <span class="hljs-type">vec4</span>(<span class="hljs-number">0.75</span>, <span class="hljs-number">1.2</span>, <span class="hljs-number">0.08</span>, <span class="hljs-number">3.3</span>)<br>);<br><span class="hljs-type">float</span> total_steepness = <span class="hljs-number">0.0</span>;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; wave_num; i++)<br>&#123;<br>    total_steepness += wave_list[i].z;<br>&#125;<br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; wave_num; i++)<br>&#123;<br>   wave_list[i].z /= total_steepness;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">vec4</span> wave_list[wave_num] = <span class="type">vec4</span>[wave_num](</span><br><span class="line"> <span class="comment">// direction.x, direction.y, steepness, wave_length</span></span><br><span class="line">    <span class="type">vec4</span>(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.05</span>, <span class="number">201</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">6.0</span>, <span class="number">-2.0</span>, <span class="number">0.10</span>, <span class="number">153</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">1.0</span>, <span class="number">5.0</span>, <span class="number">0.13</span>, <span class="number">98</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">-0.5</span>, <span class="number">-1.5</span>, <span class="number">0.22</span>, <span class="number">73</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">3.5</span>, <span class="number">1.5</span>, <span class="number">0.23</span>, <span class="number">52</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">-2.5</span>, <span class="number">5.0</span>, <span class="number">0.32</span>, <span class="number">37</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">4.5</span>, <span class="number">-2.4</span>, <span class="number">0.37</span>, <span class="number">13</span>),</span><br><span class="line">    <span class="type">vec4</span>(<span class="number">0.75</span>, <span class="number">1.2</span>, <span class="number">0.08</span>, <span class="number">3.3</span>)</span><br><span class="line">);</span><br><span class="line"><span class="type">float</span> total_steepness = <span class="number">0.0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; wave_num; i++)</span><br><span class="line">&#123;</span><br><span class="line">    total_steepness += wave_list[i].z;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; wave_num; i++)</span><br><span class="line">&#123;</span><br><span class="line">   wave_list[i].z /= total_steepness;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>为了方便配置，这里我将所有波形的振幅都记录下来，然后做归一化处理，这样以来如果想要保持最终波形的样式不变，只是单纯改变他的振幅大小的话，处理起来就非常方便了。</p>
 <h2 id="收尾">收尾</h2>
 <p>最后，我们将波纹作为水面的mesh带入原有的场景。为了保证还是有细小波纹的效果，我保留了对dudv map的使用。水面的顶点采用了地形类似的tessellation处理，最终得到的结果如下所示。</p>
-<p><img src="gerstner-scene.gif" srcset="/img/loading.gif" lazyload alt="Gerstner波形在场景中的效果"></p>
+<p><img src="gerstner-scene.gif" alt="Gerstner波形在场景中的效果"></p>
 <p>当然，水体渲染还有很多可以优化的部分，比如说浪花的泡沫、采用更加准确的Navier-Stroke方程模拟、水的颜色根据水深做调整、水和陆地接触部分的表现优化等等。</p>
 <p>在处理完Vulkan的接入后，会在这部分做进一步的工作。</p>
 <h2 id="参考资料">参考资料</h2>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/404778222">https://zhuanlan.zhihu.com/p/404778222</a></p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
-      
-        <a href="/tags/%E6%B0%B4/" class="print-no-link">#水</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>Gerstner波形</div>
-      <div>https://ruochenhua.github.io/2025/02/13/gerstner-wave/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2025年2月13日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/02/22/opengl-dsa/" title="OpenGL优化技巧之DSA">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">OpenGL优化技巧之DSA</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/02/03/deepseek-local-deploy/" title="DeepSeek-R1本地部署">
-                        <span class="hidden-mobile">DeepSeek-R1本地部署</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/02/13/gerstner-wave/">https://ruochenhua.github.io/2025/02/13/gerstner-wave/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a><a class="post-meta__tags" href="/tags/%E6%B0%B4/">水</a></div><div class="post-share"><div class="social-share" data-image="/2025/02/13/gerstner-wave/Gerstner-thumbnail.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/02/22/opengl-dsa/" title="OpenGL优化技巧之DSA"><img class="cover" src="/2025/02/22/opengl-dsa/OpenGL-logo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">OpenGL优化技巧之DSA</div></div><div class="info-2"><div class="info-item-1">前言 最近工作依旧是处于比较繁忙的阶段，由于我突然被委以一项不大不小但是进度十分紧急的任务，导致我每天所能挤出来更新的时间是越来越少了。KongEngine的重构有所进展，现在已经将最基础的模型渲染抽象了出来，并且实现了Vulkan渲染的一个简单流程，但是离最终目标还有一定距离。 以前的一些坑（IBL、SSAO）也没有什么精力来填了，这篇文章打算“水”一期，讲讲一个关于OpenGL优化的非常小的一个方面，Direct State Acess（DSA）。 为了聊明白Direct State Acess（以下简称DSA）是什么，以及为什么它可以作为一种优化OpenGL的方法，我们首先需要理解一个概念，即：OpenGL本质上是一个状态机。 OpenGL本质上是一个状态机 该如何理解这句话呢？我们来思考一下，状态机最核心的组成部分是各个不同的状态，以及状态之间的逻辑转换，对于到OpenGL可以做以下的理解：   状态：OpenGL有大量可配置的状态。例如，绘图模式（点、线、三角形等）、光照模型（是否启用光照、光源位置和属性等）、纹理参数（纹理过滤方式、纹理坐标模式等）、当前绑定的帧缓存以...</div></div></div></a><a class="pagination-related" href="/2025/02/03/deepseek-local-deploy/" title="DeepSeek-R1本地部署"><img class="cover" src="/2025/02/03/deepseek-local-deploy/DeepSeek-icon.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">DeepSeek-R1本地部署</div></div><div class="info-2"><div class="info-item-1">前言 蛇年新年好。最近因为过年有很多其他事情需要忙，KongEngine的重构工作也暂停了，文章也有一阵子没有更新。今天是大年初六，总算是回到了深圳家，自己也可以稍微的放松了一下。 今年过年的这段时间，最大的新闻应该就是DeepSeek了。他前几次模型的发布还不显山不漏水的，这次R1推理大模型的发布和开源不仅仅震动了科技圈、AI圈，而是完完全全的出圈了。我在过年的时候也花了很长时间去使用它的应用，它确实展现了很惊艳的效果，但是由于各方面的原因，它的网站确确实实不够稳定，经常会卡住需要重试。于是我就想尝试着本地部署。  Ollama 这次部署我使用的是Ollama。 Ollama简介 Ollama 是一个开源的本地大型语言模型运行框架，旨在简化在本地运行大语言模型的过程，降低使用门槛。它支持 Llama 2、Mistral、Gemma 等众多主流开源模型，能将模型权重、配置和数据捆绑为 Modelfile 进行统一管理。 Ollama 具有自动硬件加速功能，可充分利用系统硬件资源，还支持多操作系统，提供简单的命令行界面和 REST API，拥有丰富的预构建模型库，具备轻量级、可扩展...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/01/12/water-effect-1/" title="水面效果-1"><img class="cover" src="/2025/01/12/water-effect-1/kong_water.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-12</div><div class="info-item-2">水面效果-1</div></div><div class="info-2"><div class="info-item-1">前言 在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。  水面的渲染 下面我们来介绍如何实现一个简单的水面渲染效果。 水面渲染的构成 水面的渲染主要由两部分构成：反射和折射，分别对应着水面之上和之下的内容。我在之前已经有文章分享过屏幕空间反射（SSR）的实现细节，但是对于水面来说，反射的范围一般来说是会更大的，包含的内容也会更多。如果仅仅是只能反射屏幕空间的内容的话渲染效果其实并不理想，因此对于水面我们这里使用另外一种方式来实现反射效果。 基础能力 为了实现水面的渲染，需要下面几个基础能力的帮助。 帧缓冲对象（Framebuffer Objects） 在实现前面的很多渲染效果的过程中，我们多次使用了帧缓冲对象，应该对这个很了解了。我们使用的延迟渲染技术就和帧缓冲对象是分不开的。 如果不熟悉这个的同学可以去翻看一下前面的文章，简单的来说帧缓冲对象能让我们将场景内容渲染到它上面，经过处理后再输出到屏...</div></div></div></a><a class="pagination-related" href="/2025/01/19/water-effect-2/" title="水面效果-2"><img class="cover" src="/2025/01/19/water-effect-2/water-with-specular.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-19</div><div class="info-item-2">水面效果-2</div></div><div class="info-2"><div class="info-item-1">前言 在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象 如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔反射描述了反射光和折射光的比例与光线入射角之间的关系。 根据菲涅尔方程（Fresnel equations），反射率会随着入射角的变化而变化。当光线垂直（入射角为 0°）入射到界面时，反射率是一个固定的值；而当入射角增大时，反射率会逐渐增大。当入射角接近 90°（掠射角）时，反射率趋近于 1，几乎所有的光都会被反射。 在渲染水面时，当视线垂直于水面，可以看到水下一定的深度，此时光大部分折射进入水中，反射的较少。但当视线与水面夹角很小时（接近平行于水面看），水面就像一面镜子，反射很强。这就是菲涅尔现象在起作用。 下面的两张截图表现了这个效果。   那么该如何实现这种效果呢，很简单，在渲...</div></div></div></a><a class="pagination-related" href="/2024/10/19/defer-render/" title="延迟渲染实现"><img class="cover" src="/2024/10/19/defer-render/defer_render_banner.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-19</div><div class="info-item-2">延迟渲染实现</div></div><div class="info-2"><div class="info-item-1">想要在Kong引擎里面实现的场景慢慢复杂了起来，光源和模型的数量从原先的十以内的数量增长到几十甚至几百的数量级，是时候接入延迟渲染的方法了。 延迟渲染 延迟渲染（Defer Rendering），或者延迟着色法（Defer Shading），是区别于正向渲染（Forward Shading）的一种计算场景光照的方式。 正向渲染方法就是遍历场景中的每一个模型，计算一个模型的光照表现后再继续下一个模型的计算，根据深度测试的结果更新屏幕上最终像素显示的颜色。这种方法是很容易让人理解并实现的。但是当场景中的光照和模型数量变多的时候，模型重叠的区域会进行不必要的光照计算（被挡住的模型像素区域最终会被前面的模型遮挡，但是这篇被挡住的区域还是被计算了光照），而光照计算一般来说是渲染消耗的大头，这部分时间就被浪费了。 而延迟渲染的想法则是将光照计算分成两部分。第一个部分叫做几何处理阶段（Geometry Pass），它先将光照计算所需要的模型信息（顶点位置、法线、颜色、材质属性等等）先渲染到多张贴图上（消耗低），经由深度检测保留最终在屏幕上显示的模型部分的这些信息。    第二部分叫做光照处理阶...</div></div></div></a><a class="pagination-related" href="/2024/11/19/ProceduralTerrainGeneration2-optimize/" title="程序化地形生成-2-性能优化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-19</div><div class="info-item-2">程序化地形生成-2-性能优化</div></div><div class="info-2"><div class="info-item-1">性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对实时随机生成的地形，也就是说不能是针对高度图或者其他预处理过的地形数据；其次它需要快，至少能够在我这台笔记本上（3070ti显卡）能够保持50%以下的占用率；最后就是这个光线步进算法需要有一定的精度，但是要求不会很高。 最后我在ShaderToy上找到了一个非常棒的例子，来自Dave_Hoskins。 Dave的Demo也是做了地形的渲染，他的场景比我复杂很多，但是这个更为复杂的场景在我的电脑上运行的时候，它的GPU占用率（分辨率768X432）只有35%左右，远低于我的demo让我大为震撼。 于是我开始研究它的光线步进的逻辑，如下： 12345678910111213141516171...</div></div></div></a><a class="pagination-related" href="/2024/10/28/depth-of-field/" title="景深的简单实现"><img class="cover" src="/2024/10/28/depth-of-field/game1.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-28</div><div class="info-item-2">景深的简单实现</div></div><div class="info-2"><div class="info-item-1">关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游戏领域内也是应用广泛，可以表现出很独特的风格化美术效果（如八方旅人的浅景深效果）。  下面我来介绍一种基础的景深效果实现，这个方法也在最近接入了KongEngine 渲染散景 浅景深的主要应用是通过调整不同焦距上物体的成像清晰程度来突出渲染画面的重点。清晰的部分我们已经掌握了，就是正常的将场景渲染出来，那不清晰的部分（或者叫做散景）也有不少的实现方式，一般是通过模糊算法来实现。 模糊的算法有很多种，比如box blur，gaussian blur等等，效果最好的是扩张模糊(dilate blur)，这也是我们会采取的方法。 扩张模糊（dilate blur) 扩张模糊它的主要方式，是在...</div></div></div></a><a class="pagination-related" href="/2024/12/10/screen-space-reflection/" title="屏幕空间反射"><img class="cover" src="/2024/12/10/screen-space-reflection/ssr_mugshot.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-12-10</div><div class="info-item-2">屏幕空间反射</div></div><div class="info-2"><div class="info-item-1">什么是屏幕空间反射 在前面的文章的一些配图中，其实已经揭露了之前在KongEngine中实现的一个不小的功能点，就是屏幕空间反射（screen space reflection）。加入了屏幕空间反射能力之后，在一些光滑和带有反射材质的表面上，能够实现不错的反射效果。  屏幕空间反射（后简称SSR）是一种在实时渲染中用于模拟物体表面反射的成熟技术。SSR 的核心原理是在屏幕空间中进行光线追踪，以此计算反射效果，而无需像传统方法那样在世界空间或物体空间中进行复杂的光线与场景求交计算。它主要利用屏幕上已有的深度图和法线图等信息，通过对这些信息的分析和处理，确定反射光线的方向和位置，进而得到反射颜色。 因为SSR不错的效果表现和相对来说比较低的性能开销，使其被广泛的应用在各个实时渲染领域，包括游戏、虚拟现实、建筑可视化等等。当然SSR的效果其实还不够完美，有很多无法解决的问题，这个在后面也会提到。但是在大多数情况下它的效果都是足够的，属于一个很高性价比的方法。 如何实现屏幕空间反射 屏幕空间反射的实现方法 简单概括一下SSR的实现方法：  对于屏幕上的每个像素，先获取其深度值和法线向量。...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E6%B3%A2%E6%B5%AA"><span class="toc-number">2.</span> <span class="toc-text">生成波浪</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A2%E6%B5%AA%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">2.1.</span> <span class="toc-text">波浪的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gerstner%E6%B3%A2%E5%BD%A2"><span class="toc-number">3.</span> <span class="toc-text">Gerstner波形</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFGerstner%E6%B3%A2%E5%BD%A2"><span class="toc-number">3.1.</span> <span class="toc-text">什么是Gerstner波形</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gerstner%E6%B3%A2%E5%BD%A2%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.2.</span> <span class="toc-text">Gerstner波形的实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A2%E5%BD%A2%E7%9A%84%E5%8F%A0%E5%8A%A0"><span class="toc-number">3.3.</span> <span class="toc-text">波形的叠加</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B6%E5%B0%BE"><span class="toc-number">4.</span> <span class="toc-text">收尾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

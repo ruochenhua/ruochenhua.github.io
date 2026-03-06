@@ -1,25 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="前言 在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。  水面的渲染 下面我们来介绍如何实现一个简单的水面渲染效果。 水面渲染的构成 水面的渲染主要由两部分构成：反射和折射，分别对应着水面之上和之下的内容。我在之">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>水面效果-1 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。  水面的渲染 下面我们来介绍如何实现一个简单的水面渲染效果。 水面渲染的构成 水面的渲染主要由两部分构成：反射和折射，分别对应着水面之上和之下的内容。我在之">
 <meta property="og:type" content="article">
 <meta property="og:title" content="水面效果-1">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/index.html">
@@ -34,285 +13,162 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="水">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png">
-  
-  
-  
-  <title>水面效果-1 - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "水面效果-1",
+  "url": "https://ruochenhua.github.io/2025/01/12/water-effect-1/",
+  "image": "https://ruochenhua.github.io/2025/01/12/water-effect-1/kong_water.png",
+  "datePublished": "2025-01-12T07:19:54.000Z",
+  "dateModified": "2025-05-01T07:33:49.187Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/01/12/water-effect-1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '水面效果-1',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/2025/01/12/water-effect-1/kong_water.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="水面效果-1"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-01-12 15:19" pubdate>
-          2025年1月12日 下午
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          1.5k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          13 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">水面效果-1</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="前言">前言</h2>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/01/12/water-effect-1/kong_water.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">水面效果-1</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">水面效果-1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-12T07:19:54.000Z" title="发表于 2025-01-12 15:19:54">2025-01-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.187Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
 <p>在经过了逐步的迭代，KongEngine中已经接入了不错的地形和体积云效果（体积云的相关文章我还在整理计划当中，打算后续和IBL连着一起写），所谓好山好水好风光，有了山和云，接下来我的计划便是将水的渲染纳入KongEngine的能力中。</p>
-<p><img src="kong_terrain_cloud.png" srcset="/img/loading.gif" lazyload alt="KongEngine的地形效果"></p>
+<p><img src="kong_terrain_cloud.png" alt="KongEngine的地形效果"></p>
 <h2 id="水面的渲染">水面的渲染</h2>
 <p>下面我们来介绍如何实现一个简单的水面渲染效果。</p>
 <h3 id="水面渲染的构成">水面渲染的构成</h3>
@@ -324,24 +180,24 @@
 <p>如果不熟悉这个的同学可以去翻看一下前面的文章，简单的来说帧缓冲对象能让我们将场景内容渲染到它上面，经过处理后再输出到屏幕。</p>
 <p>为了实现水面的反射和折射，我们需要两个FBO来分别存储反射和折射的纹理。由于KongEngine使用了延迟渲染的架构（包括地形我已经将它的渲染改为支持延迟渲染了），因此目前<strong>折射</strong>的纹理我直接使用的是延迟渲染的FBO，当然其实这并不是最准确的，至于为什么我将会在下面的部分解释。</p>
 <p>为了表现反射，我们假定原来的场景如下图所示。<br>
-<img src="water-scene.png" srcset="/img/loading.gif" lazyload alt="一个包含水面的场景"></p>
+<img src="water-scene.png" alt="一个包含水面的场景"></p>
 <p>右侧的相机向左边看去，它的视线和水面相交的时地方，反射的内容会需要呈现岸上的场景。那么我们应该如何获取到岸上的景色呢，很简单，根据视线的方向和水面的法线，我们可以计算出反射向量，而这个向量相当于将相机按照水平面镜像的结果，如下图所示。</p>
-<p><img src="water-scene-mirror-camera.png" srcset="/img/loading.gif" lazyload alt="镜像相机"></p>
+<p><img src="water-scene-mirror-camera.png" alt="镜像相机"></p>
 <p>用镜像相机得到的渲染得出的纹理作为水面反射的内容表现。</p>
 <h4 id="裁切平面">裁切平面</h4>
 <p><em>水面的反射用来表现水面之上的场景，水面的折射用于表现水面只下的场景</em>。那么理论上来说我按照上面所述的方法渲染反射，很有可能会包含到水下的内容，这样反射的纹理就不对了。</p>
 <p>因此在渲染反射和折射的内容时需要利用裁切平面，分别将水面之下和水面之上的内容裁切掉。</p>
 <p>在OpenGL中，可以使用Clip Distance来实现这个功能，首先需要在C++中启用。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">glEnable</span>(GL_CLIP_DISTANCE0)<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">glEnable</span>(GL_CLIP_DISTANCE0)</span><br></pre></td></tr></table></figure>
 <p>在vertex shader中里面，通过改变*gl_ClipDistance[0]*的值来告诉opengl哪些顶点是要被裁切掉的。当gl_ClipDistance[0]的值小于0，表明这个顶点需要被裁切掉；相反，大于0则代表该顶点需要保留。</p>
 <p><em>在KongEngine的实现中，由于直接使用了延迟渲染的帧缓冲内容，所以这里并没有做平面裁切，因此折射和反射的表现其实会有一些问题。</em></p>
 <h4 id="投影纹理映射">投影纹理映射</h4>
 <p>当我们有了水面的反射和折射的纹理后，我们接下来将这两张纹理应用于水面上就可以了。。。吗？</p>
-<p><img src="water-normal-texcoord.png" srcset="/img/loading.gif" lazyload alt="直接使用纹理"></p>
+<p><img src="water-normal-texcoord.png" alt="直接使用纹理"></p>
 <p>上面这张图，nanosuit的脚底下本来是水面的，现在这个表现是因为直接将纹理按照水平面四边形（Quad）的纹理坐标贴了上去。为了得到正确的结果，我们需要用<strong>投影纹理映射将水面模型的3D的坐标映射到屏幕的2D坐标上</strong>。</p>
-<p><img src="coord-trans.png" srcset="/img/loading.gif" lazyload alt="坐标转换"></p>
+<p><img src="coord-trans.png" alt="坐标转换"></p>
 <p>上面是一张来自<a target="_blank" rel="noopener" href="https://antongerdelan.net/opengl/raycasting.html#:~:text=Overview,is%20usually%20called%20ray%20casting.">Anton Gerdelan的关于坐标系转换的图示</a>。我们需要以水面模型的屏幕空间的坐标来采样纹理，在vertex shader里面，水面的模型顶点已经经过了转换到达了<strong>齐次裁切空间（Homogeneous Clip Space）</strong>。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><br><span class="hljs-meta">#version 450 compatibility</span><br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> in_pos;<br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> in_normal;<br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span> = <span class="hljs-number">2</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> in_texcoord;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> model;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> view;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">mat4</span> projection;<br><br><br><span class="hljs-comment">// out vec3 normal_world;</span><br><span class="hljs-keyword">out</span> <span class="hljs-type">vec3</span> out_pos;<br><span class="hljs-keyword">out</span> <span class="hljs-type">vec3</span> out_normal;<br><span class="hljs-keyword">out</span> <span class="hljs-type">vec2</span> out_texcoord;<br><span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> clip_space;<br><br><span class="hljs-keyword">const</span> <span class="hljs-type">float</span> tiling = <span class="hljs-number">6.0</span>;<br><br><span class="hljs-type">void</span> main()&#123;<br>	<span class="hljs-built_in">gl_Position</span> = projection * view * model * <span class="hljs-type">vec4</span>(in_pos, <span class="hljs-number">1.0</span>);<br>    clip_space = <span class="hljs-built_in">gl_Position</span>;<br>    out_pos = (model * <span class="hljs-type">vec4</span>(in_pos, <span class="hljs-number">1.0</span>)).xyz;<br><span class="hljs-comment">//</span><br>    out_normal = <span class="hljs-built_in">normalize</span>(<span class="hljs-type">mat3</span>(<span class="hljs-built_in">transpose</span>(<span class="hljs-built_in">inverse</span>(model))) * in_normal);<br>	out_texcoord = in_texcoord * tiling;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#version 450 compatibility</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span> = <span class="number">0</span>) <span class="keyword">in</span> <span class="type">vec3</span> in_pos;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span> = <span class="number">1</span>) <span class="keyword">in</span> <span class="type">vec3</span> in_normal;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span> = <span class="number">2</span>) <span class="keyword">in</span> <span class="type">vec2</span> in_texcoord;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> model;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> view;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">mat4</span> projection;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// out vec3 normal_world;</span></span><br><span class="line"><span class="keyword">out</span> <span class="type">vec3</span> out_pos;</span><br><span class="line"><span class="keyword">out</span> <span class="type">vec3</span> out_normal;</span><br><span class="line"><span class="keyword">out</span> <span class="type">vec2</span> out_texcoord;</span><br><span class="line"><span class="keyword">out</span> <span class="type">vec4</span> clip_space;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="type">float</span> tiling = <span class="number">6.0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main()&#123;</span><br><span class="line">	<span class="built_in">gl_Position</span> = projection * view * model * <span class="type">vec4</span>(in_pos, <span class="number">1.0</span>);</span><br><span class="line">    clip_space = <span class="built_in">gl_Position</span>;</span><br><span class="line">    out_pos = (model * <span class="type">vec4</span>(in_pos, <span class="number">1.0</span>)).xyz;</span><br><span class="line"><span class="comment">//</span></span><br><span class="line">    out_normal = <span class="built_in">normalize</span>(<span class="type">mat3</span>(<span class="built_in">transpose</span>(<span class="built_in">inverse</span>(model))) * in_normal);</span><br><span class="line">	out_texcoord = in_texcoord * tiling;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>其中clip_space是水面顶点的eye space坐标，将会输入到fragment shader中。<br>
 我们需要通过以下步骤获得屏幕空间的采样坐标：</p>
 <ol>
@@ -359,433 +215,14 @@
 </li>
 </ol>
 <p>下面是fragment shader的示例代码。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450 compatibility</span><br><br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> out_pos;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> out_normal;<br><span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> out_texcoord;<br><br><span class="hljs-keyword">in</span> <span class="hljs-type">vec4</span> clip_space;<br><br><span class="hljs-keyword">layout</span> (<span class="hljs-keyword">location</span> = <span class="hljs-number">0</span>) <span class="hljs-keyword">out</span> <span class="hljs-type">vec4</span> FragColor;<br><br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> reflection_texture;<br><span class="hljs-keyword">uniform</span> <span class="hljs-type">sampler2D</span> refraction_texture;<br><br><br><span class="hljs-type">void</span> main()<br>&#123;<br>	<span class="hljs-type">vec2</span> ndc = clip_space.xy / clip_space.w;<br>	ndc = ndc / <span class="hljs-number">2.0</span> + <span class="hljs-type">vec2</span>(<span class="hljs-number">0.5</span>);<br><br>	<span class="hljs-type">vec2</span> reflection_coord = <span class="hljs-type">vec2</span>(ndc.x, -ndc.y);    <span class="hljs-comment">// 反射的垂直方向坐标是反的，所以y是负的。</span><br>	<span class="hljs-type">vec2</span> refraction_coord = ndc;<br>	<br>	<span class="hljs-type">vec4</span> rfr = <span class="hljs-type">vec4</span>(<span class="hljs-built_in">texture</span>(refraction_texture, refraction_coord).xyz, <span class="hljs-number">1.0</span>);<br>	<span class="hljs-type">vec4</span> rfl = <span class="hljs-type">vec4</span>(<span class="hljs-built_in">texture</span>(reflection_texture, reflection_coord).xyz, <span class="hljs-number">1.0</span>);<br>	<br>	FragColor = <span class="hljs-built_in">mix</span>(rfr, rfl , <span class="hljs-number">0.785</span>);<br>	<span class="hljs-keyword">return</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 450 compatibility</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">in</span> <span class="type">vec3</span> out_pos;</span><br><span class="line"><span class="keyword">in</span> <span class="type">vec3</span> out_normal;</span><br><span class="line"><span class="keyword">in</span> <span class="type">vec2</span> out_texcoord;</span><br><span class="line"></span><br><span class="line"><span class="keyword">in</span> <span class="type">vec4</span> clip_space;</span><br><span class="line"></span><br><span class="line"><span class="keyword">layout</span> (<span class="keyword">location</span> = <span class="number">0</span>) <span class="keyword">out</span> <span class="type">vec4</span> FragColor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">uniform</span> <span class="type">sampler2D</span> reflection_texture;</span><br><span class="line"><span class="keyword">uniform</span> <span class="type">sampler2D</span> refraction_texture;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">vec2</span> ndc = clip_space.xy / clip_space.w;</span><br><span class="line">	ndc = ndc / <span class="number">2.0</span> + <span class="type">vec2</span>(<span class="number">0.5</span>);</span><br><span class="line"></span><br><span class="line">	<span class="type">vec2</span> reflection_coord = <span class="type">vec2</span>(ndc.x, -ndc.y);    <span class="comment">// 反射的垂直方向坐标是反的，所以y是负的。</span></span><br><span class="line">	<span class="type">vec2</span> refraction_coord = ndc;</span><br><span class="line">	</span><br><span class="line">	<span class="type">vec4</span> rfr = <span class="type">vec4</span>(<span class="built_in">texture</span>(refraction_texture, refraction_coord).xyz, <span class="number">1.0</span>);</span><br><span class="line">	<span class="type">vec4</span> rfl = <span class="type">vec4</span>(<span class="built_in">texture</span>(reflection_texture, reflection_coord).xyz, <span class="number">1.0</span>);</span><br><span class="line">	</span><br><span class="line">	FragColor = <span class="built_in">mix</span>(rfr, rfl , <span class="number">0.785</span>);</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>得到的结果如下图所示。</p>
-<p><img src="water-effect-correct.png" srcset="/img/loading.gif" lazyload alt="正确的水面纹理效果"></p>
+<p><img src="water-effect-correct.png" alt="正确的水面纹理效果"></p>
 <h2 id="结语">结语</h2>
 <p>至此，其实我们已经初步实现了水面的效果了。从上面的效果图来看其实也颇有模有样，但是距离真正的结束还差的远呢。在后面的文章我会继续补充水面渲染的内容，最终我们的效果会如下图一般。</p>
-<p><img src="kong_water.png" srcset="/img/loading.gif" lazyload alt="最终的水面效果"></p>
+<p><img src="kong_water.png" alt="最终的水面效果"></p>
 <p>如何实现这个效果就敬请期待后续的内容了。</p>
 <h2 id="参考资料">参考资料</h2>
 <p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=HusvGeEDU_U&amp;list=PLRIWtICgwaX23jiqVByUs0bqhnalNTNZh&amp;ab_channel=ThinMatrix">ThinMatrix’s OpenGL water guide</a></p>
 <p><a target="_blank" rel="noopener" href="https://medium.com/@vincehnguyen/simplest-way-to-render-pretty-water-in-opengl-7bce40cbefbe">Simplest way to render pretty water in OpenGL</a></p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
-      
-        <a href="/tags/%E6%B0%B4/" class="print-no-link">#水</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>水面效果-1</div>
-      <div>https://ruochenhua.github.io/2025/01/12/water-effect-1/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2025年1月12日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/01/19/water-effect-2/" title="水面效果-2">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">水面效果-2</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/01/09/digital-human-render-4/" title="浅谈数字人仿真的渲染技术（四）">
-                        <span class="hidden-mobile">浅谈数字人仿真的渲染技术（四）</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/01/12/water-effect-1/">https://ruochenhua.github.io/2025/01/12/water-effect-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a><a class="post-meta__tags" href="/tags/%E6%B0%B4/">水</a></div><div class="post-share"><div class="social-share" data-image="/2025/01/12/water-effect-1/kong_water.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/01/19/water-effect-2/" title="水面效果-2"><img class="cover" src="/2025/01/19/water-effect-2/water-with-specular.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">水面效果-2</div></div><div class="info-2"><div class="info-item-1">前言 在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象 如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔反射描述了反射光和折射光的比例与光线入射角之间的关系。 根据菲涅尔方程（Fresnel equations），反射率会随着入射角的变化而变化。当光线垂直（入射角为 0°）入射到界面时，反射率是一个固定的值；而当入射角增大时，反射率会逐渐增大。当入射角接近 90°（掠射角）时，反射率趋近于 1，几乎所有的光都会被反射。 在渲染水面时，当视线垂直于水面，可以看到水下一定的深度，此时光大部分折射进入水中，反射的较少。但当视线与水面夹角很小时（接近平行于水面看），水面就像一面镜子，反射很强。这就是菲涅尔现象在起作用。 下面的两张截图表现了这个效果。   那么该如何实现这种效果呢，很简单，在渲...</div></div></div></a><a class="pagination-related" href="/2025/01/09/digital-human-render-4/" title="浅谈数字人仿真的渲染技术（四）"><img class="cover" src="/2025/01/09/digital-human-render-4/npr-digi-human.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">浅谈数字人仿真的渲染技术（四）</div></div><div class="info-2"><div class="info-item-1">前言 这篇文章是我在OGEEK上做过的《浅谈数字人仿真的渲染技术》分享的最后一部分，这一部分的内容主要包含的内容是**非真实感渲染（Non-photorealistic Rendering, NPR）**技术，通常这项技术会被用在渲染卡通风格的内容。 非真实感渲染 前面的渲染技术一般都是用于高真实度数字人的渲染，接下来我们来介绍一下NPR。 什么是NPR NPR，我们一般指的是非真实感渲染（Non-photorealistic Rendering），它是相对于**真实渲染（Photorealistic Rendering）**的。 真实感渲染的目的在于渲染出照片级别的高真实度画面；而非真实感渲染，他的目的多种多样，它可以模拟艺术化的绘制风格，呈现出手绘的效果。 这是游戏”犬神“的画面，它的渲染模拟出一种独特的水墨风格。  这是游戏”荒野之息“的画面，它就有点类似于日本动画的风格。  他们显然不是想游戏画面看起来和显示世界一模一样的，所以利用NPR来突出自己独特的美术基调，展现不同的美术风格，从而吸引玩家。 NPR在数字人的体现 在数字人的概念在互联网中异常火热的时候，业界也出现了...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/01/19/water-effect-2/" title="水面效果-2"><img class="cover" src="/2025/01/19/water-effect-2/water-with-specular.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-01-19</div><div class="info-item-2">水面效果-2</div></div><div class="info-2"><div class="info-item-1">前言 在之前的文章，我们已经结合了反射纹理和折射纹理，有了一个初步的水面效果了。今天这篇文章我们会继续深入，优化水面的效果。 菲涅尔现象 如果你对基于物理的渲染管线（PBR）比较熟悉的话，那很有可能你已经知道菲涅尔现象（Fresnel Effect）是什么了。简单的来说，当光线照射到两种不同介质（例如从空气照射到玻璃或者从水照射到空气）的分界面时，一部分光会被反射，一部分光会折射进入另一种介质。菲涅尔反射描述了反射光和折射光的比例与光线入射角之间的关系。 根据菲涅尔方程（Fresnel equations），反射率会随着入射角的变化而变化。当光线垂直（入射角为 0°）入射到界面时，反射率是一个固定的值；而当入射角增大时，反射率会逐渐增大。当入射角接近 90°（掠射角）时，反射率趋近于 1，几乎所有的光都会被反射。 在渲染水面时，当视线垂直于水面，可以看到水下一定的深度，此时光大部分折射进入水中，反射的较少。但当视线与水面夹角很小时（接近平行于水面看），水面就像一面镜子，反射很强。这就是菲涅尔现象在起作用。 下面的两张截图表现了这个效果。   那么该如何实现这种效果呢，很简单，在渲...</div></div></div></a><a class="pagination-related" href="/2025/02/13/gerstner-wave/" title="Gerstner波形"><img class="cover" src="/2025/02/13/gerstner-wave/Gerstner-thumbnail.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-13</div><div class="info-item-2">Gerstner波形</div></div><div class="info-2"><div class="info-item-1">前言 好久不见，最近正处于工作比较忙的阶段，每天为了应付工作上的事情就已经筋疲力尽了。为了得到更好的渲染效率，KongEngine目前正处于比较大的重构之中。同时最近我开始为KongEngine增加对Vulkan的支持，一起都还处于最初的混沌之中，所以KongEngine的渲染特性目前没有什么增加，没有什么可写的。我计划等一起都尘埃落定在详细的介绍一下。 今天这篇文章，算是对之前水面渲染的一个小小的延伸，也是填了之前埋得一个小小的坑。 生成波浪 我在《水面效果-1》和《水面效果-2》这两篇文章中，我简单介绍了一种水面渲染效果的方法。这种方法最后的结果能输出出不错的水面效果，但是有一个比较大的缺陷就是，这种方法渲染出来的水面是平的。 尽管在这两篇文章中，我们尝试使用了几种方法来让水面产生波纹扰动，包括dudv map和normal map。但是水面的mesh最终只是一个平面，如果你以相对平行的视角去看的话，水面是没有起伏的。 如何解决这个问题呢？那有个很简单的思路，我们只要让水面不只是一个平面，让他是一个有波纹扰动的mesh就可以了。在《水面效果-2》的文章的最后提到了Gerstn...</div></div></div></a><a class="pagination-related" href="/2024/11/24/reflective-shadow-map/" title="反射阴影贴图"><img class="cover" src="/2024/11/24/reflective-shadow-map/rsm_on_suit.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-24</div><div class="info-item-2">反射阴影贴图</div></div><div class="info-2"><div class="info-item-1">反射阴影贴图简介 反射阴影贴图（Reflective Shadow Map）是实现全局光照效果的一个非常经典的方法，它是在这篇论文中被提出。 直接光照和间接光照 它的名字中带有“阴影贴图（Shadow Map）”几个字，所以乍看之下这个方法似乎是用来解决阴影问题，或者是提升阴影效果的。其实不然，它是用来解决间接光照的问题的方法。 在一般的场景中，光照可以大致分为两类：  一类是直接光照，也就是物体被光源直接照亮的部分。这个类型的光照是比较好计算的，通过光源的入射角，物体表面的法线和材质，以及观察的方向等等，利用PBR的方法能够得到非常不错的效果，这个流程在KongEngine中已经基本实现了。 另外一个类型是间接光照，它代表的是光线经过一次甚至多次反射后照亮物体的部分。相对于直接光照，间接光照十分复杂，因为光线可能经过多次反射，想要实时的计算光的多次反射的完整路径是很难实现的。但是如果不包含间接光照的话，场景的真实度会大打折扣。在最基础的PBR渲染框架中，我们可以选择手动输入一个环境光照（Ambient Light）的颜色，可以简单的表现全局光照，但是真实性还是不够。  反射阴影...</div></div></div></a><a class="pagination-related" href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2"><img class="cover" src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-04</div><div class="info-item-2">程序化地形生成-2</div></div><div class="info-2"><div class="info-item-1">距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。 那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。 1234567891011121314vec3 dirt_color = vec3(0.8549, 0.5255, 0.3098);vec3 grass_color = vec3(0.3137, 0.5412, 0.0157);// ..if(rd.y &lt; 0.05 &amp;&amp; rayMarchingTerrain(ro, r...</div></div></div></a><a class="pagination-related" href="/2024/10/15/single-scatter-atmosphere/" title="基于单次散射的天空大气渲染方法"><img class="cover" src="/2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-15</div><div class="info-item-2">基于单次散射的天空大气渲染方法</div></div><div class="info-2"><div class="info-item-1">最近KongEngine实现了IBL(Image Based Lighting)，可以将HDR环境贴图映射作为3D场景的环境。  在实现了IBL之后我又产生了一个想法，能否实现类似UE中的大气环境的渲染效果呢？我尝试去寻找答案，发现如果要完全复刻UE中的效果确实需要一定的功夫的，但是最基础的天空大气渲染并没有想象中那么复杂，于是我便花了点时间在KongEngine中实现了这个功能。  我打算将这个方法的基础思想和实现在此简单记录一下。 单次散射模型 星球的大气层是一种参与性介质，和在真空环境不同，光在大气层中传播的时候会因为大气中的微小颗粒（水、灰尘等等）发生散射（折射、反射）和吸收等情况。因此我们看向空中的一个点的时候，这个点的颜色是光经过多次散射得到的结果。 光到达我们眼睛之前经过多少次反射和折射是不一定的，在实时渲染的需求下计算太多次光的变化显然也是不显示的。最简单的方法，是使用单次散射模型：我们假定光在进入我们眼睛之前，有且只发生了一次散射。光一般在第一次散射的时候，还会有最多的能量剩余，后面的多次散射能力相对少，对最后效果的呈现也影响不大，因此这种模型可以在保证性能的情...</div></div></div></a><a class="pagination-related" href="/2025/04/26/vulkan-shadowmap/" title="vulkan阴影贴图实践总结"><img class="cover" src="/2025/04/26/vulkan-shadowmap/Vulkan-shadowmap.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-26</div><div class="info-item-2">vulkan阴影贴图实践总结</div></div><div class="info-2"><div class="info-item-1">前言 好了，继续我们的Vulkan之旅。 在上一次Vulkan相关的文章中，我们利用subpass实现了延迟渲染的流程。  延迟渲染实现之后，下一步当然是实现阴影了，缺少了阴影的场景看起来还是差点意思。于是乎我自然而然的计划将阴影贴图的实现提上日程。 阴影贴图的原理我这里就不再多介绍了，和OpenGL的实现原理是一致的。我们之前的文章也有介绍过阴影贴图的各种延展应用，比如说CSM（级联阴影贴图）和rsm（反射阴影贴图）。 本来想着的是我都实现过几次阴影贴图了，那这次Vulkan的接入也应该很快才对，结果由于各种各样的生活和工作的事件影响，再加上Vulkan上面有许多的细节需要调整，导致这个效果拖了大半个月才算弄好。 这篇文章简单记录一下我实现过程中踩的各种坑。 Vulkan实现阴影贴图过程中踩的坑 准备深度纹理 在准备深度纹理上就有不少细节需要关注。 VkImageCreateInfo.Usage 首先在创建深度纹理的时候，VkImageCreateInfo中的Usage需要添加采样的Flag位。这一位在延迟渲染和天空盒等没有直接对深度纹理采样的过程中是不需要添加的，只有Colo...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B0%B4%E9%9D%A2%E7%9A%84%E6%B8%B2%E6%9F%93"><span class="toc-number">2.</span> <span class="toc-text">水面的渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B0%B4%E9%9D%A2%E6%B8%B2%E6%9F%93%E7%9A%84%E6%9E%84%E6%88%90"><span class="toc-number">2.1.</span> <span class="toc-text">水面渲染的构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E8%83%BD%E5%8A%9B"><span class="toc-number">2.2.</span> <span class="toc-text">基础能力</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%A7%E7%BC%93%E5%86%B2%E5%AF%B9%E8%B1%A1%EF%BC%88Framebuffer-Objects%EF%BC%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">帧缓冲对象（Framebuffer Objects）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A3%81%E5%88%87%E5%B9%B3%E9%9D%A2"><span class="toc-number">2.2.2.</span> <span class="toc-text">裁切平面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%95%E5%BD%B1%E7%BA%B9%E7%90%86%E6%98%A0%E5%B0%84"><span class="toc-number">2.2.3.</span> <span class="toc-text">投影纹理映射</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">3.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

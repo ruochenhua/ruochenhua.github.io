@@ -1,0 +1,8 @@
+/* 自定义样式：底部与首页暖色顶图协调，去掉默认蓝色 */
+#footer {
+  background-color: #2d2a28 !important; /* 暖调深灰，与山川日落顶图搭配 */
+}
+
+#footer a:hover {
+  color: #c9a86c !important; /* 悬停时暖色 */
+}

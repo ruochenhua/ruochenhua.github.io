@@ -1,31 +1,11 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>程序化地形生成-2-性能优化 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对">
 <meta property="og:type" content="article">
 <meta property="og:title" content="程序化地形生成-2-性能优化">
 <meta property="og:url" content="https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/index.html">
 <meta property="og:site_name" content="晨小屋">
 <meta property="og:description" content="性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/img/avatar.png">
 <meta property="article:published_time" content="2024-11-19T14:34:36.000Z">
 <meta property="article:modified_time" content="2025-05-01T07:33:49.187Z">
 <meta property="article:author" content="晨">
@@ -34,719 +14,176 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="程序化生成">
-<meta name="twitter:card" content="summary_large_image">
-  
-  
-  
-  <title>程序化地形生成-2-性能优化 - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/img/avatar.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "程序化地形生成-2-性能优化",
+  "url": "https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/",
+  "image": "https://ruochenhua.github.io/img/avatar.png",
+  "datePublished": "2024-11-19T14:34:36.000Z",
+  "dateModified": "2025-05-01T07:33:49.187Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '程序化地形生成-2-性能优化',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="程序化地形生成-2-性能优化"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-11-19 22:34" pubdate>
-          2024年11月19日 晚上
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          1.2k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          11 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">程序化地形生成-2-性能优化</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="性能优化的需求">性能优化的需求</h2>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">程序化地形生成-2-性能优化</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">程序化地形生成-2-性能优化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-11-19T14:34:36.000Z" title="发表于 2024-11-19 22:34:36">2024-11-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.187Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="性能优化的需求">性能优化的需求</h2>
 <p>自从实现了程序化地形生成的那个<a target="_blank" rel="noopener" href="https://www.shadertoy.com/view/4XByRV">ShaderToy上的Demo</a>之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。</p>
 <p>于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对实时随机生成的地形，也就是说不能是针对高度图或者其他预处理过的地形数据；其次它需要快，至少能够在我这台笔记本上（3070ti显卡）能够保持50%以下的占用率；最后就是这个光线步进算法需要有一定的精度，但是要求不会很高。</p>
 <p>最后我在ShaderToy上找到了一个非常棒的<a target="_blank" rel="noopener" href="https://www.shadertoy.com/view/4slGD4">例子</a>，来自Dave_Hoskins。</p>
 <p>Dave的Demo也是做了地形的渲染，他的场景比我复杂很多，但是这个更为复杂的场景在我的电脑上运行的时候，它的GPU占用率（分辨率768X432）只有35%左右，远低于我的demo让我大为震撼。</p>
 <p>于是我开始研究它的光线步进的逻辑，如下：</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-comment">// source:https://www.shadertoy.com/view/4slGD4</span><br><span class="hljs-type">float</span> BinarySubdivision(<span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> rO, <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> rD, <span class="hljs-type">vec2</span> t)<br>&#123;<br>	<span class="hljs-comment">// Home in on the surface by dividing by two and split...</span><br>    <span class="hljs-type">float</span> halfwayT;<br>  <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++)<br>    &#123;<br><br>        halfwayT = <span class="hljs-built_in">dot</span>(t, <span class="hljs-type">vec2</span>(<span class="hljs-number">.5</span>));<br>        <span class="hljs-type">vec3</span> p = rO + halfwayT*rD;<br>        <span class="hljs-type">float</span> d = p.y - getTerrainHeight(p.xz, perlinOctaves); <br>        <span class="hljs-comment">// float d = Map(rO + halfwayT*rD); </span><br>         t = <span class="hljs-built_in">mix</span>(<span class="hljs-type">vec2</span>(t.x, halfwayT), <span class="hljs-type">vec2</span>(halfwayT, t.y), <span class="hljs-built_in">step</span>(<span class="hljs-number">0.5</span>, d));<br><br>    &#125;<br>	<span class="hljs-keyword">return</span> halfwayT;<br>&#125;<br><br><span class="hljs-type">bool</span> rayMarchingTerrain(<span class="hljs-type">vec3</span> ro, <span class="hljs-type">vec3</span> rd, <span class="hljs-type">float</span> max_dist, <span class="hljs-keyword">out</span> <span class="hljs-type">float</span> res_t)<br>&#123;<br>    <span class="hljs-type">float</span> t = <span class="hljs-number">1.</span> + Hash12(g_frag_coord)*<span class="hljs-number">1.</span>;<br>	<span class="hljs-type">float</span> oldT = <span class="hljs-number">0.0</span>;<br>	<span class="hljs-type">float</span> delta = <span class="hljs-number">0.0</span>;<br>	<span class="hljs-type">bool</span> fin = <span class="hljs-literal">false</span>;<br>	<span class="hljs-type">bool</span> res = <span class="hljs-literal">false</span>;<br>	<span class="hljs-type">vec2</span> distances;<br>	<span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>; j&lt; <span class="hljs-number">150</span>; j++ )<br>	&#123;<br>		<span class="hljs-keyword">if</span> (fin || t &gt; <span class="hljs-number">240.0</span>) <span class="hljs-keyword">break</span>;<br>		<span class="hljs-type">vec3</span> p = ro + t*rd;<br>		<span class="hljs-comment">//if (t &gt; 240.0 || p.y &gt; 195.0) break;</span><br>		<span class="hljs-type">float</span> h = p.y - getTerrainHeight(p.xz, perlinOctaves); <span class="hljs-comment">// ...Get this positions height mapping.</span><br>		<span class="hljs-comment">// Are we inside, and close enough to fudge a hit?...</span><br>		<span class="hljs-keyword">if</span>( h &lt; <span class="hljs-number">0.5</span>)<br>		&#123;<br>			fin = <span class="hljs-literal">true</span>;<br>			distances = <span class="hljs-type">vec2</span>(oldT, t);<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>		<span class="hljs-comment">// Delta ray advance - a fudge between the height returned</span><br>		<span class="hljs-comment">// and the distance already travelled.</span><br>		<span class="hljs-comment">// It&#x27;s a really fiddly compromise between speed and accuracy</span><br>		<span class="hljs-comment">// Too large a step and the tops of ridges get missed.</span><br>		delta = <span class="hljs-built_in">max</span>(<span class="hljs-number">0.01</span>, <span class="hljs-number">0.3</span>*h) + (t*<span class="hljs-number">0.0065</span>);<br>		oldT = t;<br>		t += delta;<br>	&#125;<br>	<span class="hljs-keyword">if</span> (fin) res_t = BinarySubdivision(ro, rd, distances);<br><br>	<span class="hljs-keyword">return</span> fin;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// source:https://www.shadertoy.com/view/4slGD4</span></span><br><span class="line"><span class="type">float</span> BinarySubdivision(<span class="keyword">in</span> <span class="type">vec3</span> rO, <span class="keyword">in</span> <span class="type">vec3</span> rD, <span class="type">vec2</span> t)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// Home in on the surface by dividing by two and split...</span></span><br><span class="line">    <span class="type">float</span> halfwayT;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">        halfwayT = <span class="built_in">dot</span>(t, <span class="type">vec2</span>(<span class="number">.5</span>));</span><br><span class="line">        <span class="type">vec3</span> p = rO + halfwayT*rD;</span><br><span class="line">        <span class="type">float</span> d = p.y - getTerrainHeight(p.xz, perlinOctaves); </span><br><span class="line">        <span class="comment">// float d = Map(rO + halfwayT*rD); </span></span><br><span class="line">         t = <span class="built_in">mix</span>(<span class="type">vec2</span>(t.x, halfwayT), <span class="type">vec2</span>(halfwayT, t.y), <span class="built_in">step</span>(<span class="number">0.5</span>, d));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">return</span> halfwayT;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> rayMarchingTerrain(<span class="type">vec3</span> ro, <span class="type">vec3</span> rd, <span class="type">float</span> max_dist, <span class="keyword">out</span> <span class="type">float</span> res_t)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">float</span> t = <span class="number">1.</span> + Hash12(g_frag_coord)*<span class="number">1.</span>;</span><br><span class="line">	<span class="type">float</span> oldT = <span class="number">0.0</span>;</span><br><span class="line">	<span class="type">float</span> delta = <span class="number">0.0</span>;</span><br><span class="line">	<span class="type">bool</span> fin = <span class="literal">false</span>;</span><br><span class="line">	<span class="type">bool</span> res = <span class="literal">false</span>;</span><br><span class="line">	<span class="type">vec2</span> distances;</span><br><span class="line">	<span class="keyword">for</span>( <span class="type">int</span> j=<span class="number">0</span>; j&lt; <span class="number">150</span>; j++ )</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (fin || t &gt; <span class="number">240.0</span>) <span class="keyword">break</span>;</span><br><span class="line">		<span class="type">vec3</span> p = ro + t*rd;</span><br><span class="line">		<span class="comment">//if (t &gt; 240.0 || p.y &gt; 195.0) break;</span></span><br><span class="line">		<span class="type">float</span> h = p.y - getTerrainHeight(p.xz, perlinOctaves); <span class="comment">// ...Get this positions height mapping.</span></span><br><span class="line">		<span class="comment">// Are we inside, and close enough to fudge a hit?...</span></span><br><span class="line">		<span class="keyword">if</span>( h &lt; <span class="number">0.5</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			fin = <span class="literal">true</span>;</span><br><span class="line">			distances = <span class="type">vec2</span>(oldT, t);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// Delta ray advance - a fudge between the height returned</span></span><br><span class="line">		<span class="comment">// and the distance already travelled.</span></span><br><span class="line">		<span class="comment">// It&#x27;s a really fiddly compromise between speed and accuracy</span></span><br><span class="line">		<span class="comment">// Too large a step and the tops of ridges get missed.</span></span><br><span class="line">		delta = <span class="built_in">max</span>(<span class="number">0.01</span>, <span class="number">0.3</span>*h) + (t*<span class="number">0.0065</span>);</span><br><span class="line">		oldT = t;</span><br><span class="line">		t += delta;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (fin) res_t = BinarySubdivision(ro, rd, distances);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> fin;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>其实代码逻辑很简单，就是光线步进到的位置和当前XZ坐标的地形高度做比对，当光线步进的位置的高度和地形足够近的时候，记为击中。记录当前和上一步的t的位置，在得到最终结果的时候做一个取中间值的操作。</p>
 <p>这个方法的精华部分是这个：<strong>delta = max(0.01, 0.3*h) + (t*0.0065);</strong>，它被用于计算光线步进下一步的距离。如果光线步进每一步距离太近，会严重影响性能；而如果一步太远，则会导致地形的精度不足，出现地表抖动甚至断裂的情况。</p>
 <p>Dave的方法，结合了当前位置和地形的高度差h和光线步进已经经过的长度t。高度差越小，说明可能越接近地表，需要较小的步长（反之亦然）；t的影响则表示远处的地形的精度需求可以逐步降低。</p>
 <p>下面是我原来的计算方式。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-type">bool</span> rayMarchingTerrain(<span class="hljs-type">vec3</span> ro, <span class="hljs-type">vec3</span> rd, <span class="hljs-type">float</span> max_dist, <span class="hljs-keyword">out</span> <span class="hljs-type">float</span> res_t)<br>&#123;<br>    <span class="hljs-comment">// float terrain_height = sin(iTime) + 1.;    </span><br>    <span class="hljs-type">float</span> dt_min = <span class="hljs-number">0.1</span>f;<br>    <span class="hljs-type">float</span> dt_max = <span class="hljs-number">3.0</span>f;<br><br>    <span class="hljs-type">float</span> dt = <span class="hljs-number">1.0</span>;<br>    res_t = <span class="hljs-number">0.0</span>;<br>    <span class="hljs-comment">// first pass, step 1</span><br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">float</span> t = mint; t &lt; max_dist; t+=dt)<br>    &#123;<br>        <span class="hljs-type">vec3</span> p = ro+t*rd;<br>        <span class="hljs-type">float</span> terrain_height = getTerrainHeight(p.xz, perlinOctaves);<br>        <span class="hljs-keyword">if</span>(p.y &lt; terrain_height )<br>        &#123;        <br>            <span class="hljs-comment">// res_t = t - dt + dt*(last_h - last_p.y) / (p.y - last_p.y-terrain_height+last_h); </span><br>            res_t = t;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;        <br>        <span class="hljs-comment">// // closer terrain use higher accuracy        </span><br>        <span class="hljs-comment">// last_h = terrain_height;        </span><br>        <span class="hljs-comment">// last_p = p;</span><br>        dt = <span class="hljs-built_in">mix</span>(dt_min, dt_max, <span class="hljs-built_in">pow</span>(t / max_dist, <span class="hljs-number">2.0</span>));<br>    &#125;<br><br>    <span class="hljs-comment">// hit terrain</span><br>    <span class="hljs-keyword">if</span>(res_t &gt; <span class="hljs-number">0.</span>)<br>    &#123;<br>        <span class="hljs-type">float</span> last_h = <span class="hljs-number">0.0</span>;<br>        <span class="hljs-type">vec3</span> last_p = <span class="hljs-type">vec3</span>(<span class="hljs-number">0</span>);<br>        <span class="hljs-type">float</span> mini_dt =  <span class="hljs-built_in">max</span>(<span class="hljs-number">0.01</span>, dt * <span class="hljs-number">0.02</span>);<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">float</span> t = res_t - dt; t &lt; res_t + <span class="hljs-number">.01</span>; t+=mini_dt)<br>        &#123;<br>            <span class="hljs-type">vec3</span> p = ro+t*rd;<br>            <span class="hljs-type">float</span> terrain_height = getTerrainHeight(p.xz, perlinOctaves);<br>            <span class="hljs-keyword">if</span>(p.y &lt; terrain_height)<br>            &#123;        <br>                res_t = t - mini_dt + mini_dt*(last_h - last_p.y) / (p.y - last_p.y-terrain_height+last_h); <br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;        <br>            <span class="hljs-comment">// closer terrain use higher accuracy        </span><br>            last_h = terrain_height;        <br>            last_p = p;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;    <br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> rayMarchingTerrain(<span class="type">vec3</span> ro, <span class="type">vec3</span> rd, <span class="type">float</span> max_dist, <span class="keyword">out</span> <span class="type">float</span> res_t)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// float terrain_height = sin(iTime) + 1.;    </span></span><br><span class="line">    <span class="type">float</span> dt_min = <span class="number">0.1</span>f;</span><br><span class="line">    <span class="type">float</span> dt_max = <span class="number">3.0</span>f;</span><br><span class="line"></span><br><span class="line">    <span class="type">float</span> dt = <span class="number">1.0</span>;</span><br><span class="line">    res_t = <span class="number">0.0</span>;</span><br><span class="line">    <span class="comment">// first pass, step 1</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">float</span> t = mint; t &lt; max_dist; t+=dt)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">vec3</span> p = ro+t*rd;</span><br><span class="line">        <span class="type">float</span> terrain_height = getTerrainHeight(p.xz, perlinOctaves);</span><br><span class="line">        <span class="keyword">if</span>(p.y &lt; terrain_height )</span><br><span class="line">        &#123;        </span><br><span class="line">            <span class="comment">// res_t = t - dt + dt*(last_h - last_p.y) / (p.y - last_p.y-terrain_height+last_h); </span></span><br><span class="line">            res_t = t;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;        </span><br><span class="line">        <span class="comment">// // closer terrain use higher accuracy        </span></span><br><span class="line">        <span class="comment">// last_h = terrain_height;        </span></span><br><span class="line">        <span class="comment">// last_p = p;</span></span><br><span class="line">        dt = <span class="built_in">mix</span>(dt_min, dt_max, <span class="built_in">pow</span>(t / max_dist, <span class="number">2.0</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// hit terrain</span></span><br><span class="line">    <span class="keyword">if</span>(res_t &gt; <span class="number">0.</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">float</span> last_h = <span class="number">0.0</span>;</span><br><span class="line">        <span class="type">vec3</span> last_p = <span class="type">vec3</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="type">float</span> mini_dt =  <span class="built_in">max</span>(<span class="number">0.01</span>, dt * <span class="number">0.02</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">float</span> t = res_t - dt; t &lt; res_t + <span class="number">.01</span>; t+=mini_dt)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="type">vec3</span> p = ro+t*rd;</span><br><span class="line">            <span class="type">float</span> terrain_height = getTerrainHeight(p.xz, perlinOctaves);</span><br><span class="line">            <span class="keyword">if</span>(p.y &lt; terrain_height)</span><br><span class="line">            &#123;        </span><br><span class="line">                res_t = t - mini_dt + mini_dt*(last_h - last_p.y) / (p.y - last_p.y-terrain_height+last_h); </span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;        </span><br><span class="line">            <span class="comment">// closer terrain use higher accuracy        </span></span><br><span class="line">            last_h = terrain_height;        </span><br><span class="line">            last_p = p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我原来的方法的思想是做两遍测试，先以一个较大步长做一次初步筛选，找到大概的光线穿过地形的区间；然后再在那个区间用较小的步长做另外因此光线步进。</p>
 <p>这个方法的问题在于如果初筛的时候步长太大，可能会穿过一个厚度较小的地形（比如说山峰），所以初筛的步长也不能太小；第二次筛选似乎取值也偏小了，导致还是做了很多次的光线步进检测。</p>
 <h2 id="优化结果">优化结果</h2>
 <p>现在我将新的光线步进方法更新到了我原来的ShaderToy Demo上，在768X432的分辨率60fps的情况下，我的demo在我的电脑上的GPU占用率由80%左右降低到了35%左右，可谓是巨大的提升。</p>
 <p>在demo的代码中，我在第一行添加了代码</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#define OLD_METHOD 0</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#define OLD_METHOD 0</span></span><br></pre></td></tr></table></figure>
 <p>将<strong>OLD_METHOD</strong>改为1的话可以改为使用老方法，各位有兴趣的话可以实际修改一下代码来对比一下这两种方法的性能差异。</p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/render/" class="print-no-link">#render</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
-      
-        <a href="/tags/%E7%A8%8B%E5%BA%8F%E5%8C%96%E7%94%9F%E6%88%90/" class="print-no-link">#程序化生成</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>程序化地形生成-2-性能优化</div>
-      <div>https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2024年11月19日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2024/11/24/reflective-shadow-map/" title="反射阴影贴图">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">反射阴影贴图</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2">
-                        <span class="hidden-mobile">程序化地形生成-2</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/">https://ruochenhua.github.io/2024/11/19/ProceduralTerrainGeneration2-optimize/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/render/">render</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a><a class="post-meta__tags" href="/tags/%E7%A8%8B%E5%BA%8F%E5%8C%96%E7%94%9F%E6%88%90/">程序化生成</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2024/11/24/reflective-shadow-map/" title="反射阴影贴图"><img class="cover" src="/2024/11/24/reflective-shadow-map/rsm_on_suit.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">反射阴影贴图</div></div><div class="info-2"><div class="info-item-1">反射阴影贴图简介 反射阴影贴图（Reflective Shadow Map）是实现全局光照效果的一个非常经典的方法，它是在这篇论文中被提出。 直接光照和间接光照 它的名字中带有“阴影贴图（Shadow Map）”几个字，所以乍看之下这个方法似乎是用来解决阴影问题，或者是提升阴影效果的。其实不然，它是用来解决间接光照的问题的方法。 在一般的场景中，光照可以大致分为两类：  一类是直接光照，也就是物体被光源直接照亮的部分。这个类型的光照是比较好计算的，通过光源的入射角，物体表面的法线和材质，以及观察的方向等等，利用PBR的方法能够得到非常不错的效果，这个流程在KongEngine中已经基本实现了。 另外一个类型是间接光照，它代表的是光线经过一次甚至多次反射后照亮物体的部分。相对于直接光照，间接光照十分复杂，因为光线可能经过多次反射，想要实时的计算光的多次反射的完整路径是很难实现的。但是如果不包含间接光照的话，场景的真实度会大打折扣。在最基础的PBR渲染框架中，我们可以选择手动输入一个环境光照（Ambient Light）的颜色，可以简单的表现全局光照，但是真实性还是不够。  反射阴影...</div></div></div></a><a class="pagination-related" href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2"><img class="cover" src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">程序化地形生成-2</div></div><div class="info-2"><div class="info-item-1">距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。 那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。 1234567891011121314vec3 dirt_color = vec3(0.8549, 0.5255, 0.3098);vec3 grass_color = vec3(0.3137, 0.5412, 0.0157);// ..if(rd.y &lt; 0.05 &amp;&amp; rayMarchingTerrain(ro, r...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2024/10/11/ProceduralTerrainGeneration/" title="程序化地形生成-1"><img class="cover" src="/2024/10/11/ProceduralTerrainGeneration/shadertoy_terrain.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-11</div><div class="info-item-2">程序化地形生成-1</div></div><div class="info-2"><div class="info-item-1">ShaderToy是一个很有趣的网站，它上面有着非常多的渲染案例分享，最近一段时间我也是沉迷了。在看了不少大佬的作品之后，不禁手痒。前一段时间看了Inigo大佬的一个教程案例，想着把这个效果自己来实现一次，因此就有了今天的这篇文章。 我最终的成品也放到了shadertoy上面，有兴趣的同学可以一起讨论参考一下。看起来还不错对吧，虽然还有不少地方需要完善，但这个demo已经实现了我心中的大部分效果，包括无限的基于噪音的地形生成、地形阴影、雾气、云等等。  那么下面，就让我来一步步说明这个demo的实现过程吧。 基础知识 在ST上渲染地形 对ShaderToy上运行的Shader代码，对应着可编程渲染管线的片段着色器(或者叫像素着色器)。片段着色器主要是是图形光栅化后的像素信息，所以渲染3D场景需要进行一些额外的步骤。 ShaderToy的程序一般是这样的： 1234void mainImage(out vec4 fragColor, in vec2 fragCoord)&#123;	...&#125; fragColor是输出，代表这这个像素的最终颜色；fragCoord是输入，代...</div></div></div></a><a class="pagination-related" href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2"><img class="cover" src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-04</div><div class="info-item-2">程序化地形生成-2</div></div><div class="info-2"><div class="info-item-1">距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。 那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。 1234567891011121314vec3 dirt_color = vec3(0.8549, 0.5255, 0.3098);vec3 grass_color = vec3(0.3137, 0.5412, 0.0157);// ..if(rd.y &lt; 0.05 &amp;&amp; rayMarchingTerrain(ro, r...</div></div></div></a><a class="pagination-related" href="/2024/10/15/single-scatter-atmosphere/" title="基于单次散射的天空大气渲染方法"><img class="cover" src="/2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-15</div><div class="info-item-2">基于单次散射的天空大气渲染方法</div></div><div class="info-2"><div class="info-item-1">最近KongEngine实现了IBL(Image Based Lighting)，可以将HDR环境贴图映射作为3D场景的环境。  在实现了IBL之后我又产生了一个想法，能否实现类似UE中的大气环境的渲染效果呢？我尝试去寻找答案，发现如果要完全复刻UE中的效果确实需要一定的功夫的，但是最基础的天空大气渲染并没有想象中那么复杂，于是我便花了点时间在KongEngine中实现了这个功能。  我打算将这个方法的基础思想和实现在此简单记录一下。 单次散射模型 星球的大气层是一种参与性介质，和在真空环境不同，光在大气层中传播的时候会因为大气中的微小颗粒（水、灰尘等等）发生散射（折射、反射）和吸收等情况。因此我们看向空中的一个点的时候，这个点的颜色是光经过多次散射得到的结果。 光到达我们眼睛之前经过多少次反射和折射是不一定的，在实时渲染的需求下计算太多次光的变化显然也是不显示的。最简单的方法，是使用单次散射模型：我们假定光在进入我们眼睛之前，有且只发生了一次散射。光一般在第一次散射的时候，还会有最多的能量剩余，后面的多次散射能力相对少，对最后效果的呈现也影响不大，因此这种模型可以在保证性能的情...</div></div></div></a><a class="pagination-related" href="/2024/10/28/depth-of-field/" title="景深的简单实现"><img class="cover" src="/2024/10/28/depth-of-field/game1.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-28</div><div class="info-item-2">景深的简单实现</div></div><div class="info-2"><div class="info-item-1">关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游戏领域内也是应用广泛，可以表现出很独特的风格化美术效果（如八方旅人的浅景深效果）。  下面我来介绍一种基础的景深效果实现，这个方法也在最近接入了KongEngine 渲染散景 浅景深的主要应用是通过调整不同焦距上物体的成像清晰程度来突出渲染画面的重点。清晰的部分我们已经掌握了，就是正常的将场景渲染出来，那不清晰的部分（或者叫做散景）也有不少的实现方式，一般是通过模糊算法来实现。 模糊的算法有很多种，比如box blur，gaussian blur等等，效果最好的是扩张模糊(dilate blur)，这也是我们会采取的方法。 扩张模糊（dilate blur) 扩张模糊它的主要方式，是在...</div></div></div></a><a class="pagination-related" href="/2025/03/22/vulkan-defer-render/" title="Vulkan中利用subpass实现延迟渲染"><img class="cover" src="/2025/03/22/vulkan-defer-render/scene-defer.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-22</div><div class="info-item-2">Vulkan中利用subpass实现延迟渲染</div></div><div class="info-2"><div class="info-item-1">前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：  几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。 传输到光照阶段计算出最终的结果。  既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。 Vulkan中的Render Pass和Subpass 在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程...</div></div></div></a><a class="pagination-related" href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射"><img class="cover" src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-07</div><div class="info-item-2">基于图像的光照-镜面反射</div></div><div class="info-2"><div class="info-item-1">前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$ 我们发现这个积分的结果在积分上不是常数，他受入射光和观察视角两个因素影响。如果对所有入射光方向和所有可能的视角方向做积分，这个计算消耗十分昂贵，是没有办法这么做的。 为了解决这个问题，Epic Games提出了一个解决方案，叫做分割求和近似法。它将方程的镜面部分分割成了两个独立的部分，分别对这两个部分求卷积，并在PBR着色器重求和，用于IBL的镜面反射部分。 分割求和近似法包含两部分：  预过滤环境贴图：对不同粗糙度的环境光进行卷积，存储为mipmap层级的立方体贴图。 BR...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E9%9C%80%E6%B1%82"><span class="toc-number">1.</span> <span class="toc-text">性能优化的需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E7%BB%93%E6%9E%9C"><span class="toc-number">2.</span> <span class="toc-text">优化结果</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

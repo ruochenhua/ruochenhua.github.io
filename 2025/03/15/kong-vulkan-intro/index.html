@@ -1,25 +1,4 @@
-
-
-<!DOCTYPE html>
-<html lang="zh-CN" data-default-color-scheme=auto>
-
-
-
-<head>
-  <meta charset="UTF-8">
-
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/image.png">
-  <link rel="icon" href="/img/image.png">
-  
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="author" content="晨">
-  <meta name="keywords" content="">
-  
-    <meta name="description" content="前言  这是一张平平无奇的渲染图，没有阴影，没有IBL，也没有反射等各种酷炫高大上的效果。 但这张平平无奇的渲染图是我断断续续花了一个月的时间才完成的结果：这是KongEngine接入Vulkan后得到的最新效果。在前面的几篇文章我也提到过，我最近一直在处理这个事，为此我将KongEngine的渲染代码重构，并将Vulkan整合进来。当然原有的OpenGL能力我还是保留着，目前的目标是先利用Vul">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Vulkan接入小总结 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言  这是一张平平无奇的渲染图，没有阴影，没有IBL，也没有反射等各种酷炫高大上的效果。 但这张平平无奇的渲染图是我断断续续花了一个月的时间才完成的结果：这是KongEngine接入Vulkan后得到的最新效果。在前面的几篇文章我也提到过，我最近一直在处理这个事，为此我将KongEngine的渲染代码重构，并将Vulkan整合进来。当然原有的OpenGL能力我还是保留着，目前的目标是先利用Vul">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Vulkan接入小总结">
 <meta property="og:url" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/index.html">
@@ -35,319 +14,196 @@
 <meta property="article:tag" content="渲染">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="Vulkan">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png">
-  
-  
-  
-  <title>Vulkan接入小总结 - 晨小屋</title>
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
-
-
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
-
-  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-
-
-<!-- 主题依赖的图标库，不要自行修改 -->
-<!-- Do not modify the link that theme dependent icons -->
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
-
-
-
-<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
-
-
-<link  rel="stylesheet" href="/css/main.css" />
-
-
-  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
-  
-    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
-  
-
-
-
-
-  <script id="fluid-configs">
-    var Fluid = window.Fluid || {};
-    Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ruochenhua.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5,"smoothScroll":true},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
-
-    if (CONFIG.web_analytics.follow_dnt) {
-      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Vulkan接入小总结",
+  "url": "https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/",
+  "image": "https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png",
+  "datePublished": "2025-03-15T05:23:10.000Z",
+  "dateModified": "2025-05-01T07:33:49.186Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
     }
-  </script>
-  <script  src="/js/utils.js" ></script>
-  <script  src="/js/color-schema.js" ></script>
-  
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
 
-
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
   
-<!-- hexo injector head_end start -->
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Vulkan接入小总结',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
-
-
-<body>
-  
-
-  <header>
-    
-
-<div class="header-inner" style="height: 70vh;">
-  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <strong>晨小屋</strong>
-    </a>
-
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/" target="_self">
-                <i class="iconfont icon-home-fill"></i>
-                <span>首页</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/" target="_self">
-                <i class="iconfont icon-archive-fill"></i>
-                <span>归档</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/" target="_self">
-                <i class="iconfont icon-category-fill"></i>
-                <span>分类</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/" target="_self">
-                <i class="iconfont icon-tags-fill"></i>
-                <span>标签</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/" target="_self">
-                <i class="iconfont icon-user-fill"></i>
-                <span>关于</span>
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/display-cabinet/" target="_self">
-                <i class="iconfont icon-exp-fill"></i>
-                <span>展示窗</span>
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
-              <i class="iconfont icon-search"></i>
-            </a>
-          </li>
-          
-        
-        
-          <li class="nav-item" id="color-toggle-btn">
-            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
-              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-  
-
-<div id="banner" class="banner" parallax=true
-     style="background: url('/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png') no-repeat center center; background-size: cover;">
-  <div class="full-bg-img">
-    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-      <div class="banner-text text-center fade-in-up">
-        <div class="h2">
-          
-            <span id="subtitle" data-typed-text="Vulkan接入小总结"></span>
-          
-        </div>
-
-        
-          
-  <div class="mt-3">
-    
-    
-      <span class="post-meta">
-        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2025-03-15 13:23" pubdate>
-          2025年3月15日 下午
-        </time>
-      </span>
-    
-  </div>
-
-  <div class="mt-1">
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-chart"></i>
-        
-          2.7k 字
-        
-      </span>
-    
-
-    
-      <span class="post-meta mr-2">
-        <i class="iconfont icon-clock-fill"></i>
-        
-        
-        
-          23 分钟
-        
-      </span>
-    
-
-    
-    
-  </div>
-
-
-        
-      </div>
-
-      
-    </div>
-  </div>
-</div>
-
-</div>
-
-  </header>
-
-  <main>
-    
-      
-
-<div class="container-fluid nopadding-x">
-  <div class="row nomargin-x">
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
-    <div id="toc">
-  <p class="toc-header">
-    <i class="iconfont icon-list"></i>
-    <span>目录</span>
-  </p>
-  <div class="toc-body" id="toc-body"></div>
-</div>
-
-
-
-  </aside>
-
-
-    </div>
-
-    <div class="col-lg-8 nopadding-x-md">
-      <div class="container nopadding-x-md" id="board-ctn">
-        <div id="board">
-          <article class="post-content mx-auto">
-            <h1 id="seo-header">Vulkan接入小总结</h1>
-            
-            
-              <div class="markdown-body">
-                
-                <h2 id="前言">前言</h2>
-<p><img src="vulkan-scene.png" srcset="/img/loading.gif" lazyload alt="一张平平无奇的渲染图"></p>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">Vulkan接入小总结</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">Vulkan接入小总结</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-15T05:23:10.000Z" title="发表于 2025-03-15 13:23:10">2025-03-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-01T07:33:49.186Z" title="更新于 2025-05-01 15:33:49">2025-05-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
+<p><img src="vulkan-scene.png" alt="一张平平无奇的渲染图"></p>
 <p>这是一张平平无奇的渲染图，没有阴影，没有IBL，也没有反射等各种酷炫高大上的效果。</p>
 <p>但这张平平无奇的渲染图是我断断续续花了一个月的时间才完成的结果：<strong>这是KongEngine接入Vulkan后得到的最新效果</strong>。在前面的几篇文章我也提到过，我最近一直在处理这个事，为此我将KongEngine的渲染代码重构，并将Vulkan整合进来。当然原有的OpenGL能力我还是保留着，目前的目标是先利用Vulkan还原原有的OpenGL效果。</p>
 <p>这篇文章也不是什么Vulkan入门教程，不会系统的讲Vulkan的初始化流程是怎么样的，Render Pass和Pipeline是什么，DescriptorSet要怎么设定等等。这些内容太复杂了，很难在一篇文章内讲清楚，况且我现在也不能说是很精通。这篇文章只是会大概介绍一下KongEngine目前的Vulkan结构。</p>
 <h2 id="KongEngine的Vulkan结构">KongEngine的Vulkan结构</h2>
 <p>如下图所示:</p>
-<p><img src="kong-render-structure.png" srcset="/img/loading.gif" lazyload alt="KongEngine的渲染结构"></p>
+<p><img src="kong-render-structure.png" alt="KongEngine的渲染结构"></p>
 <p>KongEngine目前将图形API的部分整合了起来，封装成了OpenGL部分和Vulkan的部分。目前这两个部分的流程还是有一定的区别，本来按照原有计划是将OpenGL的渲染流程按照Vulkan的流程来实现的，但是发现这样做难度不小，改动很大。放到后面再慢慢整合吧。</p>
 <p>为了资源管理的统一，我将Buffer、Texture等通用的概念封装成了基础类，OpenGL和Vulkan会分别实现对应的子类来实现具体的流程。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">BufferType</span> : <span class="hljs-type">short</span><br>&#123;<br>    VERTEX_BUFFER = <span class="hljs-number">0</span>,<br>    INDEX_BUFFER,<br>    UNIFORM_BUFFER,<br>    NONE_BUFFER,<br>    <br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">KongBuffer</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">KongBuffer</span>() = <span class="hljs-keyword">default</span>;<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">KongBuffer</span>() = <span class="hljs-keyword">default</span>;<br>    <br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">Initialize</span><span class="hljs-params">(BufferType type, <span class="hljs-type">uint64_t</span> size, <span class="hljs-type">uint32_t</span> instanceCount, <span class="hljs-type">void</span>* data = <span class="hljs-literal">nullptr</span>)</span></span><br><span class="hljs-function">    </span>&#123;<br>        m_type = type;<br>        m_isValid = <span class="hljs-literal">true</span>;<br>    &#125;<br>    <br>    <span class="hljs-built_in">KongBuffer</span>(<span class="hljs-type">const</span> KongBuffer&amp; other) = <span class="hljs-keyword">delete</span>;<br>    KongBuffer&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> KongBuffer&amp; other) = <span class="hljs-keyword">delete</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">Bind</span><span class="hljs-params">(<span class="hljs-type">void</span>* commandBuffer = <span class="hljs-literal">nullptr</span>)</span> </span>&#123;&#125;    <br><br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">IsValid</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<span class="hljs-keyword">return</span> m_isValid;&#125;<br><span class="hljs-keyword">protected</span>:<br>    BufferType m_type &#123;NONE_BUFFER&#125;;<br>    <span class="hljs-type">bool</span> m_isValid &#123;<span class="hljs-literal">false</span>&#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">BufferType</span> : <span class="type">short</span></span><br><span class="line">&#123;</span><br><span class="line">    VERTEX_BUFFER = <span class="number">0</span>,</span><br><span class="line">    INDEX_BUFFER,</span><br><span class="line">    UNIFORM_BUFFER,</span><br><span class="line">    NONE_BUFFER,</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">KongBuffer</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">KongBuffer</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">KongBuffer</span>() = <span class="keyword">default</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Initialize</span><span class="params">(BufferType type, <span class="type">uint64_t</span> size, <span class="type">uint32_t</span> instanceCount, <span class="type">void</span>* data = <span class="literal">nullptr</span>)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        m_type = type;</span><br><span class="line">        m_isValid = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">KongBuffer</span>(<span class="type">const</span> KongBuffer&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line">    KongBuffer&amp; <span class="keyword">operator</span>=(<span class="type">const</span> KongBuffer&amp; other) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Bind</span><span class="params">(<span class="type">void</span>* commandBuffer = <span class="literal">nullptr</span>)</span> </span>&#123;&#125;    </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">IsValid</span><span class="params">()</span> <span class="type">const</span> </span>&#123;<span class="keyword">return</span> m_isValid;&#125;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    BufferType m_type &#123;NONE_BUFFER&#125;;</span><br><span class="line">    <span class="type">bool</span> m_isValid &#123;<span class="literal">false</span>&#125;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>比如说像上面的代码是OpenGL和Vulkan的buffer类的基类，两个图形API会分别继承这个基类实现各自的buffer类：<strong>OpenGLBuffer</strong>和<strong>VulkanBuffer</strong>。这样可以在大体流程不变的情况下针对OpenGL和Vulkan分别做一些特化实现。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">CQuadShape::InitRenderInfo</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">// 屏幕mesh</span><br>    std::vector&lt;Vertex&gt; quadVertexArray = &#123;<br>        &#123;&#123;<span class="hljs-number">-1</span>,<span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>        &#123;&#123;<span class="hljs-number">-1</span>,<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>        &#123;&#123;<span class="hljs-number">1</span>,<span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>        &#123;&#123;<span class="hljs-number">1</span>,<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>        &#123;&#123;<span class="hljs-number">1</span>,<span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>        &#123;&#123;<span class="hljs-number">-1</span>,<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>&#125;, &#123;<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>&#125;&#125;,<br>    &#125;;<br>    <br>    mesh_resource = <span class="hljs-built_in">make_shared</span>&lt;MeshResource&gt;();<br>    <span class="hljs-keyword">auto</span> quadMesh = <span class="hljs-built_in">make_shared</span>&lt;CMesh&gt;();<br>    <br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> RENDER_IN_VULKAN</span><br>    <span class="hljs-keyword">auto</span> vertex_buffer = <span class="hljs-built_in">make_unique</span>&lt;OpenGLBuffer&gt;();<br>    vertex_buffer-&gt;<span class="hljs-built_in">Initialize</span>(VERTEX_BUFFER, <span class="hljs-built_in">sizeof</span>(Vertex), quadVertexArray.<span class="hljs-built_in">size</span>(), &amp;quadVertexArray[<span class="hljs-number">0</span>]);<br>    std::vector&lt;OpenGLVertexAttribute&gt; vertexAttributes = &#123;<br>        &#123;<span class="hljs-number">3</span>, GL_FLOAT, GL_FALSE, <span class="hljs-built_in">sizeof</span>(Vertex), (<span class="hljs-type">void</span>*)<span class="hljs-built_in">offsetof</span>(Vertex, position)&#125;,<br>        &#123;<span class="hljs-number">3</span>, GL_FLOAT, GL_FALSE, <span class="hljs-built_in">sizeof</span>(Vertex), (<span class="hljs-type">void</span>*)<span class="hljs-built_in">offsetof</span>(Vertex, normal)&#125;,<br>        &#123;<span class="hljs-number">2</span>, GL_FLOAT, GL_FALSE, <span class="hljs-built_in">sizeof</span>(Vertex), (<span class="hljs-type">void</span>*)<span class="hljs-built_in">offsetof</span>(Vertex, uv)&#125;,<br>        &#123;<span class="hljs-number">3</span>, GL_FLOAT, GL_FALSE, <span class="hljs-built_in">sizeof</span>(Vertex), (<span class="hljs-type">void</span>*)<span class="hljs-built_in">offsetof</span>(Vertex, tangent)&#125;,<br>        &#123;<span class="hljs-number">3</span>, GL_FLOAT, GL_FALSE, <span class="hljs-built_in">sizeof</span>(Vertex), (<span class="hljs-type">void</span>*)<span class="hljs-built_in">offsetof</span>(Vertex, bitangent)&#125;,<br>    &#125;;<br>    vertex_buffer-&gt;<span class="hljs-built_in">AddAttribute</span>(vertexAttributes);<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-keyword">auto</span> vertex_buffer = <span class="hljs-built_in">make_unique</span>&lt;VulkanBuffer&gt;();<br>    vertex_buffer-&gt;<span class="hljs-built_in">Initialize</span>(VERTEX_BUFFER, <span class="hljs-built_in">sizeof</span>(Vertex), quadVertexArray.<span class="hljs-built_in">size</span>(), &amp;quadVertexArray[<span class="hljs-number">0</span>]);<br>    <br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <br>    quadMesh-&gt;m_RenderInfo-&gt;vertex_buffer = std::<span class="hljs-built_in">move</span>(vertex_buffer);<br>    quadMesh-&gt;m_RenderInfo-&gt;vertices = quadVertexArray;<br>    mesh_resource-&gt;mesh_list.<span class="hljs-built_in">push_back</span>(quadMesh);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">CQuadShape::InitRenderInfo</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 屏幕mesh</span></span><br><span class="line">    std::vector&lt;Vertex&gt; quadVertexArray = &#123;</span><br><span class="line">        &#123;&#123;<span class="number">-1</span>,<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">        &#123;&#123;<span class="number">-1</span>,<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">        &#123;&#123;<span class="number">1</span>,<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">        &#123;&#123;<span class="number">1</span>,<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">        &#123;&#123;<span class="number">1</span>,<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">        &#123;&#123;<span class="number">-1</span>,<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>&#125;, &#123;<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>&#125;&#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    mesh_resource = <span class="built_in">make_shared</span>&lt;MeshResource&gt;();</span><br><span class="line">    <span class="keyword">auto</span> quadMesh = <span class="built_in">make_shared</span>&lt;CMesh&gt;();</span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> RENDER_IN_VULKAN</span></span><br><span class="line">    <span class="keyword">auto</span> vertex_buffer = <span class="built_in">make_unique</span>&lt;OpenGLBuffer&gt;();</span><br><span class="line">    vertex_buffer-&gt;<span class="built_in">Initialize</span>(VERTEX_BUFFER, <span class="built_in">sizeof</span>(Vertex), quadVertexArray.<span class="built_in">size</span>(), &amp;quadVertexArray[<span class="number">0</span>]);</span><br><span class="line">    std::vector&lt;OpenGLVertexAttribute&gt; vertexAttributes = &#123;</span><br><span class="line">        &#123;<span class="number">3</span>, GL_FLOAT, GL_FALSE, <span class="built_in">sizeof</span>(Vertex), (<span class="type">void</span>*)<span class="built_in">offsetof</span>(Vertex, position)&#125;,</span><br><span class="line">        &#123;<span class="number">3</span>, GL_FLOAT, GL_FALSE, <span class="built_in">sizeof</span>(Vertex), (<span class="type">void</span>*)<span class="built_in">offsetof</span>(Vertex, normal)&#125;,</span><br><span class="line">        &#123;<span class="number">2</span>, GL_FLOAT, GL_FALSE, <span class="built_in">sizeof</span>(Vertex), (<span class="type">void</span>*)<span class="built_in">offsetof</span>(Vertex, uv)&#125;,</span><br><span class="line">        &#123;<span class="number">3</span>, GL_FLOAT, GL_FALSE, <span class="built_in">sizeof</span>(Vertex), (<span class="type">void</span>*)<span class="built_in">offsetof</span>(Vertex, tangent)&#125;,</span><br><span class="line">        &#123;<span class="number">3</span>, GL_FLOAT, GL_FALSE, <span class="built_in">sizeof</span>(Vertex), (<span class="type">void</span>*)<span class="built_in">offsetof</span>(Vertex, bitangent)&#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">    vertex_buffer-&gt;<span class="built_in">AddAttribute</span>(vertexAttributes);</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="keyword">auto</span> vertex_buffer = <span class="built_in">make_unique</span>&lt;VulkanBuffer&gt;();</span><br><span class="line">    vertex_buffer-&gt;<span class="built_in">Initialize</span>(VERTEX_BUFFER, <span class="built_in">sizeof</span>(Vertex), quadVertexArray.<span class="built_in">size</span>(), &amp;quadVertexArray[<span class="number">0</span>]);</span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    </span><br><span class="line">    quadMesh-&gt;m_RenderInfo-&gt;vertex_buffer = std::<span class="built_in">move</span>(vertex_buffer);</span><br><span class="line">    quadMesh-&gt;m_RenderInfo-&gt;vertices = quadVertexArray;</span><br><span class="line">    mesh_resource-&gt;mesh_list.<span class="built_in">push_back</span>(quadMesh);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上方就是对一个quad形状初始化的代码，OpenGL和Vulkan会使用同样的原始数据，不过由于OpenGLBuffer使用了VAO，所以这里会初始化Attribute布局，而Vulkan这部分逻辑是放在pipeline的，所以这里会有个小差异。</p>
 <p>同样这么处理的还有<strong>Texture</strong>、<strong>RenderInfo</strong>等类型。Texture和RenderInfo这两个类型有很多可以细讲的内容，这篇文章就不深入了，会计划单独拿一篇文章来详细介绍（埋个坑）。</p>
 <h2 id="Vulkan的渲染系统">Vulkan的渲染系统</h2>
 <p>Vulkan目前有三个渲染系统，分别是：<strong>SimpleVulkanRenderSystem、VulkanPostProcessSystem和VulkanSkyBoxRenderSystem</strong>。这三个渲染系统分别对应着PBR、后处理和天空盒。每个Vulkan的渲染系统有着独立的pipeline、renderpass和descriptor set，在创建系统的时候，会按照不同渲染系统的需求来初始化。下面的例子是SimpleVulkanRenderSystem的创建流程。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++">SimpleVulkanRenderSystem::<span class="hljs-built_in">SimpleVulkanRenderSystem</span>(VulkanSwapChain* swapChain, KongRenderModule* renderModule)<br>    :<span class="hljs-built_in">VulkanRenderSystem</span>(swapChain, renderModule)<br>&#123;<br>    <span class="hljs-built_in">CreateRenderPass</span>();<br>    <span class="hljs-built_in">CreateFrameBuffers</span>();<br>    <span class="hljs-built_in">CreateDescriptorSetLayout</span>();<br>    <span class="hljs-built_in">CreatePipelineLayout</span>();<br>    <span class="hljs-built_in">CreatePipeline</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SimpleVulkanRenderSystem::<span class="built_in">SimpleVulkanRenderSystem</span>(VulkanSwapChain* swapChain, KongRenderModule* renderModule)</span><br><span class="line">    :<span class="built_in">VulkanRenderSystem</span>(swapChain, renderModule)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">CreateRenderPass</span>();</span><br><span class="line">    <span class="built_in">CreateFrameBuffers</span>();</span><br><span class="line">    <span class="built_in">CreateDescriptorSetLayout</span>();</span><br><span class="line">    <span class="built_in">CreatePipelineLayout</span>();</span><br><span class="line">    <span class="built_in">CreatePipeline</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>渲染的时候，每个渲染系统会各自绑定自己的renderpass和pipeline，以及对应的descriptor set输入。目前SimpleVulkanRenderSystem还会使用push constant将modelMatrix传到GPU中（后续这里可能会有修改）。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c++"><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SimpleVulkanRenderSystem::Draw</span><span class="hljs-params">(<span class="hljs-type">const</span> FrameInfo&amp; frameInfo)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">BeginRenderPass</span>(frameInfo.commandBuffer);<br>    <br>    m_pipeline-&gt;<span class="hljs-built_in">Bind</span>(frameInfo.commandBuffer);<br>    <br>    <span class="hljs-keyword">auto</span> actors = KongSceneManager::<span class="hljs-built_in">GetActors</span>();<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> actor : actors)<br>    &#123;<br>        <span class="hljs-keyword">auto</span> mesh_component = actor-&gt;<span class="hljs-built_in">GetComponent</span>&lt;CMeshComponent&gt;();<br>        <span class="hljs-keyword">if</span> (!mesh_component)<br>        &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">auto</span> mesh_shader = mesh_component-&gt;shader_data;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">dynamic_pointer_cast</span>&lt;DeferInfoShader&gt;(mesh_shader) || <span class="hljs-built_in">dynamic_pointer_cast</span>&lt;DeferredTerrainInfoShader&gt;(mesh_shader))<br>        &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <br>        SimplePushConstantData push&#123;&#125;;<br>        push.modelMatrix = actor-&gt;<span class="hljs-built_in">GetModelMatrix</span>();<br><br>        <span class="hljs-built_in">vkCmdPushConstants</span>(frameInfo.commandBuffer, m_pipelineLayout,<br>            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,<br>            <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(SimplePushConstantData), &amp;push);<br>        <br>        mesh_component-&gt;<span class="hljs-built_in">Draw</span>(frameInfo, m_pipelineLayout);<br>    &#125;<br><br>    <span class="hljs-built_in">EndRenderPass</span>(frameInfo.commandBuffer);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">SimpleVulkanRenderSystem::Draw</span><span class="params">(<span class="type">const</span> FrameInfo&amp; frameInfo)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">BeginRenderPass</span>(frameInfo.commandBuffer);</span><br><span class="line">    </span><br><span class="line">    m_pipeline-&gt;<span class="built_in">Bind</span>(frameInfo.commandBuffer);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">auto</span> actors = KongSceneManager::<span class="built_in">GetActors</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> actor : actors)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">auto</span> mesh_component = actor-&gt;<span class="built_in">GetComponent</span>&lt;CMeshComponent&gt;();</span><br><span class="line">        <span class="keyword">if</span> (!mesh_component)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">auto</span> mesh_shader = mesh_component-&gt;shader_data;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">dynamic_pointer_cast</span>&lt;DeferInfoShader&gt;(mesh_shader) || <span class="built_in">dynamic_pointer_cast</span>&lt;DeferredTerrainInfoShader&gt;(mesh_shader))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        SimplePushConstantData push&#123;&#125;;</span><br><span class="line">        push.modelMatrix = actor-&gt;<span class="built_in">GetModelMatrix</span>();</span><br><span class="line"></span><br><span class="line">        <span class="built_in">vkCmdPushConstants</span>(frameInfo.commandBuffer, m_pipelineLayout,</span><br><span class="line">            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,</span><br><span class="line">            <span class="number">0</span>, <span class="built_in">sizeof</span>(SimplePushConstantData), &amp;push);</span><br><span class="line">        </span><br><span class="line">        mesh_component-&gt;<span class="built_in">Draw</span>(frameInfo, m_pipelineLayout);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">EndRenderPass</span>(frameInfo.commandBuffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>那么整体的更新流程就如下面所示。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">KongRenderModule::Update</span><span class="hljs-params">(<span class="hljs-type">double</span> delta)</span></span><br><span class="hljs-function"></span>&#123;<br>	mainCamera-&gt;<span class="hljs-built_in">Update</span>(delta);<br>	<span class="hljs-built_in">UpdateSceneRenderInfo</span>();<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> RENDER_IN_VULKAN</span><br>	<span class="hljs-keyword">if</span> (<span class="hljs-keyword">auto</span> commandBuffer = <span class="hljs-built_in">GetCurrentCommandBuffer</span>())<br>	&#123;<br>		<span class="hljs-type">int</span> frameIndex = <span class="hljs-built_in">GetFrameIndex</span>();<br>		FrameInfo frameInfo&#123;<br>			frameIndex,<br>			<span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">float</span>&gt;(delta),<br>			commandBuffer<br>		&#125;;<br><br>		m_vkSimpleRenderSystem-&gt;<span class="hljs-built_in">UpdateMeshUBO</span>(frameInfo);<br>		<br>		m_vkSimpleRenderSystem-&gt;<span class="hljs-built_in">Draw</span>(frameInfo);<br>		m_vkSkyboxSystem-&gt;<span class="hljs-built_in">Draw</span>(frameInfo);<br>		m_vkPostProcessSystem-&gt;<span class="hljs-built_in">Draw</span>(frameInfo);		<br>	&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>    <span class="hljs-comment">// ...... OpenGL的流程</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">KongRenderModule::Update</span><span class="params">(<span class="type">double</span> delta)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	mainCamera-&gt;<span class="built_in">Update</span>(delta);</span><br><span class="line">	<span class="built_in">UpdateSceneRenderInfo</span>();</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> RENDER_IN_VULKAN</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">auto</span> commandBuffer = <span class="built_in">GetCurrentCommandBuffer</span>())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="type">int</span> frameIndex = <span class="built_in">GetFrameIndex</span>();</span><br><span class="line">		FrameInfo frameInfo&#123;</span><br><span class="line">			frameIndex,</span><br><span class="line">			<span class="built_in">static_cast</span>&lt;<span class="type">float</span>&gt;(delta),</span><br><span class="line">			commandBuffer</span><br><span class="line">		&#125;;</span><br><span class="line"></span><br><span class="line">		m_vkSimpleRenderSystem-&gt;<span class="built_in">UpdateMeshUBO</span>(frameInfo);</span><br><span class="line">		</span><br><span class="line">		m_vkSimpleRenderSystem-&gt;<span class="built_in">Draw</span>(frameInfo);</span><br><span class="line">		m_vkSkyboxSystem-&gt;<span class="built_in">Draw</span>(frameInfo);</span><br><span class="line">		m_vkPostProcessSystem-&gt;<span class="built_in">Draw</span>(frameInfo);		</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="comment">// ...... OpenGL的流程</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>当然，这里面有很多东西可以讲的，比如说怎么创建对应的Pipeline和renderpass，怎么创建DescriptorSet等等，这些很细节的内容这里就不做介绍了，我会找时间整理一下，看看有没有机会系统的写一篇文章（再埋个坑）。</p>
 <h2 id="接入ImGui">接入ImGui</h2>
 <p>为了方便，我在处理完几个渲染系统后还将ImGui接入了进来。</p>
 <p>接入ImGui其实比我想象中要简单不少，ImGui的官网其实提供了<a target="_blank" rel="noopener" href="https://github.com/ocornut/imgui/blob/master/examples/example_glfw_vulkan/main.cpp">Vulkan接入ImGui的例子</a>，但是一开始看得我云里雾里的。</p>
 <p>后面在AI的帮助下，发现和OpenGL的流程其实大差不差。比OpenGL更加复杂的部分就是需要在初始化ImGui的时候传入Vulkan的实例信息。这里我还为ImGui单独创建了一个CommandPool，不太确定是不是必须的，还是可以和模型那边共用。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">KongUIManager::Init</span><span class="hljs-params">(GLFWwindow* windowHandle)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// 初始化imgui</span><br>	<span class="hljs-built_in">IMGUI_CHECKVERSION</span>();<br>	ImGui::<span class="hljs-built_in">CreateContext</span>();<br>	ImGuiIO&amp; io = ImGui::<span class="hljs-built_in">GetIO</span>(); (<span class="hljs-type">void</span>)io;<br><br>	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     <span class="hljs-comment">// Enable Keyboard Controls</span><br>	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      <span class="hljs-comment">// Enable Gamepad Controls</span><br>    io.<span class="hljs-built_in">AddMouseButtonEvent</span>(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);<br>	<br>	ImGui::<span class="hljs-built_in">StyleColorsDark</span>();<br><br>	<span class="hljs-comment">// 初始化imgui后端</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> RENDER_IN_VULKAN</span><br>	<br>	<span class="hljs-keyword">auto</span> windowModule = KongWindow::<span class="hljs-built_in">GetWindowModule</span>();<br>	<span class="hljs-keyword">auto</span> vulkanDevice = VulkanGraphicsDevice::<span class="hljs-built_in">GetGraphicsDevice</span>();<br><br>	VkDescriptorPoolSize pool_sizes[] =<br>		&#123;<br>		&#123; VK_DESCRIPTOR_TYPE_SAMPLER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, <span class="hljs-number">1000</span> &#125;,<br>		&#123; VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, <span class="hljs-number">1000</span> &#125;<br>		&#125;;<br><br>	VkDescriptorPoolCreateInfo pool_info = &#123;&#125;;<br>	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;<br>	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;<br>	pool_info.maxSets = <span class="hljs-number">1000</span>;<br>	pool_info.poolSizeCount = std::<span class="hljs-built_in">size</span>(pool_sizes);<br>	pool_info.pPoolSizes = pool_sizes;<br><br>	<span class="hljs-keyword">if</span>(<span class="hljs-built_in">vkCreateDescriptorPool</span>(vulkanDevice-&gt;<span class="hljs-built_in">GetDevice</span>(), &amp;pool_info, <span class="hljs-literal">nullptr</span>, &amp;imguiPool) != VK_SUCCESS)<br>	&#123;<br>		<span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;failed to create imgui descriptor pool&quot;</span>);<br>	&#125;<br><br>	<span class="hljs-built_in">ImGui_ImplGlfw_InitForVulkan</span>(windowHandle, <span class="hljs-literal">true</span>);   <span class="hljs-comment">// opengl类似</span><br>	ImGui_ImplVulkan_InitInfo init_info&#123;&#125;;<br>	init_info.Instance = vulkanDevice-&gt;m_instance;<br>	init_info.Device = vulkanDevice-&gt;m_device;<br>	init_info.PhysicalDevice = vulkanDevice-&gt;m_physicalDevice;<br>	init_info.QueueFamily = vulkanDevice-&gt;<span class="hljs-built_in">FindQueueFamilies</span>(vulkanDevice-&gt;m_physicalDevice).graphicsFamily;<br>	init_info.Queue = vulkanDevice-&gt;m_graphicsQueue;<br>	init_info.PipelineCache = VK_NULL_HANDLE;<br>	init_info.MinImageCount = <span class="hljs-number">2</span>;<br>	init_info.ImageCount = <span class="hljs-number">2</span>;<br>	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;<br>	init_info.RenderPass = KongRenderModule::<span class="hljs-built_in">GetRenderModule</span>().<span class="hljs-built_in">GetSwapChainRenderPass</span>();<br>	init_info.Subpass = <span class="hljs-number">0</span>;<br>	init_info.DescriptorPool = imguiPool;<br><br>	<span class="hljs-built_in">ImGui_ImplVulkan_Init</span>(&amp;init_info);                  <span class="hljs-comment">// opengl类似</span><br>	<br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br>	<span class="hljs-built_in">ImGui_ImplGlfw_InitForOpenGL</span>(windowHandle, <span class="hljs-literal">true</span>);          <span class="hljs-comment">// Second param </span><br>	<span class="hljs-built_in">ImGui_ImplOpenGL3_Init</span>();<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	<br>    <span class="hljs-comment">// .......</span><br>	<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">KongUIManager::Init</span><span class="params">(GLFWwindow* windowHandle)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 初始化imgui</span></span><br><span class="line">	<span class="built_in">IMGUI_CHECKVERSION</span>();</span><br><span class="line">	ImGui::<span class="built_in">CreateContext</span>();</span><br><span class="line">	ImGuiIO&amp; io = ImGui::<span class="built_in">GetIO</span>(); (<span class="type">void</span>)io;</span><br><span class="line"></span><br><span class="line">	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     <span class="comment">// Enable Keyboard Controls</span></span><br><span class="line">	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      <span class="comment">// Enable Gamepad Controls</span></span><br><span class="line">    io.<span class="built_in">AddMouseButtonEvent</span>(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS);</span><br><span class="line">	</span><br><span class="line">	ImGui::<span class="built_in">StyleColorsDark</span>();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化imgui后端</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> RENDER_IN_VULKAN</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">auto</span> windowModule = KongWindow::<span class="built_in">GetWindowModule</span>();</span><br><span class="line">	<span class="keyword">auto</span> vulkanDevice = VulkanGraphicsDevice::<span class="built_in">GetGraphicsDevice</span>();</span><br><span class="line"></span><br><span class="line">	VkDescriptorPoolSize pool_sizes[] =</span><br><span class="line">		&#123;</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_SAMPLER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, <span class="number">1000</span> &#125;,</span><br><span class="line">		&#123; VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, <span class="number">1000</span> &#125;</span><br><span class="line">		&#125;;</span><br><span class="line"></span><br><span class="line">	VkDescriptorPoolCreateInfo pool_info = &#123;&#125;;</span><br><span class="line">	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;</span><br><span class="line">	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;</span><br><span class="line">	pool_info.maxSets = <span class="number">1000</span>;</span><br><span class="line">	pool_info.poolSizeCount = std::<span class="built_in">size</span>(pool_sizes);</span><br><span class="line">	pool_info.pPoolSizes = pool_sizes;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">vkCreateDescriptorPool</span>(vulkanDevice-&gt;<span class="built_in">GetDevice</span>(), &amp;pool_info, <span class="literal">nullptr</span>, &amp;imguiPool) != VK_SUCCESS)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">throw</span> std::<span class="built_in">runtime_error</span>(<span class="string">&quot;failed to create imgui descriptor pool&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">ImGui_ImplGlfw_InitForVulkan</span>(windowHandle, <span class="literal">true</span>);   <span class="comment">// opengl类似</span></span><br><span class="line">	ImGui_ImplVulkan_InitInfo init_info&#123;&#125;;</span><br><span class="line">	init_info.Instance = vulkanDevice-&gt;m_instance;</span><br><span class="line">	init_info.Device = vulkanDevice-&gt;m_device;</span><br><span class="line">	init_info.PhysicalDevice = vulkanDevice-&gt;m_physicalDevice;</span><br><span class="line">	init_info.QueueFamily = vulkanDevice-&gt;<span class="built_in">FindQueueFamilies</span>(vulkanDevice-&gt;m_physicalDevice).graphicsFamily;</span><br><span class="line">	init_info.Queue = vulkanDevice-&gt;m_graphicsQueue;</span><br><span class="line">	init_info.PipelineCache = VK_NULL_HANDLE;</span><br><span class="line">	init_info.MinImageCount = <span class="number">2</span>;</span><br><span class="line">	init_info.ImageCount = <span class="number">2</span>;</span><br><span class="line">	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;</span><br><span class="line">	init_info.RenderPass = KongRenderModule::<span class="built_in">GetRenderModule</span>().<span class="built_in">GetSwapChainRenderPass</span>();</span><br><span class="line">	init_info.Subpass = <span class="number">0</span>;</span><br><span class="line">	init_info.DescriptorPool = imguiPool;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">ImGui_ImplVulkan_Init</span>(&amp;init_info);                  <span class="comment">// opengl类似</span></span><br><span class="line">	</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">	<span class="built_in">ImGui_ImplGlfw_InitForOpenGL</span>(windowHandle, <span class="literal">true</span>);          <span class="comment">// Second param </span></span><br><span class="line">	<span class="built_in">ImGui_ImplOpenGL3_Init</span>();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	</span><br><span class="line">    <span class="comment">// .......</span></span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>代码如上面所示。目前最终的渲染代码放在VulkanPostprocessSystem的Draw函数中，EndRenderPass前了，因为后处理使用的是swapchain的render pass。这是临时的处理，后面会放到另外合适的地方。</p>
 <h2 id="shader预处理">shader预处理</h2>
 <p>VUlkan的shader使用的是SPIR-V(SPV)二进制格式，而不是像OpenGL的glsl，所以在Vulkan中引用shader之前，所有的shader都需要进行编译转换为SPV格式。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs shell">@echo off<br>setlocal enabledelayedexpansion<br><br>set SHADER_DIR=resource\shader<br><br>rem 编译顶点着色器<br>for /R &quot;%SHADER_DIR%&quot; %%f in (*.vulkan.vert) do (<br>    %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.vert.spv&quot; 2&gt;nul<br>    if !errorlevel! neq 0 (<br>        echo [ERROR] Failed to compile %%f<br>        %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.vert.spv&quot;<br>        echo Press any key to continue...<br>        pause &gt;nul<br>    ) <br>)<br><br>rem 编译片段着色器<br>for /R &quot;%SHADER_DIR%&quot; %%f in (*.vulkan.frag) do (<br>    %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.frag.spv&quot; 2&gt;nul<br>    if !errorlevel! neq 0 (<br>        echo [ERROR] Failed to compile %%f<br>        %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.frag.spv&quot;<br>        echo Press any key to continue...<br>        pause &gt;nul<br>    )<br>)<br><br>echo All shaders compiled successfully<br>pause<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">@echo off</span><br><span class="line">setlocal enabledelayedexpansion</span><br><span class="line"></span><br><span class="line">set SHADER_DIR=resource\shader</span><br><span class="line"></span><br><span class="line">rem 编译顶点着色器</span><br><span class="line">for /R &quot;%SHADER_DIR%&quot; %%f in (*.vulkan.vert) do (</span><br><span class="line">    %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.vert.spv&quot; 2&gt;nul</span><br><span class="line">    if !errorlevel! neq 0 (</span><br><span class="line">        echo [ERROR] Failed to compile %%f</span><br><span class="line">        %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.vert.spv&quot;</span><br><span class="line">        echo Press any key to continue...</span><br><span class="line">        pause &gt;nul</span><br><span class="line">    ) </span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">rem 编译片段着色器</span><br><span class="line">for /R &quot;%SHADER_DIR%&quot; %%f in (*.vulkan.frag) do (</span><br><span class="line">    %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.frag.spv&quot; 2&gt;nul</span><br><span class="line">    if !errorlevel! neq 0 (</span><br><span class="line">        echo [ERROR] Failed to compile %%f</span><br><span class="line">        %VULKAN_SDK%\Bin\glslc.exe &quot;%%f&quot; -o &quot;%%~dpnf.frag.spv&quot;</span><br><span class="line">        echo Press any key to continue...</span><br><span class="line">        pause &gt;nul</span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">echo All shaders compiled successfully</span><br><span class="line">pause</span><br></pre></td></tr></table></figure>
 <p>这里使用的是VULKAN_SDK\BIn路径下的glslc.exe帮助程序来实现编译shader的功能。如果VulkanSDK被正确安装的话，VULKAN_SDK路径会写到system path里面，所以可以直接使用这个脚本。Path里面没有的话，那这个路径一般就是<strong>C:/VulkanSDK/实际的版本号</strong>。可以按需替换。</p>
 <p>用glslc很方便的一点就是可以处理shader之间的引用。在OpenGL中除了要在450版本之后，并且在shader中加入<strong>GL_ARB_Shading_language_include</strong>的申明之外。还需要在代码编译shader的时候做一些处理：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">OpenGLShader::IncludeShader</span><span class="hljs-params">(<span class="hljs-type">const</span> string&amp; include_path)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">// already include</span><br>	<span class="hljs-keyword">if</span>(shader_include_set.<span class="hljs-built_in">find</span>(include_path) != shader_include_set.<span class="hljs-built_in">end</span>())<br>	&#123;<br>		<span class="hljs-keyword">return</span>;<br>	&#125;<br>	<br>	<span class="hljs-comment">// include 文件名需要以“/”开头，要不然会报错，为什么？？</span><br>	string full_path = CSceneLoader::<span class="hljs-built_in">ToResourcePath</span>(<span class="hljs-string">&quot;/shader&quot;</span>+include_path);<br>	string include_content_str = Utils::<span class="hljs-built_in">ReadFile</span>(full_path);<br>	<br>	<span class="hljs-built_in">glNamedStringARB</span>(GL_SHADER_INCLUDE_ARB,<br>	include_path.<span class="hljs-built_in">size</span>(),<br>	include_path.<span class="hljs-built_in">c_str</span>(),<br>	include_content_str.<span class="hljs-built_in">size</span>(),<br>	include_content_str.<span class="hljs-built_in">c_str</span>());<br>&#125;<br><br><span class="hljs-function">std::vector&lt;std::string&gt; <span class="hljs-title">OpenGLShader::FindIncludeFiles</span><span class="hljs-params">(<span class="hljs-type">const</span> string&amp; code_content)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-function">std::regex <span class="hljs-title">includeRegex</span><span class="hljs-params">(<span class="hljs-string">&quot;#include \&quot;(.+)\&quot;&quot;</span>)</span></span>;  <span class="hljs-comment">// Regex for #include statements</span><br>	std::vector&lt;std::string&gt; includes;  <span class="hljs-comment">// Vector to store extracted includes</span><br><br>	<span class="hljs-comment">// Iterate through lines in the code</span><br>	<span class="hljs-function">std::istringstream <span class="hljs-title">iss</span><span class="hljs-params">(code_content)</span></span>;<br>	std::string line;<br>	<span class="hljs-keyword">while</span> (std::<span class="hljs-built_in">getline</span>(iss, line)) &#123;<br>		std::smatch match;<br>		<span class="hljs-comment">// For each line, try to match the #include regex</span><br>		<span class="hljs-keyword">if</span> (std::<span class="hljs-built_in">regex_search</span>(line, match, includeRegex)) &#123;<br>			includes.<span class="hljs-built_in">push_back</span>(match[<span class="hljs-number">1</span>]);  <span class="hljs-comment">// Add matched content to includes</span><br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> includes;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">OpenGLShader::IncludeShader</span><span class="params">(<span class="type">const</span> string&amp; include_path)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// already include</span></span><br><span class="line">	<span class="keyword">if</span>(shader_include_set.<span class="built_in">find</span>(include_path) != shader_include_set.<span class="built_in">end</span>())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// include 文件名需要以“/”开头，要不然会报错，为什么？？</span></span><br><span class="line">	string full_path = CSceneLoader::<span class="built_in">ToResourcePath</span>(<span class="string">&quot;/shader&quot;</span>+include_path);</span><br><span class="line">	string include_content_str = Utils::<span class="built_in">ReadFile</span>(full_path);</span><br><span class="line">	</span><br><span class="line">	<span class="built_in">glNamedStringARB</span>(GL_SHADER_INCLUDE_ARB,</span><br><span class="line">	include_path.<span class="built_in">size</span>(),</span><br><span class="line">	include_path.<span class="built_in">c_str</span>(),</span><br><span class="line">	include_content_str.<span class="built_in">size</span>(),</span><br><span class="line">	include_content_str.<span class="built_in">c_str</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">std::vector&lt;std::string&gt; <span class="title">OpenGLShader::FindIncludeFiles</span><span class="params">(<span class="type">const</span> string&amp; code_content)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">std::regex <span class="title">includeRegex</span><span class="params">(<span class="string">&quot;#include \&quot;(.+)\&quot;&quot;</span>)</span></span>;  <span class="comment">// Regex for #include statements</span></span><br><span class="line">	std::vector&lt;std::string&gt; includes;  <span class="comment">// Vector to store extracted includes</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Iterate through lines in the code</span></span><br><span class="line">	<span class="function">std::istringstream <span class="title">iss</span><span class="params">(code_content)</span></span>;</span><br><span class="line">	std::string line;</span><br><span class="line">	<span class="keyword">while</span> (std::<span class="built_in">getline</span>(iss, line)) &#123;</span><br><span class="line">		std::smatch match;</span><br><span class="line">		<span class="comment">// For each line, try to match the #include regex</span></span><br><span class="line">		<span class="keyword">if</span> (std::<span class="built_in">regex_search</span>(line, match, includeRegex)) &#123;</span><br><span class="line">			includes.<span class="built_in">push_back</span>(match[<span class="number">1</span>]);  <span class="comment">// Add matched content to includes</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> includes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>而通过glslc处理的话，就不需要上面的C++逻辑，只需要在shader中开启一些extension，glslc会自动帮我们处理引用，还是非常方便的。</p>
-<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs glsl"><span class="hljs-meta">#version 450</span><br><span class="hljs-meta">#extension GL_ARB_separate_shader_objects : enable</span><br><span class="hljs-meta">#extension GL_EXT_scalar_block_layout : enable</span><br><br><span class="hljs-meta">#include &quot;common.glsl&quot;</span><br><br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span>=<span class="hljs-number">0</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> fragPos;<br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span>=<span class="hljs-number">1</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec3</span> fragNormal;<br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span>=<span class="hljs-number">2</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">vec2</span> fragUV;<br><span class="hljs-keyword">layout</span>(<span class="hljs-keyword">location</span>=<span class="hljs-number">3</span>) <span class="hljs-keyword">in</span> <span class="hljs-type">mat3</span> TBN;<br></code></pre></td></tr></table></figure>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 450</span></span><br><span class="line"><span class="meta">#extension GL_ARB_separate_shader_objects : enable</span></span><br><span class="line"><span class="meta">#extension GL_EXT_scalar_block_layout : enable</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#include &quot;common.glsl&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span>=<span class="number">0</span>) <span class="keyword">in</span> <span class="type">vec3</span> fragPos;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span>=<span class="number">1</span>) <span class="keyword">in</span> <span class="type">vec3</span> fragNormal;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span>=<span class="number">2</span>) <span class="keyword">in</span> <span class="type">vec2</span> fragUV;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">location</span>=<span class="number">3</span>) <span class="keyword">in</span> <span class="type">mat3</span> TBN;</span><br></pre></td></tr></table></figure>
 <h2 id="结语">结语</h2>
 <p>好了，不知不觉中已经贴了这么多代码了。今天的这篇文章可能略显无聊，并且都是大段的介绍性文字和代码，读起来可能并不怎么有趣。</p>
 <p>确实，这篇文章只是我对学习Vulkan，并将它的能力接入到KongEngine的第一阶段的成果，并不有趣也并没有什么了不起的，但也是一个里程碑，可以记录一下。</p>
@@ -355,425 +211,4 @@
 <p>在同一个render pass的多段subpass可以共享附件，不需要等待前一个渲染命令将结果存到内存中，也缓解了GPU的带宽压力；同时subpass的出现可以减少状态切换的开销，也支持并行处理。还有其他很多好处，这里就不一一列举了。</p>
 <h2 id="参考资料">参考资料</h2>
 <p>除了官方的资料外，我这次接入Vulkan很大程度上是依照了这个视频系列<a target="_blank" rel="noopener" href="https://youtu.be/Y9U9IE0gVHA?si=-JnDZWIx8WiipZi0">Vulkan(C++) Game Engine Tutorials</a>。作者深入浅出的将如何实现一个Vulkan渲染引擎的步骤讲解的非常明白，并且将很多图形学上的原理也讲解的十分生动，这里强烈推荐。</p>
-
-                
-              </div>
-            
-            <hr/>
-            <div>
-              <div class="post-metas my-3">
-  
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/" class="category-chain-item">技术漫谈</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
-  
-    <div class="post-meta">
-      <i class="iconfont icon-tags"></i>
-      
-        <a href="/tags/3D/" class="print-no-link">#3D</a>
-      
-        <a href="/tags/render/" class="print-no-link">#render</a>
-      
-        <a href="/tags/%E6%B8%B2%E6%9F%93/" class="print-no-link">#渲染</a>
-      
-        <a href="/tags/%E7%BC%96%E7%A8%8B/" class="print-no-link">#编程</a>
-      
-        <a href="/tags/Vulkan/" class="print-no-link">#Vulkan</a>
-      
-    </div>
-  
-</div>
-
-
-              
-  
-
-  <div class="license-box my-3">
-    <div class="license-title">
-      <div>Vulkan接入小总结</div>
-      <div>https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/</div>
-    </div>
-    <div class="license-meta">
-      
-        <div class="license-meta-item">
-          <div>作者</div>
-          <div>晨</div>
-        </div>
-      
-      
-        <div class="license-meta-item license-meta-date">
-          <div>发布于</div>
-          <div>2025年3月15日</div>
-        </div>
-      
-      
-      
-        <div class="license-meta-item">
-          <div>许可协议</div>
-          <div>
-            
-              
-              
-                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
-                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
-                    <i class="iconfont icon-cc-by"></i>
-                  </span>
-                </a>
-              
-            
-          </div>
-        </div>
-      
-    </div>
-    <div class="license-icon iconfont"></div>
-  </div>
-
-
-
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2025/03/22/vulkan-defer-render/" title="Vulkan中利用subpass实现延迟渲染">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Vulkan中利用subpass实现延迟渲染</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射">
-                        <span class="hidden-mobile">基于图像的光照-镜面反射</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
-            </div>
-
-            
-  
-  
-    <article id="comments" lazyload>
-      
-
-    </article>
-  
-
-
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-col d-none d-lg-block col-lg-2">
-      
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-
-  
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-    
-
-    
-      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
-        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-      </a>
-    
-
-    
-      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-    
-
-    
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-  
-    <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
-    </div>
-  
-  
-  
-</div>
-
-  </footer>
-
-  <!-- Scripts -->
-  
-  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
-  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
-
-  <script>
-    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
-    NProgress.start()
-    window.addEventListener('load', function() {
-      NProgress.done();
-    })
-  </script>
-
-
-<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
-<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
-<script  src="/js/events.js" ></script>
-<script  src="/js/plugins.js" ></script>
-
-
-  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var subtitle = document.getElementById('subtitle');
-      if (!subtitle || !typing) {
-        return;
-      }
-      var text = subtitle.getAttribute('data-typed-text');
-      
-        typing(text);
-      
-    })(window, document);
-  </script>
-
-
-
-
-  
-    <script  src="/js/img-lazyload.js" ></script>
-  
-
-
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
-    var toc = jQuery('#toc');
-    if (toc.length === 0 || !window.tocbot) { return; }
-    var boardCtn = jQuery('#board-ctn');
-    var boardTop = boardCtn.offset().top;
-
-    window.tocbot.init(Object.assign({
-      tocSelector     : '#toc-body',
-      contentSelector : '.markdown-body',
-      linkClass       : 'tocbot-link',
-      activeLinkClass : 'tocbot-active-link',
-      listClass       : 'tocbot-list',
-      isCollapsedClass: 'tocbot-is-collapsed',
-      collapsibleClass: 'tocbot-is-collapsible',
-      scrollSmooth    : true,
-      includeTitleTags: true,
-      headingsOffset  : -boardTop,
-    }, CONFIG.toc));
-    if (toc.find('.toc-list-item').length > 0) {
-      toc.css('visibility', 'visible');
-    }
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('tocbot' in window) {
-        tocbot.refresh();
-        var toc = jQuery('#toc');
-        if (toc.length === 0 || !tocbot) {
-          return;
-        }
-        if (toc.find('.toc-list-item').length > 0) {
-          toc.css('visibility', 'visible');
-        }
-      }
-    });
-  });
-</script>
-
-
-  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
-
-  <script>Fluid.plugins.codeWidget();</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
-    window.anchors.options = {
-      placement: CONFIG.anchorjs.placement,
-      visible  : CONFIG.anchorjs.visible
-    };
-    if (CONFIG.anchorjs.icon) {
-      window.anchors.options.icon = CONFIG.anchorjs.icon;
-    }
-    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-    var res = [];
-    for (var item of el) {
-      res.push('.markdown-body > ' + item.trim());
-    }
-    if (CONFIG.anchorjs.placement === 'left') {
-      window.anchors.options.class = 'anchorjs-link-left';
-    }
-    window.anchors.add(res.join(', '));
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('anchors' in window) {
-        anchors.removeAll();
-        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
-        var res = [];
-        for (var item of el) {
-          res.push('.markdown-body > ' + item.trim());
-        }
-        if (CONFIG.anchorjs.placement === 'left') {
-          anchors.options.class = 'anchorjs-link-left';
-        }
-        anchors.add(res.join(', '));
-      }
-    });
-  });
-</script>
-
-
-  
-<script>
-  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
-    Fluid.plugins.fancyBox();
-  });
-</script>
-
-
-  <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
-
-  <script  src="/js/local-search.js" ></script>
-
-
-
-
-
-<!-- 主题的启动项，将它保持在最底部 -->
-<!-- the boot of the theme, keep it at the bottom -->
-<script  src="/js/boot.js" ></script>
-
-
-  
-
-  <noscript>
-    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
-  </noscript>
-</body>
-</html>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/">https://ruochenhua.github.io/2025/03/15/kong-vulkan-intro/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/render/">render</a><a class="post-meta__tags" href="/tags/%E6%B8%B2%E6%9F%93/">渲染</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A8%8B/">编程</a><a class="post-meta__tags" href="/tags/Vulkan/">Vulkan</a></div><div class="post-share"><div class="social-share" data-image="/2025/03/15/kong-vulkan-intro/Vulkan_Logo.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/03/22/vulkan-defer-render/" title="Vulkan中利用subpass实现延迟渲染"><img class="cover" src="/2025/03/22/vulkan-defer-render/scene-defer.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Vulkan中利用subpass实现延迟渲染</div></div><div class="info-2"><div class="info-item-1">前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：  几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。 传输到光照阶段计算出最终的结果。  既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。 Vulkan中的Render Pass和Subpass 在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程...</div></div></div></a><a class="pagination-related" href="/2025/03/07/ibl-specular/" title="基于图像的光照-镜面反射"><img class="cover" src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">基于图像的光照-镜面反射</div></div><div class="info-2"><div class="info-item-1">前言 上一篇文章介绍了IBL的漫反射部分，接下来这篇文章关注的是镜面反射的部分，也就是拆分方程的后面部分。 分割求和近似法 我们回到反射方程的镜面反射部分： $$L_o(p, \omega_o) =  \int_{\Omega} \left(\frac{k_s DFG}{4(\omega_o \cdot \mathbf{n})(\omega_i \cdot \mathbf{n})}\right) L_i(p, \omega_i) \mathbf{n} \cdot \omega_i , d\omega_i$$ 我们发现这个积分的结果在积分上不是常数，他受入射光和观察视角两个因素影响。如果对所有入射光方向和所有可能的视角方向做积分，这个计算消耗十分昂贵，是没有办法这么做的。 为了解决这个问题，Epic Games提出了一个解决方案，叫做分割求和近似法。它将方程的镜面部分分割成了两个独立的部分，分别对这两个部分求卷积，并在PBR着色器重求和，用于IBL的镜面反射部分。 分割求和近似法包含两部分：  预过滤环境贴图：对不同粗糙度的环境光进行卷积，存储为mipmap层级的立方体贴图。 BR...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/03/22/vulkan-defer-render/" title="Vulkan中利用subpass实现延迟渲染"><img class="cover" src="/2025/03/22/vulkan-defer-render/scene-defer.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-22</div><div class="info-item-2">Vulkan中利用subpass实现延迟渲染</div></div><div class="info-2"><div class="info-item-1">前言  这又是一张平平无奇的渲染图，和上一篇文章的那张图片好像也没什么区别。从表面上看是的，在渲染效果上这张图片没有什么进步，但是这张图片是用了另外的技术实现的，也就是延迟渲染。 延迟渲染这个概念在网上有很多的资料，我也在我之前的一篇文章介绍过，所以这篇文章我不会再对延迟渲染的概念做介绍。今天这篇文章的主要内容，是如何在Vulkan中实现这个效果。 在Vulkan中实现延迟渲染 当然，延迟渲染的原理是一样的，无论是用Vulkan还是OpenGL，大概分为两个步骤：  几何阶段和光照阶段。在几何阶段搜集画面中用于光照计算的信息。 传输到光照阶段计算出最终的结果。  既然Vulkan和OpenGL实现是差不多的，为什么这里还有专门写一篇文章呢？因为在Vulkan中，可以利用RenderPass中的subpass，来将两个步骤放到同一个render pass中，这样可以减少延迟渲染两个阶段之间的额外数据处理和传输，从而提升性能。 Vulkan中的Render Pass和Subpass 在Vulkan里，Render Pass（渲染过程）是一个十分关键的概念，它对渲染操作的整体结构和流程...</div></div></div></a><a class="pagination-related" href="/2024/10/28/depth-of-field/" title="景深的简单实现"><img class="cover" src="/2024/10/28/depth-of-field/game1.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-28</div><div class="info-item-2">景深的简单实现</div></div><div class="info-2"><div class="info-item-1">关于景深 景深是一个常在摄像领域出现的词，它一般指的是沿着摄像机或其他成像器的拍摄方向上，能够取得清晰图像的成像所测定的被摄物体前后距离范围。用大白话就是说，拥有浅景深的成像器拍摄出来的效果，是只有焦点附近的图像是清晰的，其他地方的图像都是模糊的；而拥有大景深则可以在离焦点很远的地方也能有清晰的图像。  有了景深效果的图像可以有重点的突出核心想要表达的内容，不仅仅在摄影摄像的领域有非常多的应用，在游戏领域内也是应用广泛，可以表现出很独特的风格化美术效果（如八方旅人的浅景深效果）。  下面我来介绍一种基础的景深效果实现，这个方法也在最近接入了KongEngine 渲染散景 浅景深的主要应用是通过调整不同焦距上物体的成像清晰程度来突出渲染画面的重点。清晰的部分我们已经掌握了，就是正常的将场景渲染出来，那不清晰的部分（或者叫做散景）也有不少的实现方式，一般是通过模糊算法来实现。 模糊的算法有很多种，比如box blur，gaussian blur等等，效果最好的是扩张模糊(dilate blur)，这也是我们会采取的方法。 扩张模糊（dilate blur) 扩张模糊它的主要方式，是在...</div></div></div></a><a class="pagination-related" href="/2024/11/19/ProceduralTerrainGeneration2-optimize/" title="程序化地形生成-2-性能优化"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-19</div><div class="info-item-2">程序化地形生成-2-性能优化</div></div><div class="info-2"><div class="info-item-1">性能优化的需求 自从实现了程序化地形生成的那个ShaderToy上的Demo之后，我对它的性能表现一直不太满意，随随便便跑一下我的GPU就直接拉到100%了，电脑风扇呼呼的。做了很多次大大小小的优化，最后发现瓶颈还是在对地形的光线步进计算上，不把这个问题解决掉的话这个场景的性能怎么样都无法达到令我满意的程度。 于是我一直在寻找类似的场景，寻找有什么光线步进的方法能够满足我的要求：首先它必须是要针对实时随机生成的地形，也就是说不能是针对高度图或者其他预处理过的地形数据；其次它需要快，至少能够在我这台笔记本上（3070ti显卡）能够保持50%以下的占用率；最后就是这个光线步进算法需要有一定的精度，但是要求不会很高。 最后我在ShaderToy上找到了一个非常棒的例子，来自Dave_Hoskins。 Dave的Demo也是做了地形的渲染，他的场景比我复杂很多，但是这个更为复杂的场景在我的电脑上运行的时候，它的GPU占用率（分辨率768X432）只有35%左右，远低于我的demo让我大为震撼。 于是我开始研究它的光线步进的逻辑，如下： 12345678910111213141516171...</div></div></div></a><a class="pagination-related" href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2"><img class="cover" src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-04</div><div class="info-item-2">程序化地形生成-2</div></div><div class="info-2"><div class="info-item-1">距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。 那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。 1234567891011121314vec3 dirt_color = vec3(0.8549, 0.5255, 0.3098);vec3 grass_color = vec3(0.3137, 0.5412, 0.0157);// ..if(rd.y &lt; 0.05 &amp;&amp; rayMarchingTerrain(ro, r...</div></div></div></a><a class="pagination-related" href="/2024/10/15/single-scatter-atmosphere/" title="基于单次散射的天空大气渲染方法"><img class="cover" src="/2024/10/15/single-scatter-atmosphere/single-scatter-atmosphere.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-10-15</div><div class="info-item-2">基于单次散射的天空大气渲染方法</div></div><div class="info-2"><div class="info-item-1">最近KongEngine实现了IBL(Image Based Lighting)，可以将HDR环境贴图映射作为3D场景的环境。  在实现了IBL之后我又产生了一个想法，能否实现类似UE中的大气环境的渲染效果呢？我尝试去寻找答案，发现如果要完全复刻UE中的效果确实需要一定的功夫的，但是最基础的天空大气渲染并没有想象中那么复杂，于是我便花了点时间在KongEngine中实现了这个功能。  我打算将这个方法的基础思想和实现在此简单记录一下。 单次散射模型 星球的大气层是一种参与性介质，和在真空环境不同，光在大气层中传播的时候会因为大气中的微小颗粒（水、灰尘等等）发生散射（折射、反射）和吸收等情况。因此我们看向空中的一个点的时候，这个点的颜色是光经过多次散射得到的结果。 光到达我们眼睛之前经过多少次反射和折射是不一定的，在实时渲染的需求下计算太多次光的变化显然也是不显示的。最简单的方法，是使用单次散射模型：我们假定光在进入我们眼睛之前，有且只发生了一次散射。光一般在第一次散射的时候，还会有最多的能量剩余，后面的多次散射能力相对少，对最后效果的呈现也影响不大，因此这种模型可以在保证性能的情...</div></div></div></a><a class="pagination-related" href="/2025/02/28/ibl-diffuse-irradiance/" title="基于图像的光照-漫反射辐照度"><img class="cover" src="/2025/02/28/ibl-diffuse-irradiance/ibl-final.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-02-28</div><div class="info-item-2">基于图像的光照-漫反射辐照度</div></div><div class="info-2"><div class="info-item-1">前言 KongEngine的Vulkan接入还在进行中。好消息是已经能够实现一个基本的Vulkan渲染流程，将简单的带有贴图模型渲染到场景中了；坏消息是，这就是他目前利用Vulkan能做到的所有事了。 其实按照目前的进展，是可以准备一篇文章来讲讲接入Vulkan这段时间的一些内容了。不过思来想去，还是计划延后，等更加完善了再来详细说说。为了尽量实现我一周一篇文章的计划，也想填填以前的坑，今天这篇文章打算讲讲基于图像的光照技术：IBL。 什么是IBL IBL 即Image-Based Lighting，是基于物理的渲染（PBR）中一种重要的光照技术。传统的光照计算通常是基于光源的，例如点光源、方向光等，这些光源模型比较简单，难以模拟出复杂的真实世界光照环境。而 IBL 则是利用环境图像（通常是高动态范围图像，HDR）来捕捉场景周围的光照信息，将其作为场景中物体的光照来源，从而为物体提供更真实、更自然的光照效果。 IBL 的核心思想是将环境光照视为无数个微小的光源，这些光源分布在物体周围的各个方向上。通过对环境图像进行采样和处理，可以计算出物体表面从各个方向接收到的光线能量，进而模拟...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#KongEngine%E7%9A%84Vulkan%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">KongEngine的Vulkan结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vulkan%E7%9A%84%E6%B8%B2%E6%9F%93%E7%B3%BB%E7%BB%9F"><span class="toc-number">3.</span> <span class="toc-text">Vulkan的渲染系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E5%85%A5ImGui"><span class="toc-number">4.</span> <span class="toc-text">接入ImGui</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#shader%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">shader预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">6.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介"><img src="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/ue-scriptstruct-icon.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="虚幻引擎ScriptStruct简介"/></a><div class="content"><a class="title" href="/2025/09/21/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8EScriptStruct%E7%AE%80%E4%BB%8B/" title="虚幻引擎ScriptStruct简介">虚幻引擎ScriptStruct简介</a><time datetime="2025-09-21T06:20:40.000Z" title="发表于 2025-09-21 14:20:40">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点"><img src="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/new_start.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="新的起点"/></a><div class="content"><a class="title" href="/2025/07/20/%E6%96%B0%E7%9A%84%E8%B5%B7%E7%82%B9/" title="新的起点">新的起点</a><time datetime="2025-07-20T02:31:11.000Z" title="发表于 2025-07-20 10:31:11">2025-07-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙"><img src="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/thumbnail.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记一个关于外接显示器接口的乌龙"/></a><div class="content"><a class="title" href="/2025/06/07/%E6%98%BE%E5%8D%A1%E6%8E%A5%E5%8F%A3%E4%B9%8C%E9%BE%99/" title="记一个关于外接显示器接口的乌龙">记一个关于外接显示器接口的乌龙</a><time datetime="2025-06-07T05:10:04.000Z" title="发表于 2025-06-07 13:10:04">2025-06-07</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
