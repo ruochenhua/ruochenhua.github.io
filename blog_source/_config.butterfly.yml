@@ -1,0 +1,15 @@
+# 覆盖 Butterfly 主题配置（仅首页顶图等）
+# 文档: https://butterfly.js.org/
+
+# 首页顶部 banner 使用原 Fluid 的 default.png（暖色山川日落）
+index_img: /img/default.png
+
+# 侧栏头像（原 Fluid 的 image.png）
+avatar:
+  img: /img/avatar.png
+  effect: false
+
+# 底部区域改为暖调深色，与首页顶图搭配（不再用默认蓝色）
+inject:
+  head:
+    - '<link rel="stylesheet" href="/css/custom.css">'
