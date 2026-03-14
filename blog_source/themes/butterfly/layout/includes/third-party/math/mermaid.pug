@@ -260,10 +260,15 @@ script.
 
     const runMermaid = ele => {
       window.loadMermaid = true
+      if (typeof mermaid === 'undefined') return
+      if (typeof mermaid.initialize === 'function') {
+        mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' })
+      }
       const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? '!{theme.mermaid.theme.dark}' : '!{theme.mermaid.theme.light}'
 
       ele.forEach((item, index) => {
         const mermaidSrc = item.firstElementChild
+        if (!mermaidSrc) return
 
         // Clear old render (themeChange/pjax will rerun)
         const oldSvg = item.querySelector('svg')
@@ -278,17 +283,33 @@ script.
         const mermaidID = `mermaid-${index}`
         const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
 
-        const renderFn = mermaid.render(mermaidID, mermaidDefinition)
         const renderMermaid = svg => {
+          if (!svg) return
           mermaidSrc.insertAdjacentHTML('afterend', svg)
           if (!{theme.mermaid.zoom_pan}) initMermaidGestures(item)
           item.__mermaidOriginalSvg = svg
           if (!{theme.mermaid.open_in_new_tab}) attachMermaidViewerButton(item)
         }
+        const onError = err => {
+          console.error('Mermaid render error:', err)
+          mermaidSrc.insertAdjacentHTML('afterend', '<pre class="mermaid-error" style="color:#c00;padding:1em;">Mermaid 图表渲染失败，请检查控制台或语法。</pre>')
+        }
 
-
-        // mermaid v9 and v10 compatibility
-        typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+        try {
+          const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+          if (typeof renderFn === 'string') {
+            renderMermaid(renderFn)
+          } else if (renderFn && typeof renderFn.then === 'function') {
+            renderFn.then(result => {
+              const svg = result && (result.svg ?? result)
+              renderMermaid(svg)
+            }).catch(onError)
+          } else {
+            onError(new Error('mermaid.render returned unexpected value'))
+          }
+        } catch (err) {
+          onError(err)
+        }
       })
     }
 
@@ -315,9 +336,20 @@ script.
 
       const runMermaidFn = () => runMermaid($mermaid)
       btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
-      window.loadMermaid ? runMermaidFn() : btf.getScript('!{url_for(theme.asset.mermaid)}').then(runMermaidFn)
+      if (window.loadMermaid) {
+        runMermaidFn()
+      } else {
+        btf.getScript('!{url_for(theme.asset.mermaid)}').then(runMermaidFn).catch(err => console.error('Mermaid script load failed:', err))
+      }
     }
 
     btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
-    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+    const runWhenReady = () => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadMermaid)
+      } else {
+        loadMermaid()
+      }
+    }
+    window.pjax ? loadMermaid() : runWhenReady()
   })()
