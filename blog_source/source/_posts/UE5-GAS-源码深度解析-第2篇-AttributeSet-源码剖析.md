@@ -74,7 +74,7 @@ void FGameplayAttributeData::SetBaseValue(float NewValue) { BaseValue = NewValue
 
 拆开写，是为了把「随 Buff 来去的临时修正」和「该长期留下的基准变化」分开：Buff 摘掉时，才有机会按 GE 的规则回退，而不是改乱了就对不上账。
 
-
+![](gas-base-current.png)
 
 *图 2：BaseValue 与 CurrentValue 分工示意；Current 由 Base 与聚合器上的 Modifier 共同决定。*
 
