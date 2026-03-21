@@ -1,0 +1,726 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读 | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 第 1 篇把 GAS 的骨架串过一遍：UAbilitySystemComponent（ASC）管着能力、效果、属性与标签；真正决定「数值长什么样」的，是 UAttributeSet 和它的子类。这篇接着从源码里看：属性相关的几个核心类型、UAttributeSet 在 ASC 里怎么挂、数从哪进从哪出，以及改数时会踩到哪些回调。 上一篇文末原本想下一篇先写 ASC。属性这东西又薄又底层，Ef">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读">
+<meta property="og:url" content="https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/index.html">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言 第 1 篇把 GAS 的骨架串过一遍：UAbilitySystemComponent（ASC）管着能力、效果、属性与标签；真正决定「数值长什么样」的，是 UAttributeSet 和它的子类。这篇接着从源码里看：属性相关的几个核心类型、UAttributeSet 在 ASC 里怎么挂、数从哪进从哪出，以及改数时会踩到哪些回调。 上一篇文末原本想下一篇先写 ASC。属性这东西又薄又底层，Ef">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png">
+<meta property="article:published_time" content="2026-03-21T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-21T14:10:01.356Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="UE5">
+<meta property="article:tag" content="GAS">
+<meta property="article:tag" content="源码解析">
+<meta property="article:tag" content="游戏开发">
+<meta property="article:tag" content="AttributeSet">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读",
+  "url": "https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/",
+  "image": "https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png",
+  "datePublished": "2026-03-21T02:00:00.000Z",
+  "dateModified": "2026-03-21T14:10:01.356Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css">
+
+<link rel="stylesheet" href="https://npm.elemecdn.com/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-banner.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-03-21T02:00:00.000Z" title="发表于 2026-03-21 10:00:00">2026-03-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-21T14:10:01.356Z" title="更新于 2026-03-21 22:10:01">2026-03-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/">技术漫谈</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF%E6%BC%AB%E8%B0%88/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/">游戏开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
+<p><a href="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/">第 1 篇</a>把 GAS 的骨架串过一遍：<code>UAbilitySystemComponent</code>（ASC）管着能力、效果、属性与标签；真正决定「数值长什么样」的，是 <code>UAttributeSet</code> 和它的子类。这篇接着从源码里看：属性相关的几个核心类型、<code>UAttributeSet</code> 在 ASC 里怎么挂、数从哪进从哪出，以及改数时会踩到哪些回调。</p>
+<p>上一篇文末原本想下一篇先写 ASC。属性这东西又薄又底层，Effect、预测、复制几乎都会碰到，所以这篇先把 AttributeSet 交代清楚，后面再读 GameplayEffect 和网络会省不少力气。</p>
+<h3 id="版本说明">版本说明</h3>
+<ul>
+<li>行文以 <strong>Unreal Engine 5.7</strong> 插件源码为准，和你本地不一致的地方以你手里的代码为准。</li>
+<li>主要会翻：
+<ul>
+<li><code>Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Public/AttributeSet.h</code></li>
+<li><code>Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AttributeSet.cpp</code>（<code>InitFromMetaDataTable</code>、<code>FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults</code>、<code>FGameplayAttributeData</code>、<code>PreNetReceive</code> / <code>PostNetReceive</code> 等）</li>
+<li><code>AbilitySystemComponent.h</code> / <code>AbilitySystemComponent.cpp</code>（注册、聚合器、复制通知等）</li>
+</ul>
+</li>
+<li>Meta Attribute 和伤害管道示例来自 <a target="_blank" rel="noopener" href="https://github.com/tranek/GASDocumentation">GASDocumentation</a>，和 Lyra 的 <code>LyraHealthSet</code> 很像，适合对照。</li>
+</ul>
+<p>类名、函数名建议在上述文件里搜一下，边看边对。</p>
+<hr>
+<h2 id="AttributeSet-在架构里扮演什么角色">AttributeSet 在架构里扮演什么角色</h2>
+<p><code>UAttributeSet</code> 就是一个普通的 <code>UObject</code>，一般以外层 <code>UAbilitySystemComponent</code> 为 <code>Outer</code> 创建，生命周期跟着 ASC。它不回答「谁有权改我」「要不要同步」——那是 ASC 和 GameplayEffect 管线的事；它更像带几个钩子的数据壳子，数值要变或刚变完时，你可以往里塞夹紧、派生属性、统计之类的项目逻辑。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" data-config="{}" hidden>
+    flowchart TB
+  subgraph ASC[&quot;UAbilitySystemComponent&quot;]
+    Index[&quot;属性索引\nFGameplayAttribute → 聚合器&quot;]
+    AS1[&quot;UAttributeSet 子对象 1&quot;]
+    AS2[&quot;UAttributeSet 子对象 2&quot;]
+  end
+  GE[&quot;GameplayEffect &#x2F; Execution&quot;]
+  GE --&gt;|经 ASC 写入| Index
+  Index --&gt; AS1
+  Index --&gt; AS2
+  AS1 --&gt;|Pre&#x2F;Post 回调| Hooks[&quot;Clamp &#x2F; 派生 &#x2F; 日志&quot;]
+  </pre></div>
+<p><em>图 1：AttributeSet 挂在 ASC 下面；外面改数通常还是走 ASC 和聚合器，而不是手改字段。</em></p>
+<hr>
+<h2 id="基础数据结构">基础数据结构</h2>
+<p>在深入 <code>UAttributeSet</code> 之前，先把两个最常用的类型对齐。</p>
+<h3 id="FGameplayAttributeData：Base-与-Current">FGameplayAttributeData：Base 与 Current</h3>
+<p><code>FGameplayAttributeData</code> 是属性在内存里的存法，源码里两个 <code>float</code> 加 Getter/Setter（<code>AttributeSet.cpp</code>）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AttributeSet.cpp，FGameplayAttributeData 的读写</span></span><br><span class="line"><span class="function"><span class="type">float</span> <span class="title">FGameplayAttributeData::GetCurrentValue</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> CurrentValue; &#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">FGameplayAttributeData::SetCurrentValue</span><span class="params">(<span class="type">float</span> NewValue)</span> </span>&#123; CurrentValue = NewValue; &#125;</span><br><span class="line"><span class="function"><span class="type">float</span> <span class="title">FGameplayAttributeData::GetBaseValue</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> BaseValue; &#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">FGameplayAttributeData::SetBaseValue</span><span class="params">(<span class="type">float</span> NewValue)</span> </span>&#123; BaseValue = NewValue; &#125;</span><br></pre></td></tr></table></figure>
+<p>可以粗略理解成：</p>
+<ul>
+<li><strong>CurrentValue</strong>：玩法里真正拿来算、拿来展示的值，由 Base 和 ASC 上的 Modifier 管线（聚合器）一起算出来。</li>
+<li><strong>BaseValue</strong>：叠算的锚点。Duration / Infinite 那类 GE 的 Modifier 往往是在「不直接弄脏长期基准」的前提下参与运算；Instant GE 则常常把某次改动写进 Base（比如永久升级），后面别的 GE 都从新 Base 接着叠。</li>
+</ul>
+<p>拆开写，是为了把「随 Buff 来去的临时修正」和「该长期留下的基准变化」分开：Buff 摘掉时，才有机会按 GE 的规则回退，而不是改乱了就对不上账。</p>
+<p><em>图 2：BaseValue 与 CurrentValue 分工示意；Current 由 Base 与聚合器上的 Modifier 共同决定。</em></p>
+<p>举个例子：有个 Buff 给 <code>Damage</code> 临时 +10。GE 若是 Duration 或 Infinite，这次加算挂在 Modifier 链上参与运算；Buff 结束，框架可以按规则撤掉这条贡献。若是角色升级那种永久改动，通常会走 Instant（或等价路径），把变化写进 BaseValue——那就没有「同一个 GE 自动帮你回退」这回事了。</p>
+<p>所以：<strong>平时改属性，尽量走施加 GameplayEffect（或 ASC 提供的、和管线一致的路径），不要动不动就 <code>SetBaseValue</code> / <code>SetCurrentValue</code>。</strong> 绕过 Modifier 栈和回退语义，预测、复制和调试也容易一起歪。只有初始化、迁数据，或者你非常清楚自己在干什么的时候，再考虑直接写裸值。</p>
+<h3 id="FGameplayAttribute：句柄、反射、跟-GE-解耦">FGameplayAttribute：句柄、反射、跟 GE 解耦</h3>
+<p><code>FGameplayAttribute</code> 不是又一个 float 包装，而是把 <code>FProperty</code>*（以及它属于哪种 <code>UAttributeSet</code> 子类）包起来的句柄。ASC、GameplayEffect、ExecutionCalculation 里大量 API 都拿它当参数；子类里很多虚函数也是围着它转的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PreAttributeChange</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, <span class="type">float</span>&amp; NewValue)</span> </span>&#123; &#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PostAttributeChange</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, <span class="type">float</span> OldValue, <span class="type">float</span> NewValue)</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PreAttributeBaseChange</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, <span class="type">float</span>&amp; NewValue)</span> <span class="type">const</span> </span>&#123; &#125;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PostAttributeBaseChange</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, <span class="type">float</span> OldValue, <span class="type">float</span> NewValue)</span> <span class="type">const</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">OnAttributeAggregatorCreated</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, FAggregator* NewAggregator)</span> <span class="type">const</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>为啥 API 里不直接传 <code>FGameplayAttributeData&amp;</code>？大致有三条理由：</p>
+<ol>
+<li>跟 UE 反射绑在一起：背后是 <code>FindFieldChecked</code> 一类拿到的 <code>FProperty</code>，配合 <code>UPROPERTY</code> 能做编辑器面板、Tooltip、Attribute Capture 下拉，复制和调试也吃同一套元数据。</li>
+<li>比到处手写字符串当键稳：用反射当键，重构时少踩「改了一处漏了一处、运行时才炸」的坑。</li>
+<li>GE 的 Modifier 只拿「句柄 + 运算类型（Op）」，不必绑死某个 ASC 实例、某块子对象上的字段，Effect 和具体 <code>AttributeSet</code> 实现可以拆开。同一句柄在不同 ASC 上，仍然对应各自子对象里同名字段。</li>
+</ol>
+<p>子类里一般用宏注册访问器。工程里常见的是 <code>ATTRIBUTE_ACCESSORS</code>（在 <code>AttributeSet.h</code> 里展开成一串 <code>GAMEPLAYATTRIBUTE_*</code>）；每个 <code>FGameplayAttributeData</code> 成员后面跟一组即可：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \</span></span><br><span class="line"><span class="meta">  GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \</span></span><br><span class="line"><span class="meta">  GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \</span></span><br><span class="line"><span class="meta">  GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \</span></span><br><span class="line"><span class="meta">  GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">ATTRIBUTE_ACCESSORS</span>(UMyHealthSet, Health)</span><br></pre></td></tr></table></figure>
+<p>一个 ASC 上可以挂多套 AttributeSet（例如 <code>UBasicAttributes</code> + <code>UCombatAttributes</code>），初始化时 ASC 会扫一遍并注册。<code>GetOrCreateAttributeSubobject</code> 在缺类型时会 <code>NewObject</code> 再 <code>AddSpawnedAttribute</code>，是运行时补挂子集的常用入口：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">const</span> UAttributeSet* <span class="title">UAbilitySystemComponent::GetOrCreateAttributeSubobject</span><span class="params">(TSubclassOf&lt;UAttributeSet&gt; AttributeClass)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	AActor* OwningActor = <span class="built_in">GetOwner</span>();</span><br><span class="line">	<span class="type">const</span> UAttributeSet* MyAttributes = <span class="literal">nullptr</span>;</span><br><span class="line">	<span class="keyword">if</span> (OwningActor &amp;&amp; AttributeClass)</span><br><span class="line">	&#123;</span><br><span class="line">		MyAttributes = <span class="built_in">GetAttributeSubobject</span>(AttributeClass);</span><br><span class="line">		<span class="keyword">if</span> (!MyAttributes)</span><br><span class="line">		&#123;</span><br><span class="line">			UAttributeSet* Attributes = <span class="built_in">NewObject</span>&lt;UAttributeSet&gt;(OwningActor, AttributeClass);</span><br><span class="line">			<span class="built_in">AddSpawnedAttribute</span>(Attributes);</span><br><span class="line">			MyAttributes = Attributes;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> MyAttributes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="UAttributeSet：属性的集合">UAttributeSet：属性的集合</h3>
+<p><code>UAttributeSet</code> 按设计把若干 <code>FGameplayAttribute</code> / <code>FGameplayAttributeData</code> 收成一类，概念本身不玄。下面几块是写项目、读源码时最容易卡住的地方。</p>
+<h4 id="属性修改时会叫到谁">属性修改时会叫到谁</h4>
+<p>改数过程中可能触发的接口大致有这些：</p>
+<ul>
+<li><code>PreGameplayEffectExecute</code> / <code>PostGameplayEffectExecute</code>：走 GameplayEffect 的 Execute 路径时，在一次修改前后触发。</li>
+<li><code>PreAttributeChange</code> / <code>PostAttributeChange</code>：改 CurrentValue 前后。</li>
+<li><code>PreAttributeBaseChange</code> / <code>PostAttributeBaseChange</code>：改 BaseValue 前后。</li>
+</ul>
+<p>容易误解的几件事：</p>
+<ol>
+<li>直接 <code>SetCurrentValue</code> / <code>SetBaseValue</code>，又没经过 ASC 或 <code>FGameplayAttribute::SetNumericValueChecked</code> 这类正规入口，<code>Pre/PostGameplayEffectExecute</code> 不会被叫到，相当于绕开了 GE 管线；<code>Pre/PostAttributeChange</code> 也可能和你想象的不一样。</li>
+<li>Duration / Infinite 的 GE 往往不会像 Instant 那样进 <code>Pre/PostGameplayEffectExecute</code>，因为Duration和Infinite的效果更多是通过 Modifier 挂到聚合器上再重算 Current，而不算是一次修改的执行，对数据进行了一次修改。可以想成是挂了一个状态到对应的ASC上面。</li>
+<li>Current 被改时（走 GE 或上述正规路径），<code>Pre/PostAttributeChange</code> 一般会到。Base 被改时，<code>Pre/PostAttributeBaseChange</code> 被调用之后，<code>Pre/PostAttributeChange</code> 也常常会跟着被调用，因为 Current 通常由 Base 和 Modifier 推出来，当Base被修改时，Current值的锚点变了，Current值也相应的被修改了。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" data-config="{}" hidden>
+    flowchart TB
+  subgraph OK[&quot;正规路径：GE &#x2F; ASC &#x2F; SetNumericValueChecked&quot;]
+    A[写入请求] --&gt; B{语义类型}
+    B --&gt;|Instant &#x2F; Execute 提交| E1[Pre&#x2F;PostGameplayEffectExecute]
+    B --&gt;|改 Base| E2[Pre&#x2F;PostAttributeBaseChange]
+    E2 --&gt; E3[常再触发 Pre&#x2F;PostAttributeChange]
+    B --&gt;|聚合器重算 Current| E4[Pre&#x2F;PostAttributeChange]
+  end
+  subgraph BAD[&quot;绕管线：直接 SetBase &#x2F; SetCurrent&quot;]
+    X[裸写 float] --&gt; Y[Pre&#x2F;PostGameplayEffectExecute 通常不到]
+    X --&gt; Z[Pre&#x2F;PostAttribute 行为可能与预期不符]
+  end
+  </pre></div>
+<p><em>图 3：改数走框架与「手改裸值」时，回调大致会差在哪里（细节以 <code>AbilitySystemComponent</code> 调用栈为准）。</em></p>
+<h4 id="网络同步">网络同步</h4>
+<p><code>AttributeSet.cpp</code> 里的 <code>IsNameStableForNetworking</code> 写得很直白，如果需要进行网络同步，AttributeSet要满足：C++ 里建的默认子对象、从关卡包加载的放置 Actor 上的子对象、或者调过 <code>SetNetAddressable()</code> 的实例。反过来，运行时 <code>NewObject</code> 挂上却从没 <code>SetNetAddressable</code>，有可能复制怪、对不上号，排查时值得先看一下是不是这类情况。</p>
+<p>相关接口在 <code>AttributeSet.h</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** This signifies the attribute set can be ID&#x27;d by name over the network. */</span></span><br><span class="line"><span class="function">UE_API <span class="type">void</span> <span class="title">SetNetAddressable</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function">UE_API <span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PreNetReceive</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br><span class="line"><span class="function">UE_API <span class="keyword">virtual</span> <span class="type">void</span> <span class="title">PostNetReceive</span><span class="params">()</span> <span class="keyword">override</span></span>;</span><br></pre></td></tr></table></figure>
+<p>需要同步的属性，依旧是需要在 <code>FGameplayAttributeData</code> 配 <code>Replicate 的相关字段</code>，在 <code>GetLifetimeReplicatedProps</code> 里 <code>DOREPLIFETIME</code>，<code>OnRep_</code> 里用 <code>GAMEPLAYATTRIBUTE_REPNOTIFY</code> 等把复制下来的值喂回 ASC 内部的聚合状态。</p>
+<p><code>PreNetReceive</code> / <code>PostNetReceive</code> 做的是更底层的事：在 Actor 收网络属性更新的前后，用 <code>FScopedAggregatorOnDirtyBatch</code> 把聚合器的脏更新短暂锁住，保证这一小段窗口里，本地 Modifier 和正在写入的网络值不会搅在一起；这一轮收完再放开。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" data-config="{}" hidden>
+    sequenceDiagram
+  participant Net as 网络复制
+  participant Agg as ASC 聚合器
+  participant AS as AttributeSet
+  Net-&gt;&gt;AS: PreNetReceive &#x2F; BeginNetReceiveLock
+  Note over Agg: 脏更新暂锁，避免与本地 Modifier 交织
+  Net-&gt;&gt;AS: 复制写入属性成员
+  Net-&gt;&gt;AS: PostNetReceive &#x2F; EndNetReceiveLock
+  Note over Agg: 本轮网络更新结束后再放开
+  </pre></div>
+<p><em>图 4：<code>PreNetReceive</code> / <code>PostNetReceive</code> 与聚合器批量锁的大致时序（对应 <code>FScopedAggregatorOnDirtyBatch</code>）。</em></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">FScopedAggregatorOnDirtyBatch::BeginNetReceiveLock</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">BeginLock</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">FScopedAggregatorOnDirtyBatch::EndNetReceiveLock</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// The network lock must end the first time it is called.</span></span><br><span class="line">	<span class="comment">// Subsequent calls to EndNetReceiveLock() should not trigger a full EndLock, only the first one.</span></span><br><span class="line">	<span class="keyword">if</span> (GlobalBatchCount &gt; <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		GlobalBatchCount = <span class="number">1</span>;</span><br><span class="line">		NetUpdateID++;</span><br><span class="line">		GlobalFromNetworkUpdate = <span class="literal">true</span>;</span><br><span class="line">		<span class="built_in">EndLock</span>();</span><br><span class="line">		GlobalFromNetworkUpdate = <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="聚合器（Aggregator）">聚合器（Aggregator）</h4>
+<p>前面 Duration / Infinite 已经多次提到聚合器：对每个 <code>FGameplayAttribute</code>，ASC 会维护 <code>FAggregator</code>，把当前生效的 GE Modifier 记录下来，求值时把 Base 和各条 Modifier 按照UE的既定顺序合成 Current。它相当于是这个属性在框架里的「运算中枢」，Buff 不是零散地修改最终的值，而是作为贡献之一挂在中枢上，由统一规则出结果。</p>
+<p><code>UAttributeSet</code> 留了一个跟聚合器生命周期有关的钩子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Callback for when an FAggregator is created for an attribute in this set. Allows custom setup of FAggregator::EvaluationMetaData */</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">OnAttributeAggregatorCreated</span><span class="params">(<span class="type">const</span> FGameplayAttribute&amp; Attribute, FAggregator* NewAggregator)</span> <span class="type">const</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>某个属性第一次需要聚合器时，ASC 会建好 <code>FAggregator</code> 再回调这里。这里适合做的是一次性配置，比如给 <code>FAggregator::EvaluationMetaData</code> 挂上项目自己的求值上下文、曲线或调试信息。<code>FAggregator</code> 具体怎么算，还是要回到 ASC 和 GE 那一路去读。</p>
+<hr>
+<h2 id="一些使用经验">一些使用经验</h2>
+<h3 id="Meta-Attribute-与伤害管道">Meta Attribute 与伤害管道</h3>
+<p><strong>Meta Attribute</strong>：只当管道用、不参与网络复制。数值仅仅在 GE 执行链里走一遭，最后在 <code>PostGameplayEffectExecute</code> 或者其他阶段消费掉，转到真正的业务属性上后清零。伤害结算就是一个典型场景。</p>
+<h4 id="声明：不复制、无-OnRep">声明：不复制、无 OnRep</h4>
+<p>以 <a target="_blank" rel="noopener" href="https://github.com/tranek/GASDocumentation">GASDocumentation</a> 里的 <code>UGDAttributeSetBase</code> 为例，<code>Damage</code> 被声明成 meta：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// GDAttributeSetBase.h</span></span><br><span class="line"><span class="comment">// Damage is a meta attribute used by the DamageExecution to calculate final damage,</span></span><br><span class="line"><span class="comment">// which then turns into -Health. Temporary value that only exists on the Server. Not replicated.</span></span><br><span class="line"><span class="built_in">UPROPERTY</span>(BlueprintReadOnly, Category = <span class="string">&quot;Damage&quot;</span>)</span><br><span class="line">FGameplayAttributeData Damage;</span><br><span class="line"><span class="built_in">ATTRIBUTE_ACCESSORS</span>(UGDAttributeSetBase, Damage)</span><br></pre></td></tr></table></figure>
+<p>这里没有 <code>ReplicatedUsing = OnRep_Damage</code>，<code>GetLifetimeReplicatedProps</code> 里也不复制 <code>Damage</code>，它只在服务器上一次 GE 执行的生命周期里存在，算完就清，客户端只要最终的 <code>Health</code> 等对账结果。</p>
+<h4 id="流程：ExecutionCalculation-写入-→-PostGameplayEffectExecute-转嫁">流程：ExecutionCalculation 写入 → PostGameplayEffectExecute 转嫁</h4>
+<p>这个流程常见的套路是：</p>
+<ol>
+<li>GE 挂上 <code>ExecutionCalculation</code>（如 <code>GDDamageExecCalculation</code>），在 <code>Execute_Implementation</code> 里从 Modifier 或 SetByCaller 拿原始伤害，再用 Target 的护甲等算出减免，最后用 <code>AddOutputModifier</code> 把减免后的数写到 Target 的 <code>Damage</code> 上。</li>
+<li>框架对 Target 的 <code>Damage</code> 做完这次修改后，会进 <code>PostGameplayEffectExecute</code>。</li>
+<li>在 <code>PostGameplayEffectExecute</code> 里判断 <code>Data.EvaluatedData.Attribute == GetDamageAttribute()</code>：读出 <code>GetDamage()</code> 当本次伤害，立刻 <code>SetDamage(0.f)</code> 清掉，再拿去扣 <code>Health</code>（或先盾后血这种特殊逻辑），顺便做 Clamp、受击表现、击杀结算等。</li>
+</ol>
+<div class="mermaid-wrap"><pre class="mermaid-src" data-config="{}" hidden>
+    flowchart LR
+  subgraph Srv[&quot;Server（典型伤害管线）&quot;]
+    EC[ExecutionCalculation] --&gt;|AddOutputModifier| Meta[Damage Meta  
+不复制]
+    Meta --&gt; PGE[PostGameplayEffectExecute]
+    PGE --&gt;|SetDamage 0 后| HP[Health 等真实属性]
+    PGE --&gt; FX[Clamp &#x2F; 盾 &#x2F; 受击与击杀逻辑]
+  end
+  Cli[Client] -.复制对账.-&gt; HP
+  </pre></div>
+<p><em>图 5：Meta <code>Damage</code> 作管道——Exec 写入，在 <code>PostGameplayEffectExecute</code> 转嫁到真实属性后清零；客户端通常只收 <code>Health</code> 等复制结果。</em></p>
+<p>GASDocumentation 里的片段（有删减）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// GDAttributeSetBase.cpp - PostGameplayEffectExecute 的 Damage 分支</span></span><br><span class="line"><span class="keyword">if</span> (Data.EvaluatedData.Attribute == <span class="built_in">GetDamageAttribute</span>())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">float</span> LocalDamageDone = <span class="built_in">GetDamage</span>();</span><br><span class="line">    <span class="built_in">SetDamage</span>(<span class="number">0.f</span>);  <span class="comment">// 用完即清</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (LocalDamageDone &gt; <span class="number">0.0f</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">float</span> NewHealth = <span class="built_in">GetHealth</span>() - LocalDamageDone;</span><br><span class="line">        <span class="built_in">SetHealth</span>(FMath::<span class="built_in">Clamp</span>(NewHealth, <span class="number">0.0f</span>, <span class="built_in">GetMaxHealth</span>()));</span><br><span class="line">        <span class="comment">// ... 受击动画、伤害数字、击杀奖励等</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// GDDamageExecCalculation.cpp - 写入 Damage Meta Attribute</span></span><br><span class="line"><span class="type">float</span> MitigatedDamage = UnmitigatedDamage * (<span class="number">100.f</span> / (<span class="number">100.f</span> + Armor));</span><br><span class="line"><span class="keyword">if</span> (MitigatedDamage &gt; <span class="number">0.f</span>)</span><br><span class="line">&#123;</span><br><span class="line">    OutExecutionOutput.<span class="built_in">AddOutputModifier</span>(</span><br><span class="line">        <span class="built_in">FGameplayModifierEvaluatedData</span>(<span class="built_in">DamageStatics</span>().DamageProperty, EGameplayModOp::Additive, MitigatedDamage));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Lyra 的 <code>LyraHealthSet</code> 同样有 <code>Damage</code>、<code>Healing</code> 一类 meta，<code>LyraDamageExecution</code> / <code>LyraHealExecution</code> 写数，<code>PostGameplayEffectExecute</code> 转嫁到 <code>Health</code> 并清零。读 Lyra 可以按同一套思路对照。</p>
+<h4 id="为什么不直接在-Exec-里改-Health">为什么不直接在 Exec 里改 Health</h4>
+<p>你可能会奇怪，我直接在 ExecutionCalculation 里 <code>AddOutputModifier</code> 到 <code>Health</code> 也能扣血，有什么必要在项目里意绕一层 meta？我总结了下面几个好处：</p>
+<ul>
+<li>护盾优先、Clamp、击杀判定这种通用的逻辑可以集中在 AttributeSet 里写一遍，不用散在各路 Exec 里，方便维护。</li>
+<li>像「血量为 0 判胜负」这类规则，放在 <code>ExecutionCalculation</code> 里并不稳：那时属性还没走完提交，GE 可能被服务器拒掉、多来源改写也还在路上，所以拿到的属性值（比如护盾值）并不一定是上一次Execution执行之后的，而是一份脏数据，或者一份过时的快照。更稳妥的是等 <code>PostGameplayEffectExecute</code>，数值按管线落稳了再动游戏规则。</li>
+<li>伤害来源、受击方向、HitResult 等上下文在 <code>PostGameplayEffectExecute</code> 里往往更好拿。</li>
+<li>Meta 不复制，服务器算完就丢，客户端只收最终的 <code>Health</code>，并不会对网络同步有什么额外的负担。</li>
+</ul>
+<hr>
+<h3 id="属性初始化：InitFromMetaDataTable-与-InitAttributeSetDefaults">属性初始化：InitFromMetaDataTable 与 InitAttributeSetDefaults</h3>
+<p>填初值除了在代码中写死，一般还有常见两种方法进行初始化：DataTable，以及 CurveTable + <code>FAttributeSetInitter</code>。</p>
+<h4 id="InitFromMetaDataTable：按-DataTable-行填">InitFromMetaDataTable：按 DataTable 行填</h4>
+<p><code>UAttributeSet::InitFromMetaDataTable</code> 在 <code>AttributeSet.cpp</code>（路径见文首），从 <code>FAttributeMetaData</code> 类型的 DataTable 里按行名填 Base 和 Current：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AttributeSet.cpp，InitFromMetaDataTable 核心逻辑（有删减；UE5 中 UProperty 已更名为 FProperty）</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">UAttributeSet::InitFromMetaDataTable</span><span class="params">(<span class="type">const</span> UDataTable* DataTable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">static</span> <span class="type">const</span> FString Context = <span class="built_in">FString</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;UAttribute::BindToMetaDataTable&quot;</span>));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>( TFieldIterator&lt;FProperty&gt; <span class="built_in">It</span>(<span class="built_in">GetClass</span>(), EFieldIteratorFlags::IncludeSuper) ; It ; ++It )</span><br><span class="line">	&#123;</span><br><span class="line">		FProperty* Property = *It;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// Only process properties that can back gameplay attributes. They will be either FGameplayAttributeData </span></span><br><span class="line">		<span class="comment">// or a floating-point numeric property (floats, doubles, potentially user custom).</span></span><br><span class="line">		<span class="keyword">if</span> (FGameplayAttribute::<span class="built_in">IsSupportedProperty</span>(Property))</span><br><span class="line">		&#123;</span><br><span class="line">			FString RowNameStr = FString::<span class="built_in">Printf</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;%s.%s&quot;</span>), *Property-&gt;<span class="built_in">GetOwnerVariant</span>().<span class="built_in">GetName</span>(), *Property-&gt;<span class="built_in">GetName</span>());</span><br><span class="line">			<span class="keyword">if</span> (FAttributeMetaData* MetaData = DataTable-&gt;<span class="built_in">FindRow</span>&lt;FAttributeMetaData&gt;(<span class="built_in">FName</span>(*RowNameStr), Context, <span class="literal">false</span>))</span><br><span class="line">			&#123;</span><br><span class="line">				FNumericProperty* NumericProperty = <span class="built_in">CastField</span>&lt;FNumericProperty&gt;(Property);</span><br><span class="line">				<span class="keyword">if</span> (NumericProperty)</span><br><span class="line">				&#123;</span><br><span class="line">					<span class="comment">// Passing FGameplayAttribute::IsSupportedProperty() as numeric property already implies it&#x27;s floating point</span></span><br><span class="line">					<span class="built_in">check</span>(NumericProperty-&gt;<span class="built_in">IsFloatingPoint</span>());</span><br><span class="line">					<span class="type">void</span>* Data = NumericProperty-&gt;<span class="built_in">ContainerPtrToValuePtr</span>&lt;<span class="type">void</span>&gt;(<span class="keyword">this</span>);</span><br><span class="line">					NumericProperty-&gt;<span class="built_in">SetFloatingPointPropertyValue</span>(Data, MetaData-&gt;BaseValue);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span> <span class="keyword">if</span> (FGameplayAttribute::<span class="built_in">IsGameplayAttributeDataProperty</span>(Property))</span><br><span class="line">				&#123;</span><br><span class="line">					FStructProperty* StructProperty = <span class="built_in">CastField</span>&lt;FStructProperty&gt;(Property);</span><br><span class="line">					<span class="built_in">check</span>(StructProperty);</span><br><span class="line">					FGameplayAttributeData* DataPtr = StructProperty-&gt;<span class="built_in">ContainerPtrToValuePtr</span>&lt;FGameplayAttributeData&gt;(<span class="keyword">this</span>);</span><br><span class="line">					<span class="built_in">check</span>(DataPtr);</span><br><span class="line">					DataPtr-&gt;<span class="built_in">SetBaseValue</span>(MetaData-&gt;BaseValue);</span><br><span class="line">					DataPtr-&gt;<span class="built_in">SetCurrentValue</span>(MetaData-&gt;BaseValue);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">PrintDebug</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>FAttributeMetaData</code> 继承 <code>FTableRowBase</code>，常见字段有 <code>BaseValue</code>、<code>MinValue</code>、<code>MaxValue</code> 等（以引擎 <code>AttributeSet.h</code> 为准）。行名要符合 <code>AttributeSet类名.属性名</code>这种格式，C++ 类去掉 <code>U</code> 前缀，Blueprint 类去掉 <code>_C</code> 后缀。</p>
+<h4 id="InitAttributeSetDefaults：CurveTable-按等级初始化">InitAttributeSetDefaults：CurveTable + 按等级初始化</h4>
+<p>要按等级给不同角色配初值时，会用 <code>FAttributeSetInitterDiscreteLevels</code>（或项目自己的 Initter）。它从 CurveTable 预加载数据，在角色生成、升级等时机调用 <code>InitAttributeSetDefaults</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AttributeSet.cpp，FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults 核心逻辑</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    UAbilitySystemComponent* AbilitySystemComponent, FName GroupName, int32 Level, <span class="type">bool</span> bInitialInit)</span> <span class="type">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// .... 省略部分前面的逻辑</span></span><br><span class="line">  <span class="type">const</span> FAttributeSetDefaults&amp; SetDefaults = Collection-&gt;LevelData[Level - <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">const</span> UAttributeSet* Set : AbilitySystemComponent-&gt;<span class="built_in">GetSpawnedAttributes</span>())</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (!Set)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="type">const</span> FAttributeDefaultValueList* DefaultDataList = SetDefaults.DataMap.<span class="built_in">Find</span>(Set-&gt;<span class="built_in">GetClass</span>());</span><br><span class="line">      <span class="keyword">if</span> (DefaultDataList)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">ABILITY_LOG</span>(Log, <span class="built_in">TEXT</span>(<span class="string">&quot;Initializing Set %s&quot;</span>), *Set-&gt;<span class="built_in">GetName</span>());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; DataPair : DefaultDataList-&gt;List)</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="built_in">check</span>(DataPair.Property);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (Set-&gt;<span class="built_in">ShouldInitProperty</span>(bInitialInit, DataPair.Property))</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="function">FGameplayAttribute <span class="title">AttributeToModify</span><span class="params">(DataPair.Property)</span></span>;</span><br><span class="line">            AbilitySystemComponent-&gt;<span class="built_in">SetNumericAttributeBase</span>(AttributeToModify, DataPair.Value);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;		</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    AbilitySystemComponent-&gt;<span class="built_in">ForceReplication</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>CurveTable 行名常见格式是 <code>ClassName.SetName.AttributeName</code>（例如 <code>Default.UGDAttributeSetBase.Health</code>），<code>PreloadAttributeSetData</code> 会解析并生成按等级索引的默认值表。ASC 的 <code>InitStats</code>、<code>DefaultStartingData</code> 等会通过全局的 <code>FAttributeSetInitter</code>（如 <code>UAbilitySystemGlobals::GlobalAttributeSetInitter</code>）间接走到这里。</p>
+<p>所以总结下来就是：<code>InitFromMetaDataTable</code> 适合「一张表一套初值」；<code>InitAttributeSetDefaults</code> 适合「Group + Level 多套表」。两者最终都会通过 <code>SetNumericAttributeBase</code> 或直接写 <code>FGameplayAttributeData</code> 把初值接进聚合器和复制管线。</p>
+<div class="mermaid-wrap"><pre class="mermaid-src" data-config="{}" hidden>
+    flowchart TB
+  subgraph DT[&quot;DataTable：一张表一套初值&quot;]
+    R1[&quot;行名 ClassName.PropertyName&quot;] --&gt; I1[InitFromMetaDataTable]
+    I1 --&gt; W1[写 Base &#x2F; Current 初值]
+  end
+  subgraph CT[&quot;CurveTable + Initter：按 Group &#x2F; Level&quot;]
+    R2[&quot;Curve 行解析为等级表&quot;] --&gt; I2[InitAttributeSetDefaults]
+    I2 --&gt; W2[SetNumericAttributeBase]
+    I2 --&gt; FR[ForceReplication]
+  end
+  W1 --&gt; Out[接入聚合器与复制管线]
+  W2 --&gt; Out
+  FR --&gt; Out
+  </pre></div>
+<p><em>图 6：两种常见初值入口最终都接到 ASC 的数值与复制管线。</em></p>
+<h2 id="阅读源码的建议顺序">阅读源码的建议顺序</h2>
+<ol>
+<li>打开 <code>AttributeSet.h</code>，把 <code>UAttributeSet</code> 的虚函数列表过一遍，心里有个「有哪些钩子」的清单。</li>
+<li>在 <code>AbilitySystemComponent.cpp</code> 里搜 <code>PreAttributeChange</code>、<code>PostAttributeChange</code>、<code>PreAttributeBaseChange</code>，看调用栈上游是 Effect 还是别的路径。</li>
+<li>起一个最小的 <code>UAttributeSet</code> 子类，打日志看 Base / Current 在 Instant、Duration、Infinite 三种 Effect 下怎么动。</li>
+</ol>
+<hr>
+<h2 id="小结">小结</h2>
+<p>总结以下本篇的内容：</p>
+<ul>
+<li><strong>架构与改数入口</strong>：AttributeSet 挂在 ASC 下；外面改数尽量走聚合器，别手改字段。<code>Pre/PostGameplayEffectExecute</code>、<code>Pre/PostAttributeChange</code>、<code>Pre/PostAttributeBaseChange</code> 各自在什么路径下会叫到，正文「属性修改时会叫到谁」里有一张对照图。</li>
+<li><strong>Base / Current</strong>：<code>FGameplayAttributeData</code> 里一个是叠算锚点、一个是当前参与运算的值，和 Instant 与 Duration/Infinite 的语义绑定。</li>
+<li><strong>句柄与宏</strong>：<code>FGameplayAttribute</code> 走反射、和 GE 解耦；<code>ATTRIBUTE_ACCESSORS</code> 把成员和静态 <code>GetXXXAttribute()</code> 绑在一起；运行时补挂子集可以走 <code>GetOrCreateAttributeSubobject</code>。</li>
+<li><strong>复制与聚合器锁</strong>：要参与复制，子对象路径得稳（默认子对象 / 放置实例 / <code>SetNetAddressable</code> 等）；<code>PreNetReceive</code> / <code>PostNetReceive</code> 配合 <code>FScopedAggregatorOnDirtyBatch</code>，在收网络属性的一小段窗口里锁住聚合器，避免和本地 Modifier 搅在一起。聚合器本身是每个属性上的「运算中枢」，<code>OnAttributeAggregatorCreated</code> 可做一次性配置。</li>
+<li><strong>Meta Attribute</strong>：如 <code>Damage</code> 只当管道、不复制；ExecutionCalculation 写入，<code>PostGameplayEffectExecute</code> 里转嫁到真实属性后清零，伤害管线里很常见。</li>
+<li><strong>初值</strong>：<code>InitFromMetaDataTable</code>（DataTable 行名对齐属性）和 <code>InitAttributeSetDefaults</code>（CurveTable + Level），最后都通过 <code>SetNumericAttributeBase</code> 等路径接进聚合器和复制管线。</li>
+</ul>
+<hr>
+<h2 id="收尾">收尾</h2>
+<p>好了，以上就是 AttributeSet 的内容了，单看代码量不大，逻辑也不难，但是这却是GAS的基石之一，它在 Effect → ASC → 复制这条链的中间有着非常重大的影响。</p>
+<p>希望这篇内容能给你一些启发，下一篇的内容可能会是GE或者ASC相关，我们不见不散。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/">https://ruochenhua.github.io/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/UE5/">UE5</a><a class="post-meta__tags" href="/tags/GAS/">GAS</a><a class="post-meta__tags" href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">源码解析</a><a class="post-meta__tags" href="/tags/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/">游戏开发</a><a class="post-meta__tags" href="/tags/AttributeSet/">AttributeSet</a></div><div class="post-share"><div class="social-share" data-image="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://npm.elemecdn.com/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://npm.elemecdn.com/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" title="UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想"><img class="cover" src="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/%E7%94%9F%E6%88%90%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%E6%A8%AA%E5%B9%85%E5%9B%BE%E7%89%87.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想</div></div><div class="info-2"><div class="info-item-1">前言 如果你正在用虚幻引擎做一款带复杂技能、Buff、连招的单机或者多人游戏，很大概率已经听说过 GAS（Gameplay Ability System）。 自从GAS在UE4上推出以来，GAS已经被应用在数不尽的项目中，现在，熟悉GAS几乎已经成为了UE Gameplay开发的必修课之一了。 现在网上也有着无数的GAS相关的文章，其中不乏介绍如何使用GAS的教程。这些内容对新手来说是非常有用的，但本系列并不会把重点放在如何使用GAS上。本系列默认读者你已经是一个对GAS略知一二，甚至有着利用GAS搭建一个小的RPG的经验了。这个系列的教程，会尽量的从设计理念和源码的角度，来剖析GAS。 GAS的起源 GAS的起源于Epic的一款叫做《Paragon》的第三人称MOBA游戏，在这款游戏中，Epic面临着以下几个设计难点：  极致的表现力：需要实现华丽且同步的3C技能效果。 复杂的逻辑：需要处理诸如击飞、眩晕、变身、持续伤害等多样化的技能机制。 严苛的网络环境：作为一款多人竞技游戏，它必须在服务器-客户端的网络架构下，保证所有玩家看到的技能效果和伤害计算是完全一致的。 可拓展能力和...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" title="UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想"><img class="cover" src="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/%E7%94%9F%E6%88%90%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%E6%A8%AA%E5%B9%85%E5%9B%BE%E7%89%87.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-03-10</div><div class="info-item-2">UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想</div></div><div class="info-2"><div class="info-item-1">前言 如果你正在用虚幻引擎做一款带复杂技能、Buff、连招的单机或者多人游戏，很大概率已经听说过 GAS（Gameplay Ability System）。 自从GAS在UE4上推出以来，GAS已经被应用在数不尽的项目中，现在，熟悉GAS几乎已经成为了UE Gameplay开发的必修课之一了。 现在网上也有着无数的GAS相关的文章，其中不乏介绍如何使用GAS的教程。这些内容对新手来说是非常有用的，但本系列并不会把重点放在如何使用GAS上。本系列默认读者你已经是一个对GAS略知一二，甚至有着利用GAS搭建一个小的RPG的经验了。这个系列的教程，会尽量的从设计理念和源码的角度，来剖析GAS。 GAS的起源 GAS的起源于Epic的一款叫做《Paragon》的第三人称MOBA游戏，在这款游戏中，Epic面临着以下几个设计难点：  极致的表现力：需要实现华丽且同步的3C技能效果。 复杂的逻辑：需要处理诸如击飞、眩晕、变身、持续伤害等多样化的技能机制。 严苛的网络环境：作为一款多人竞技游戏，它必须在服务器-客户端的网络架构下，保证所有玩家看到的技能效果和伤害计算是完全一致的。 可拓展能力和...</div></div></div></a><a class="pagination-related" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img class="cover" src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-11-30</div><div class="info-item-2">UE中的变体</div></div><div class="info-2"><div class="info-item-1">前言 最近在工作中，为了实现数据在多个关卡间的传递与管理，我在一个 GameInstanceSubsystem 中实现了如下方法： 1234567891011121314UCLASS()class UDataManageSubsystem : public UGameInstanceSubsystem&#123;    GENERATED_BODY()public:    UFUNCTION()    void SetSharedData(const FName&amp; Key, UObject* InData);    UFUNCTION()    bool GetSharedData(const FName&amp; Key, UObject* OutData);    private:    UPROPERTY()    TMap&lt;FName, UObject*&gt; SharedDataMap;&#125;; 可以看到，我在Subsystem中创建了一个FName到UObject*的映射表，同时暴露了GetSharedData和SetSharedData两个接口...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">30</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ruochenhua"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/ruochenhua" target="_blank" title="GitHub"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E"><span class="toc-number">1.1.</span> <span class="toc-text">版本说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AttributeSet-%E5%9C%A8%E6%9E%B6%E6%9E%84%E9%87%8C%E6%89%AE%E6%BC%94%E4%BB%80%E4%B9%88%E8%A7%92%E8%89%B2"><span class="toc-number">2.</span> <span class="toc-text">AttributeSet 在架构里扮演什么角色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">基础数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FGameplayAttributeData%EF%BC%9ABase-%E4%B8%8E-Current"><span class="toc-number">3.1.</span> <span class="toc-text">FGameplayAttributeData：Base 与 Current</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FGameplayAttribute%EF%BC%9A%E5%8F%A5%E6%9F%84%E3%80%81%E5%8F%8D%E5%B0%84%E3%80%81%E8%B7%9F-GE-%E8%A7%A3%E8%80%A6"><span class="toc-number">3.2.</span> <span class="toc-text">FGameplayAttribute：句柄、反射、跟 GE 解耦</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UAttributeSet%EF%BC%9A%E5%B1%9E%E6%80%A7%E7%9A%84%E9%9B%86%E5%90%88"><span class="toc-number">3.3.</span> <span class="toc-text">UAttributeSet：属性的集合</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B1%9E%E6%80%A7%E4%BF%AE%E6%94%B9%E6%97%B6%E4%BC%9A%E5%8F%AB%E5%88%B0%E8%B0%81"><span class="toc-number">3.3.1.</span> <span class="toc-text">属性修改时会叫到谁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%90%8C%E6%AD%A5"><span class="toc-number">3.3.2.</span> <span class="toc-text">网络同步</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%81%9A%E5%90%88%E5%99%A8%EF%BC%88Aggregator%EF%BC%89"><span class="toc-number">3.3.3.</span> <span class="toc-text">聚合器（Aggregator）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C"><span class="toc-number">4.</span> <span class="toc-text">一些使用经验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Meta-Attribute-%E4%B8%8E%E4%BC%A4%E5%AE%B3%E7%AE%A1%E9%81%93"><span class="toc-number">4.1.</span> <span class="toc-text">Meta Attribute 与伤害管道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A3%B0%E6%98%8E%EF%BC%9A%E4%B8%8D%E5%A4%8D%E5%88%B6%E3%80%81%E6%97%A0-OnRep"><span class="toc-number">4.1.1.</span> <span class="toc-text">声明：不复制、无 OnRep</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%81%E7%A8%8B%EF%BC%9AExecutionCalculation-%E5%86%99%E5%85%A5-%E2%86%92-PostGameplayEffectExecute-%E8%BD%AC%E5%AB%81"><span class="toc-number">4.1.2.</span> <span class="toc-text">流程：ExecutionCalculation 写入 → PostGameplayEffectExecute 转嫁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9C%A8-Exec-%E9%87%8C%E6%94%B9-Health"><span class="toc-number">4.1.3.</span> <span class="toc-text">为什么不直接在 Exec 里改 Health</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%9E%E6%80%A7%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%9AInitFromMetaDataTable-%E4%B8%8E-InitAttributeSetDefaults"><span class="toc-number">4.2.</span> <span class="toc-text">属性初始化：InitFromMetaDataTable 与 InitAttributeSetDefaults</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#InitFromMetaDataTable%EF%BC%9A%E6%8C%89-DataTable-%E8%A1%8C%E5%A1%AB"><span class="toc-number">4.2.1.</span> <span class="toc-text">InitFromMetaDataTable：按 DataTable 行填</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InitAttributeSetDefaults%EF%BC%9ACurveTable-%E6%8C%89%E7%AD%89%E7%BA%A7%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">4.2.2.</span> <span class="toc-text">InitAttributeSetDefaults：CurveTable + 按等级初始化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%85%E8%AF%BB%E6%BA%90%E7%A0%81%E7%9A%84%E5%BB%BA%E8%AE%AE%E9%A1%BA%E5%BA%8F"><span class="toc-number">5.</span> <span class="toc-text">阅读源码的建议顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B6%E5%B0%BE"><span class="toc-number">7.</span> <span class="toc-text">收尾</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/" title="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读"><img src="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读"/></a><div class="content"><a class="title" href="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/" title="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读">UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读</a><time datetime="2026-03-21T02:00:00.000Z" title="发表于 2026-03-21 10:00:00">2026-03-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" title="UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想"><img src="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/%E7%94%9F%E6%88%90%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2%E6%A8%AA%E5%B9%85%E5%9B%BE%E7%89%87.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想"/></a><div class="content"><a class="title" href="/2026/03/10/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC1%E7%AF%87-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3/" title="UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想">UE5 GAS 源码深度解析 | 第1篇：整体架构与设计思想</a><time datetime="2026-03-10T02:00:00.000Z" title="发表于 2026-03-10 10:00:00">2026-03-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/07/2026%E6%9B%B4%E6%96%B0%E8%AE%A1%E5%88%92/" title="2026更新计划"><img src="/2026/03/07/2026%E6%9B%B4%E6%96%B0%E8%AE%A1%E5%88%92/2026-plan-banner.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2026更新计划"/></a><div class="content"><a class="title" href="/2026/03/07/2026%E6%9B%B4%E6%96%B0%E8%AE%A1%E5%88%92/" title="2026更新计划">2026更新计划</a><time datetime="2026-03-06T16:00:00.000Z" title="发表于 2026-03-07 00:00:00">2026-03-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体"><img src="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/variant_index.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE中的变体"/></a><div class="content"><a class="title" href="/2025/11/30/UE%E4%B8%AD%E7%9A%84%E5%8F%98%E4%BD%93/" title="UE中的变体">UE中的变体</a><time datetime="2025-11-30T13:15:48.000Z" title="发表于 2025-11-30 21:15:48">2025-11-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/30/%E5%9F%BA%E4%BA%8EGitLab-Runner%E7%9A%84CI-CD%E6%9E%84%E5%BB%BA/" title="基于GitLab Runner的CI\CD构建">基于GitLab Runner的CI\CD构建</a><time datetime="2025-09-30T03:35:53.000Z" title="发表于 2025-09-30 11:35:53">2025-09-30</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"><script>(() => {
+  const parseViewBox = viewBox => {
+    if (!viewBox) return null
+    const parts = viewBox.trim().split(/[\s,]+/).map(n => Number(n))
+    if (parts.length !== 4 || parts.some(n => Number.isNaN(n))) return null
+    return parts
+  }
+
+  const getSvgViewBox = svg => {
+    const attr = parseViewBox(svg.getAttribute('viewBox'))
+    if (attr) return attr
+
+    // Fallback: use bbox to build a viewBox
+    try {
+      const bbox = svg.getBBox()
+      if (bbox && bbox.width && bbox.height) return [bbox.x, bbox.y, bbox.width, bbox.height]
+    } catch (e) {
+      // getBBox may fail on some edge cases; ignore
+    }
+
+    const w = Number(svg.getAttribute('width')) || 0
+    const h = Number(svg.getAttribute('height')) || 0
+    if (w > 0 && h > 0) return [0, 0, w, h]
+    return [0, 0, 100, 100]
+  }
+
+  const setSvgViewBox = (svg, vb) => {
+    svg.setAttribute('viewBox', `${vb[0]} ${vb[1]} ${vb[2]} ${vb[3]}`)
+  }
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v))
+
+  const openSvgInNewTab = ({ source, initViewBox }) => {
+    const getClonedSvg = () => {
+      if (typeof source === 'string') {
+        const template = document.createElement('template')
+        template.innerHTML = source.trim()
+        const svg = template.content.querySelector('svg')
+        return svg ? svg.cloneNode(true) : null
+      }
+      if (source && typeof source.cloneNode === 'function') {
+        return source.cloneNode(true)
+      }
+      return null
+    }
+
+    const clone = getClonedSvg()
+    if (!clone) return
+    if (initViewBox && initViewBox.length === 4) {
+      clone.setAttribute('viewBox', initViewBox.join(' '))
+    }
+    if (!clone.getAttribute('xmlns')) clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+    if (!clone.getAttribute('xmlns:xlink') && clone.outerHTML.includes('xlink:')) {
+      clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
+    }
+    // inject background to match current theme
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+    const bg = getComputedStyle(document.body).backgroundColor || (isDark ? '#1e1e1e' : '#ffffff')
+    if (!clone.style.background) clone.style.background = bg
+
+    const serializer = new XMLSerializer()
+    const svgSource = serializer.serializeToString(clone)
+    const htmlSource = `<!doctype html><html><head><meta charset="utf-8" />
+      <style>
+        html, body { width: 100%; height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; background: ${bg}; }
+        svg { max-width: 100%; max-height: 100%; height: auto; width: auto; }
+      </style>
+      </head><body>${svgSource}</body></html>`
+    const blob = new Blob([htmlSource], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    window.open(url, '_blank', 'noopener')
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  }
+
+  const attachMermaidViewerButton = wrap => {
+    let btn = wrap.querySelector('.mermaid-open-btn')
+    if (!btn) {
+      btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'mermaid-open-btn'
+      wrap.appendChild(btn)
+    }
+
+    btn.innerHTML = '<i class="fa fa-search fa-fw" aria-hidden="true"></i>'
+
+    if (!btn.__mermaidViewerBound) {
+      btn.addEventListener('click', e => {
+        e.preventDefault()
+        e.stopPropagation()
+        const svg = wrap.__mermaidOriginalSvg || wrap.querySelector('svg')
+        if (!svg) return
+        const initViewBox = wrap.__mermaidInitViewBox
+        if (typeof svg === 'string') {
+          openSvgInNewTab({ source: svg, initViewBox })
+          return
+        }
+        openSvgInNewTab({ source: svg, initViewBox })
+      })
+      btn.__mermaidViewerBound = true
+    }
+  }
+
+  // Zoom around a point (px, py) in the SVG viewport (in viewBox coordinates)
+  const zoomAtPoint = (vb, factor, px, py) => {
+    const w = vb[2] * factor
+    const h = vb[3] * factor
+    const nx = px - (px - vb[0]) * factor
+    const ny = py - (py - vb[1]) * factor
+    return [nx, ny, w, h]
+  }
+
+  const initMermaidGestures = wrap => {
+    const svg = wrap.querySelector('svg')
+    if (!svg) return
+
+    // Ensure viewBox exists so gestures always work
+    const initVb = getSvgViewBox(svg)
+    wrap.__mermaidInitViewBox = initVb
+    wrap.__mermaidCurViewBox = initVb.slice()
+    setSvgViewBox(svg, initVb)
+
+    // Avoid binding multiple times on themeChange/pjax
+    if (wrap.__mermaidGestureBound) return
+    wrap.__mermaidGestureBound = true
+
+    // Helper: map client (viewport) coordinate -> viewBox coordinate
+    const clientToViewBox = (clientX, clientY) => {
+      const rect = svg.getBoundingClientRect()
+      const vb = wrap.__mermaidCurViewBox || getSvgViewBox(svg)
+      const x = vb[0] + (clientX - rect.left) * (vb[2] / rect.width)
+      const y = vb[1] + (clientY - rect.top) * (vb[3] / rect.height)
+      return { x, y, rect, vb }
+    }
+
+    const state = {
+      pointers: new Map(),
+      startVb: null,
+      startDist: 0,
+      startCenter: null
+    }
+
+    const clampVb = vb => {
+      const init = wrap.__mermaidInitViewBox || vb
+      const minW = init[2] * 0.1
+      const maxW = init[2] * 10
+      const minH = init[3] * 0.1
+      const maxH = init[3] * 10
+      vb[2] = clamp(vb[2], minW, maxW)
+      vb[3] = clamp(vb[3], minH, maxH)
+      return vb
+    }
+
+    const setCurVb = vb => {
+      vb = clampVb(vb)
+      wrap.__mermaidCurViewBox = vb
+      setSvgViewBox(svg, vb)
+    }
+
+    const onPointerDown = e => {
+      // Allow only primary button for mouse
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      svg.setPointerCapture(e.pointerId)
+      state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+      if (state.pointers.size === 1) {
+        state.startVb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+      } else if (state.pointers.size === 2) {
+        const pts = [...state.pointers.values()]
+        const dx = pts[0].x - pts[1].x
+        const dy = pts[0].y - pts[1].y
+        state.startDist = Math.hypot(dx, dy)
+        state.startVb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+        state.startCenter = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 }
+      }
+    }
+
+    const onPointerMove = e => {
+      if (!state.pointers.has(e.pointerId)) return
+      state.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+      // Pan with 1 pointer
+      if (state.pointers.size === 1 && state.startVb) {
+        const p = [...state.pointers.values()][0]
+        const prev = { x: e.clientX - e.movementX, y: e.clientY - e.movementY }
+        // movementX/Y unreliable on touch, compute from stored last position
+        const last = wrap.__mermaidLastSinglePointer || p
+        const dxClient = p.x - last.x
+        const dyClient = p.y - last.y
+        wrap.__mermaidLastSinglePointer = p
+
+        const { rect } = clientToViewBox(p.x, p.y)
+        const vb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+        const dx = dxClient * (vb[2] / rect.width)
+        const dy = dyClient * (vb[3] / rect.height)
+        setCurVb([vb[0] - dx, vb[1] - dy, vb[2], vb[3]])
+        return
+      }
+
+      // Pinch zoom with 2 pointers
+      if (state.pointers.size === 2 && state.startVb && state.startDist > 0) {
+        const pts = [...state.pointers.values()]
+        const dx = pts[0].x - pts[1].x
+        const dy = pts[0].y - pts[1].y
+        const dist = Math.hypot(dx, dy)
+        if (!dist) return
+        const factor = state.startDist / dist // dist bigger => zoom in (viewBox smaller)
+
+        const cx = (pts[0].x + pts[1].x) / 2
+        const cy = (pts[0].y + pts[1].y) / 2
+        const centerClient = { x: cx, y: cy }
+
+        const pxy = clientToViewBox(centerClient.x, centerClient.y)
+        const cpx = pxy.x
+        const cpy = pxy.y
+
+        const vb = zoomAtPoint(state.startVb, factor, cpx, cpy)
+        setCurVb(vb)
+      }
+    }
+
+    const onPointerUpOrCancel = e => {
+      state.pointers.delete(e.pointerId)
+      if (state.pointers.size === 0) {
+        state.startVb = null
+        state.startDist = 0
+        state.startCenter = null
+        wrap.__mermaidLastSinglePointer = null
+      } else if (state.pointers.size === 1) {
+        // reset single pointer baseline to avoid jump
+        wrap.__mermaidLastSinglePointer = [...state.pointers.values()][0]
+      }
+    }
+
+    // Wheel zoom (mouse/trackpad)
+    const onWheel = e => {
+      // ctrlKey on mac trackpad pinch; we treat both as zoom
+      e.preventDefault()
+      const delta = e.deltaY
+      const zoomFactor = delta > 0 ? 1.1 : 0.9
+      const { x, y } = clientToViewBox(e.clientX, e.clientY)
+      const vb = (wrap.__mermaidCurViewBox || getSvgViewBox(svg)).slice()
+      setCurVb(zoomAtPoint(vb, zoomFactor, x, y))
+    }
+
+    const onDblClick = () => {
+      const init = wrap.__mermaidInitViewBox
+      if (!init) return
+      wrap.__mermaidCurViewBox = init.slice()
+      setSvgViewBox(svg, init)
+    }
+
+    svg.addEventListener('pointerdown', onPointerDown)
+    svg.addEventListener('pointermove', onPointerMove)
+    svg.addEventListener('pointerup', onPointerUpOrCancel)
+    svg.addEventListener('pointercancel', onPointerUpOrCancel)
+    svg.addEventListener('wheel', onWheel, { passive: false })
+    svg.addEventListener('dblclick', onDblClick)
+  }
+
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    if (typeof mermaid === 'undefined') return
+    if (typeof mermaid.initialize === 'function') {
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' })
+    }
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      if (!mermaidSrc) return
+
+      // Clear old render (themeChange/pjax will rerun)
+      const oldSvg = item.querySelector('svg')
+      if (oldSvg) oldSvg.remove()
+      item.__mermaidGestureBound = false
+
+      const config = mermaidSrc.dataset.config ? JSON.parse(mermaidSrc.dataset.config) : {}
+      if (!config.theme) {
+        config.theme = theme
+      }
+      const mermaidThemeConfig = `%%{init: ${JSON.stringify(config)}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderMermaid = svg => {
+        if (!svg) return
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+        if (true) initMermaidGestures(item)
+        item.__mermaidOriginalSvg = svg
+        if (true) attachMermaidViewerButton(item)
+      }
+      const onError = err => {
+        console.error('Mermaid render error:', err)
+        mermaidSrc.insertAdjacentHTML('afterend', '<pre class="mermaid-error" style="color:#c00;padding:1em;">Mermaid 图表渲染失败，请检查控制台或语法。</pre>')
+      }
+
+      try {
+        const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+        if (typeof renderFn === 'string') {
+          renderMermaid(renderFn)
+        } else if (renderFn && typeof renderFn.then === 'function') {
+          renderFn.then(result => {
+            const svg = result && (result.svg ?? result)
+            renderMermaid(svg)
+          }).catch(onError)
+        } else {
+          onError(new Error('mermaid.render returned unexpected value'))
+        }
+      } catch (err) {
+        onError(err)
+      }
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    if (window.loadMermaid) {
+      runMermaidFn()
+    } else {
+      btf.getScript('/js/mermaid.min.js').then(runMermaidFn).catch(err => console.error('Mermaid script load failed:', err))
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  const runWhenReady = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadMermaid)
+    } else {
+      loadMermaid()
+    }
+  }
+  window.pjax ? loadMermaid() : runWhenReady()
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
