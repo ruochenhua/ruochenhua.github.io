@@ -92,6 +92,8 @@ namespace EGameplayModOp
 - 再算 MultiplyAdditive：如果有两个乘数 0.5 和 0.3，先加起来 `0.5 + 0.3 = 0.8`，再乘 `110 * 0.8 = 88`
 - 最后算 AddFinal：`88 + 20 = 108`
 
+你可能会觉得 6 种 Op 有点多，其实这是为了支持不同的运算需求：AddBase 改基准值，MultiplyAdditive/DivideAdditive 做百分比加成，MultiplyCompound 做连乘（比如"增加 50% 伤害"两个 Buff 叠加是 1.5 × 1.5 = 2.25），AddFinal 做最后修正，Override 直接覆盖。理解了运算顺序，后面看聚合器的源码就顺了。
+
 概念本身不玄，重点在 `ModifierMagnitude` 怎么算——这是 Modifier 的核心。
 
 ### ModifierMagnitude 的四种计算方式
@@ -218,6 +220,8 @@ struct FSetByCallerFloat
 
 **使用方式**：在创建 Spec 时调用 `SetSetByCallerMagnitude` 设置数值，Spec 创建后 Magnitude 计算时会直接用这个值。
 
+四种方式里，ScalableFloat 和 AttributeBased 最常用，CustomCalculation 适合复杂逻辑，SetByCaller 适合运行时传值。选哪种取决于你的数值从哪来：配表用 ScalableFloat，依赖属性用 AttributeBased，复杂计算用 CustomCalculation，运行时传值用 SetByCaller。
+
 #### 对比四种方式的源码路径
 
 `FGameplayEffectModifierMagnitude::AttemptCalculateMagnitude` 的核心分支：
@@ -301,7 +305,7 @@ private:
 };
 ```
 
-**关键**：`FModifierSpec` 只存 `EvaluatedMagnitude`，不存 `ModifierInfo` 或 `ModifierHandle`。`ModifierInfo` 在 Spec 的 `Modifiers` 数组里，`ModifierHandle` 在 `FActiveGameplayEffect` 的 `ModifierHandles` 数组里。
+**关键**：`FModifierSpec` 只存 `EvaluatedMagnitude`，不存 `ModifierInfo` 或 `ModifierHandle`。你会发现运行时结构比配置时简单很多：配置时要存属性、Op、Magnitude 计算方式等一堆信息，运行时只剩一个算好的数值。这是因为 Spec 创建时就已经把 Magnitude 算好了，后续运算只需要这个值。
 
 **Spec 如何持有 Modifier 信息**：
 
@@ -454,6 +458,8 @@ float FAggregatorModChannel::ExecuteMod(
 4. 所有 MultiplyCompound 连续相乘
 5. 所有 AddFinal 先加在一起
 6. Override 取最后一个
+
+这里有个细节：为什么 AddBase/MultiplyAdditive/DivideAdditive/AddFinal 同类 Op 先聚合再运算，而 MultiplyCompound/Override 是逐个执行？因为前者的运算顺序不影响结果（加法交换律、乘法交换律），后者会受顺序影响。源码这样设计，是为了让多个同类 Modifier 的效果可预期、不依赖添加顺序。
 
 **为什么这样设计**：AddBase/MultiplyAdditive/DivideAdditive/AddFinal 同类 Op 先聚合再运算，可以保证运算顺序一致；MultiplyCompound 和 Override 是逐个执行，结果依赖顺序。
 
@@ -1070,7 +1076,7 @@ Modifiers[0].ModifierMagnitude = ScalableFloat(10.f);
 - Instant 不留在 ActiveEffects，HasDuration 会留到时间结束
 - HasDuration 移除后 Current 会回退，Instant 改的 BaseValue 是永久性的（除非手动改回去）
 
-这个差异在第 4 篇讲网络预测时会展开：Instant GE 客户端预测执行后，服务器对账容易；HasDuration GE 客户端挂聚合器，服务器移除时要对账。
+理解这个差异很重要，因为它直接影响你怎么设计 Buff、永久增益、消耗品这类效果。Instant 适合"永久改动"，HasDuration 适合"临时 Buff"。后面第 4 篇讲网络预测时还会提到：Instant GE 客户端预测执行后，服务器对账相对简单；HasDuration GE 客户端挂聚合器，服务器移除时对账要考虑更多情况。
 
 ---
 {
