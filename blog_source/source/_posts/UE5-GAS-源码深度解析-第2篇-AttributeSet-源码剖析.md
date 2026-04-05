@@ -18,7 +18,7 @@ top_img: 2026/03/21/UE5-GAS-源码深度解析-第2篇-AttributeSet-源码剖析
 
 ### 版本说明
 
-- 行文以 **Unreal Engine 5.7** 插件源码为准，和你本地不一致的地方以你手里的代码为准。
+- 本文依旧是以 **Unreal Engine 5.7** 插件源码为准，和你本地不一致的地方以你手里的代码为准。
 - 主要会翻：
   - `Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Public/AttributeSet.h`
   - `Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AttributeSet.cpp`（`InitFromMetaDataTable`、`FAttributeSetInitterDiscreteLevels::InitAttributeSetDefaults`、`FGameplayAttributeData`、`PreNetReceive` / `PostNetReceive` 等）

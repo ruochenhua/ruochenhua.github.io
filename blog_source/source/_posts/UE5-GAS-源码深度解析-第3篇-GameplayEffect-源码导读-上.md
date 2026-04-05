@@ -258,7 +258,7 @@ bool FGameplayEffectModifierMagnitude::AttemptCalculateMagnitude(
 }
 ```
 
-{% mermaid %}
+```mermaid
 flowchart TB
     Spec["FGameplayEffectSpec"] --> Magnitude["AttemptCalculateMagnitude"]
 
@@ -273,7 +273,7 @@ flowchart TB
     Capture --> Eval
     Custom --> Eval
     SetByCaller --> Eval
-{% endmermaid %}
+```
 
 *图 1：四种 Magnitude 计算方式都在 Spec 创建时调用，得到 EvaluatedMagnitude。*
 
@@ -356,13 +356,13 @@ void FActiveGameplayEffectsContainer::AddModifierToAggregator(
 
 **ModifierHandles 的作用**：`FActiveGameplayEffect` 维护一个 `TArray<int32> ModifierHandles`，存每个 Modifier 在聚合器里的索引。移除 GE 时，用这些索引从聚合器移除对应 Modifier。
 
-{% mermaid %}
+```mermaid
 flowchart LR
     GE["UGameplayEffect\n（静态配置）"] -->|创建| Spec["FGameplayEffectSpec"]
     Spec -->|实例化| ModSpecs["TArray<FModifierSpec>\n（只有 EvaluatedMagnitude）"]
     ModSpecs -->|AddModifierToAggregator| Aggregator["FAggregator\n（聚合器）"]
     Aggregator -->|返回索引| Handles["FActiveGameplayEffect\n.ModifierHandles"]
-{% endmermaid %}
+```
 
 *图 2：从 GE 到 Spec 到 ModifierSpec，再挂到聚合器上，索引存到 ActiveGE.ModifierHandles。*
 
@@ -463,7 +463,7 @@ float FAggregatorModChannel::ExecuteMod(
 
 **为什么这样设计**：AddBase/MultiplyAdditive/DivideAdditive/AddFinal 同类 Op 先聚合再运算，可以保证运算顺序一致；MultiplyCompound 和 Override 是逐个执行，结果依赖顺序。
 
-{% mermaid %}
+```mermaid
 flowchart TB
     Base["BaseValue"] --> AddBase["+ 所有 AddBase\n先加在一起"]
     AddBase --> Multiply["× 所有 MultiplyAdditive\n先加在一起再乘"]
@@ -481,7 +481,7 @@ flowchart TB
         M5["Modifier 5 (AddFinal)"]
         M6["Modifier 6 (Override)"]
     end
-{% endmermaid %}
+```
 
 *图 3：ExecuteMod 按 Op 类型分组执行，同类 Op 先聚合再运算。*
 
@@ -489,7 +489,7 @@ flowchart TB
 
 从 GE Apply 到 Current Value 的完整路径：
 
-{% mermaid %}
+```mermaid
 sequenceDiagram
     participant ASC as AbilitySystemComponent
     participant Spec as FGameplayEffectSpec
@@ -508,7 +508,7 @@ sequenceDiagram
     Agg->>Attr: 读 BaseValue
     Agg->>Agg: 按 Op 顺序运算
     Agg->>Attr: 写 CurrentValue
-{% endmermaid %}
+```
 
 *图 4：从 GE Apply 到 Current Value 的完整调用链。*
 
@@ -534,273 +534,6 @@ Modifiers[0].ModifierMagnitude = ScalableFloat(10.f);
 5. 10 秒后 `RemoveActiveGameplayEffect`：从聚合器移除 Modifier，Current 恢复到 Base
 
 这个实例覆盖了 Modifier 的核心路径：创建 → 激活 → 运算 → 移除。后面讲 DurationType 时会对比 Instant vs HasDuration 的差异。
-
----
-
-```cpp
-// GameplayEffectModifierMagnitude.cpp
-float FAttributeBasedFloat::Calculate(const FGameplayEffectSpec& Spec) const
-{
-    float CapturedValue = 0.f;
-    // 从 Spec 的 CaptureSpec 里拿捕获的属性值
-    if (AttributeToCapture.IsValid())
-    {
-        CapturedValue = AttributeToCapture.GetCapturedAttributeMagnitude();
-    }
-    return CapturedValue * Coefficient;
-}
-```
-
-**设计意图**：让 Modifier 的数值动态依赖另一个属性。比如"Buff 强度 = 目标当前生命值 * 0.1"，目标血量变化时，Buff 强度跟着变。
-
-**Capture 的时机**：Spec 创建时捕获（Snapshot）或运算时实时取值（Non-Snapshot），由 GE 配置决定。Snapshot vs Non-Snapshot 的差异在第 4 篇讲网络预测时会展开。
-
-#### Custom Calculation：自定义计算逻辑
-
-最灵活的一种，继承 `UGameplayEffectMagnitudeCalculation`，在蓝图或 C++ 里写自定义逻辑：
-
-```cpp
-// GameplayEffectModifierMagnitude.h
-UCLASS(Abstract, Blueprintable)
-class UGameplayEffectMagnitudeCalculation : public UObject
-{
-    GENERATED_UCLASS_BODY()
-
-    UFUNCTION(BlueprintNativeEvent, Category = "Calculation")
-    float CalculateMagnitude(const FGameplayEffectSpec& Spec) const;
-    virtual float CalculateMagnitude_Implementation(const FGameplayEffectSpec& Spec) const;
-};
-```
-
-**设计意图**：当 Scalable Float 和 Attribute Based 都不够用时，用自定义计算。比如"根据目标身上已有的 Buff 数量决定强度"、"根据距离衰减"等复杂逻辑。
-
-**调用时机**：Spec 创建时调用 `CalculateMagnitude`，得到 `EvaluatedMagnitude`。
-
-#### 对比三种方式的源码路径
-
-`FModifierMagnitude::CalculateMagnitude` 的核心分支：
-
-```cpp
-// GameplayEffectModifierMagnitude.cpp
-float FModifierMagnitude::CalculateMagnitude(const FGameplayEffectSpec& Spec) const
-{
-    switch (MagnitudeType)
-    {
-    case EModifierMagnitudeType::Scalable:
-        return ScalableFloatMagnitude.GetValueAtLevel(Spec.GetLevel());
-    case EModifierMagnitudeType::AttributeBased:
-        return AttributeBasedMagnitude.Calculate(Spec);
-    case EModifierMagnitudeType::Custom:
-        return CustomMagnitude->CalculateMagnitude(Spec);
-    default:
-        return 0.f;
-    }
-}
-```
-
-{% mermaid %}
-flowchart TB
-    subgraph Spec["Spec 创建时"]
-        Level["Spec.Level"] --> Magnitude["FModifierMagnitude::CalculateMagnitude"]
-    end
-
-    Magnitude --> Type{MagnitudeType}
-
-    Type -->|Scalable| Curve["CurveTable 查表\nGetValueAtLevel(Level)"]
-    Type -->|AttributeBased| Capture["从 CaptureSpec 取属性值\n× Coefficient"]
-    Type -->|Custom| Custom["CustomCalculation\n::CalculateMagnitude(Spec)"]
-
-    Curve --> Eval["EvaluatedMagnitude\n（已计算的数值）"]
-    Capture --> Eval
-    Custom --> Eval
-{% endmermaid %}
-
-*图 1：三种 Magnitude 计算方式都在 Spec 创建时调用，得到 EvaluatedMagnitude 后不再重新计算。*
-
-### Modifier 在 Spec 中的激活
-
-GE 是静态配置，真正施加到 ASC 上的是 `FGameplayEffectSpec`（运行时实例）。Spec 创建时会把 GE 的每个 `FGameplayModifierInfo` 实例化成 `FModifierSpec`。
-
-#### FModifierSpec：运行时的 Modifier
-
-```cpp
-// GameplayEffectSpec.h
-struct FModifierSpec
-{
-    FGameplayModifierInfo ModifierInfo;  // 原始配置
-    float EvaluatedMagnitude;            // 已计算的数值
-    FModifierHandle ModifierHandle;      // 聚合器上的句柄
-
-    FModifierSpec(const FGameplayModifierInfo& InModifierInfo, const FGameplayEffectSpec& InSpec);
-};
-```
-
-构造函数里调用 `CalculateMagnitude`：
-
-```cpp
-// GameplayEffectSpec.cpp
-FModifierSpec::FModifierSpec(const FGameplayModifierInfo& InModifierInfo, const FGameplayEffectSpec& InSpec)
-    : ModifierInfo(InModifierInfo)
-    , EvaluatedMagnitude(InModifierInfo.ModifierMagnitude.CalculateMagnitude(InSpec))
-{
-}
-```
-
-**关键**：`EvaluatedMagnitude` 在构造时就算好了，后续运算直接用这个值。
-
-#### 聚合器绑定：Modifier 如何挂到 ASC 上
-
-Duration / Infinite 的 GE 会把 Modifier 挂到聚合器（Aggregator）上。聚合器是每个属性上的"运算中枢"，维护所有生效的 Modifier，求值时把 Base 和各条 Modifier 按规则合成 Current。
-
-绑定发生在 `FAggregator::AddModifier`：
-
-```cpp
-// AttributeSet.cpp
-FModifierHandle FAggregator::AddModifier(const FGameplayModifierSpec& InModifierSpec, const FGameplayEffectSpec& InSpec)
-{
-    FAggregatorModifiesChannel* Channel = GetChannel(InModifierSpec.ModifierInfo.Attribute);
-    if (Channel)
-    {
-        FAggregatorModifier Modifier;
-        Modifier.Op = InModifierSpec.ModifierInfo.ModifierOp;
-        Modifier.Magnitude = InModifierSpec.EvaluatedMagnitude;
-        Modifier.Source = InSpec.GetEffectContext().GetInstigatorAbilitySystemComponent();
-
-        // 添加到 Channel 的 Modifier 列表
-        int32 NewModifierIdx = Channel->Modifiers.Add(Modifier);
-        return FModifierHandle(Channel, NewModifierIdx);
-    }
-    return FModifierHandle();
-}
-```
-
-**返回的 `FModifierHandle`**：聚合器上的句柄，后续移除 Modifier 时用这个 Handle 找到对应条目。
-
-{% mermaid %}
-flowchart LR
-    GE["UGameplayEffect\n（静态配置）"] -->|创建| Spec["FGameplayEffectSpec\n（运行时实例）"]
-    Spec -->|实例化| ModifierSpec["FModifierSpec\n（EvaluatedMagnitude）"]
-    ModifierSpec -->|AddModifier| Aggregator["FAggregator\n（聚合器）"]
-    Aggregator -->|返回| Handle["FModifierHandle\n（句柄）"]
-{% endmermaid %}
-
-*图 2：从 GE 到 Spec 到 ModifierSpec，再挂到聚合器上，返回 Handle 用于后续移除。*
-
-### 运算调用链：从 Modifier 到 Current Value
-
-Modifier 挂到聚合器后，每次属性求值都会调用 `FAggregator::ExecuteMod`，把 Base 和所有 Modifier 合成 Current。
-
-#### ExecuteMod 的核心逻辑
-
-```cpp
-// AttributeSet.cpp
-float FAggregator::ExecuteMod(const float InBaseValue) const
-{
-    float Result = InBaseValue;
-
-    // 按 Op 优先级分组执行：Multiply → Add → Override
-    // Multiply
-    for (const FAggregatorModifier& Modifier : MultiplyModifiers)
-    {
-        Result *= Modifier.Magnitude;
-    }
-
-    // Add
-    for (const FAggregatorModifier& Modifier : AddModifiers)
-    {
-        Result += Modifier.Magnitude;
-    }
-
-    // Override（只取最后一个）
-    if (OverrideModifiers.Num() > 0)
-    {
-        Result = OverrideModifiers.Last().Magnitude;
-    }
-
-    return Result;
-}
-```
-
-**执行顺序**：
-1. 先执行所有 Multiply（按添加顺序）
-2. 再执行所有 Add（按添加顺序）
-3. 最后执行 Override（只取最后一个，前面的都被覆盖）
-
-**堆叠顺序**：同一 Op 的多个 Modifier，按添加时间顺序执行。先添加的先算，后添加的后算。
-
-{% mermaid %}
-flowchart TB
-    Base["BaseValue"] --> Multiply["× 所有 Multiply Modifier"]
-    Multiply --> Add["+ 所有 Add Modifier"]
-    Add --> Override["Override Modifier（最后一个）"]
-    Override --> Current["CurrentValue"]
-
-    subgraph Modifiers["聚合器上的 Modifier 列表"]
-        M1["Modifier 1 (Multiply)"]
-        M2["Modifier 2 (Multiply)"]
-        M3["Modifier 3 (Add)"]
-        M4["Modifier 4 (Add)"]
-        M5["Modifier 5 (Override)"]
-    end
-
-    Modifiers --> Multiply
-    Modifiers --> Add
-    Modifiers --> Override
-{% endmermaid %}
-
-*图 3：ExecuteMod 按 Op 优先级分组执行，同一 Op 内按添加顺序。*
-
-#### 完整调用链
-
-从 GE Apply 到 Current Value 的完整路径：
-
-{% mermaid %}
-sequenceDiagram
-    participant ASC as AbilitySystemComponent
-    participant Spec as FGameplayEffectSpec
-    participant ModifierSpec as FModifierSpec
-    participant Agg as FAggregator
-    participant Attr as AttributeSet
-
-    ASC->>Spec: ApplyGameplayEffectSpecToSelf
-    Spec->>ModifierSpec: 创建 FModifierSpec
-    ModifierSpec->>ModifierSpec: CalculateMagnitude
-    ModifierSpec->>Agg: AddModifier（返回 Handle）
-    Agg->>Agg: 挂到 Modifier 列表
-
-    Note over ASC: 属性求值时
-    ASC->>Agg: ExecuteMod
-    Agg->>Attr: 读 BaseValue
-    Agg->>Agg: Base × Multiply + Add → Override
-    Agg->>Attr: 写 CurrentValue
-{% endmermaid %}
-
-*图 4：从 GE Apply 到 Current Value 的完整调用链。*
-
-### 最小化实例：+10 Attack Buff
-
-构造一个最简单的 Duration GE，只有一个 Modifier：
-
-```cpp
-// GE_AttackBuff
-DurationPolicy = EGameplayEffectDurationPolicy::HasDuration;
-DurationMagnitude = 10.f;  // 持续 10 秒
-
-Modifiers[0].Attribute = AttackAttribute;
-Modifiers[0].ModifierOp = EGameplayModOp::Additive;
-Modifiers[0].Magnitude = 10.f;  // Scalable Float，Value = 10
-```
-
-**执行流程**：
-1. `ApplyGameplayEffectSpecToSelf`：创建 Spec
-2. `FModifierSpec` 构造：`EvaluatedMagnitude = 10.f`
-3. `AddModifier`：挂到 Attack 属性的聚合器上
-4. `ExecuteMod`：`Current = Base + 10`
-5. 10 秒后 `RemoveActiveGameplayEffect`：从聚合器移除 Modifier，`Current` 恢复到 Base
-
-这个实例覆盖了 Modifier 的核心路径：创建 → 激活 → 运算 → 移除。后面讲 DurationPolicy 时会对比 Instant vs Duration 的差异。
-
----
 
 ## UGameplayEffect：静态配置与蓝图友好
 
@@ -1007,7 +740,7 @@ if (GE->DurationPolicy == EGameplayEffectDurationType::Infinite)
 
 #### 对比三种 Type 的源码分支
 
-{% mermaid %}
+```mermaid
 flowchart TB
     Apply["ApplyGameplayEffectSpecToSelf"] --> Type{DurationPolicy}
 
@@ -1025,7 +758,7 @@ flowchart TB
     Create2 --> Add2["挂聚合器"]
     Add2 --> List2["添加到 ActiveEffects"]
     List2 --> Manual["手动调用 RemoveActiveGameplayEffect"]
-{% endmermaid %}
+```
 
 *图 5：三种 DurationType 的源码分支。Instant 立即执行、HasDuration 定时移除、Infinite 手动移除。*
 
@@ -1078,176 +811,6 @@ Modifiers[0].ModifierMagnitude = ScalableFloat(10.f);
 
 理解这个差异很重要，因为它直接影响你怎么设计 Buff、永久增益、消耗品这类效果。Instant 适合"永久改动"，HasDuration 适合"临时 Buff"。后面第 4 篇讲网络预测时还会提到：Instant GE 客户端预测执行后，服务器对账相对简单；HasDuration GE 客户端挂聚合器，服务器移除时对账要考虑更多情况。
 
----
-{
-    if (GE->DurationPolicy == EGameplayEffectDurationPolicy::HasDuration)
-    {
-        FActiveGameplayEffect* ActiveGE = new FActiveGameplayEffect(Spec);
-
-        // 计算结束时间
-        ActiveGE->StartWorldTime = GetWorld()->GetTimeSeconds();
-        ActiveGE->Duration = Spec.GetDuration();
-        ActiveGE->EndWorldTime = ActiveGE->StartWorldTime + ActiveGE->Duration;
-
-        // 挂聚合器
-        for (const FModifierSpec& ModSpec : Spec.Modifiers)
-        {
-            FAggregator* Agg = GetAggregator(ModSpec.ModifierInfo.Attribute);
-            ActiveGE->ModifierHandles.Add(Agg->AddModifier(ModSpec, Spec));
-        }
-
-        // 添加到 ActiveEffects 列表
-        ActiveEffects.Add(ActiveGE);
-    }
-}
-```
-
-**Duration 字段的计算**：`FGameplayEffectSpec::GetDuration`：
-
-```cpp
-// GameplayEffectSpec.cpp
-float FGameplayEffectSpec::GetDuration() const
-{
-    if (Def->DurationPolicy == EGameplayEffectDurationPolicy::HasDuration)
-    {
-        return Def->DurationMagnitude.GetValueAtLevel(Level);
-    }
-    return -1.f;  // Infinite 返回 -1
-}
-```
-
-**定时移除**：`CheckActiveGameplayEffects`（每帧调用）：
-
-```cpp
-// AbilitySystemComponent.cpp
-void UAbilitySystemComponent::CheckActiveGameplayEffects()
-{
-    float CurrentTime = GetWorld()->GetTimeSeconds();
-    for (FActiveGameplayEffect* ActiveGE : ActiveEffects)
-    {
-        if (ActiveGE->EndWorldTime <= CurrentTime)
-        {
-            // 时间到了，移除 GE
-            RemoveActiveGameplayEffect(ActiveGE->Handle);
-        }
-    }
-}
-```
-
-**移除逻辑**：从聚合器移除 Modifier，Current 恢复到 Base：
-
-```cpp
-// AbilitySystemComponent.cpp
-void UAbilitySystemComponent::RemoveActiveGameplayEffect(FActiveGameplayEffectHandle Handle)
-{
-    FActiveGameplayEffect* ActiveGE = GetActiveGameplayEffect(Handle);
-    if (ActiveGE)
-    {
-        // 从聚合器移除 Modifier
-        for (const FModifierHandle& ModHandle : ActiveGE->ModifierHandles)
-        {
-            FAggregator* Agg = GetAggregator(ModHandle.Attribute);
-            Agg->RemoveModifier(ModHandle);
-        }
-
-        // 从 ActiveEffects 列表删除
-        ActiveEffects.Remove(ActiveGE);
-    }
-}
-```
-
-#### Infinite：挂聚合器、手动移除、无 Duration
-
-**语义**：挂聚合器、持续到手动移除、无 Duration。
-
-**源码路径**：和 Duration 的分支基本一样，只是 `Duration = -1`，没有 `EndWorldTime`：
-
-```cpp
-// AbilitySystemComponent.cpp
-if (GE->DurationPolicy == EGameplayEffectDurationPolicy::Infinite)
-{
-    FActiveGameplayEffect* ActiveGE = new FActiveGameplayEffect(Spec);
-    ActiveGE->Duration = -1.f;  // 无限持续
-    // 挂聚合器、添加到 ActiveEffects（和 Duration 一样）
-}
-```
-
-**手动移除**：调用 `RemoveActiveGameplayEffect`，和 Duration 移除的逻辑一致。
-
-#### 对比三种 Policy 的源码分支
-
-{% mermaid %}
-flowchart TB
-    Apply["ApplyGameplayEffectSpecToSelf"] --> Policy{DurationPolicy}
-
-    Policy -->|Instant| Exec["ExecuteActiveEffects\n立即执行"]
-    Exec --> Done["执行完结束\n不创建 ActiveGE"]
-
-    Policy -->|Duration| Create["创建 FActiveGameplayEffect"]
-    Create --> Duration["计算 Duration / EndTime"]
-    Duration --> Add["挂聚合器\n返回 Handle"]
-    Add --> List["添加到 ActiveEffects"]
-    List --> Check["每帧 CheckActiveGameplayEffects"]
-    Check --> Remove["EndTime 到了 → RemoveActiveGameplayEffect"]
-
-    Policy -->|Infinite| Create2["创建 FActiveGameplayEffect\nDuration = -1"]
-    Create2 --> Add2["挂聚合器"]
-    Add2 --> List2["添加到 ActiveEffects"]
-    List2 --> Manual["手动调用 RemoveActiveGameplayEffect"]
-{% endmermaid %}
-
-*图 5：三种 DurationPolicy 的源码分支。Instant 立即执行、Duration 定时移除、Infinite 手动移除。*
-
-### GE 的蓝图可配置性
-
-`UGameplayEffect` 是 Blueprintable，设计意图：让策划配置 GE、不写 C++。
-
-**Blueprintable 的好处**：
-- 策划可以在蓝图编辑器里配置 Modifier（选属性、选 Op、配数值）
-- 可以配置 Duration、Period、Stacking、Tags 等参数
-- 可以继承 GE 蓝图，做变体（比如"火球术伤害 GE" → "大火球术伤害 GE"）
-
-**强调**：GE 是"静态配置"，Spec 才是"运行时实例"。同一个 GE 蓝图可以施加多次，每次都是独立的 Spec 和 ActiveGE。
-
-### Instant vs Duration 对比实例
-
-构造两个 GE，对比 Apply 路径差异：
-
-**GE_Instant**：
-```cpp
-DurationPolicy = Instant;
-Modifiers[0].Attribute = AttackAttribute;
-Modifiers[0].ModifierOp = Additive;
-Modifiers[0].Magnitude = 10.f;
-```
-
-**GE_Duration**：
-```cpp
-DurationPolicy = HasDuration;
-DurationMagnitude = 10.f;  // 持续 10 秒
-Modifiers[0].Attribute = AttackAttribute;
-Modifiers[0].ModifierOp = Additive;
-Modifiers[0].Magnitude = 10.f;
-```
-
-**Apply 路径对比**：
-
-| 步骤 | GE_Instant | GE_Duration |
-|------|-----------|-------------|
-| Apply | ExecuteActiveEffects | 创建 ActiveGE |
-| Modifier | 直接改 Base（+10） | 挂聚合器（Current = Base + 10） |
-| ActiveEffects | 不加入列表 | 加入列表，有 Handle |
-| 移除 | 无（执行完就没了） | 10秒后 CheckActiveGameplayEffects 移除 |
-| 移除后 | Base 已改，不回退 | 从聚合器移除，Current 恢复到 Base |
-
-**关键差异**：
-- Instant 改 Base，Duration 改 Current（挂聚合器）
-- Instant 不留在 ActiveEffects，Duration 会留到时间结束
-- Duration 移除后 Current 会回退，Instant 改的 Base 是永久性的（除非手动改回去）
-
-这个差异在第 4 篇讲网络预测时会展开：Instant GE 客户端预测执行后，服务器对账容易；Duration GE 客户端挂聚合器，服务器移除时要对账。
-
----
 
 ## FGameplayEffectSpec：运行时实例
 
@@ -1482,7 +1045,7 @@ void UAbilitySystemComponent::CheckActiveGameplayEffects()
 
 从 Apply → Spec 创建 → ActiveGE 包装 → ASC 管理 → Remove：
 
-{% mermaid %}
+```mermaid
 sequenceDiagram
     participant GA as GameplayAbility
     participant ASC as AbilitySystemComponent
@@ -1506,13 +1069,13 @@ sequenceDiagram
     ASC->>Agg: RemoveModifier(Handle)
     Agg->>Attr: 从聚合器移除，Current 恢复到 Base
     ASC->>ASC: ActiveEffects.Remove(ActiveGE)
-{% endmermaid %}
+```
 
 *图 6：Duration GE 从 Apply 到 Remove 的完整路径。*
 
 ### GE CDO → Spec → ActiveGE → ASC 管理的流程图
 
-{% mermaid %}
+```mermaid
 flowchart TB
     subgraph Config["配置层"]
         GE["UGameplayEffect CDO\n（静态配置）"]
@@ -1549,7 +1112,7 @@ flowchart TB
 
     ASC -->|每帧 Check| Remove["RemoveActiveGameplayEffect"]
     Remove -->|RemoveModifier| ModList
-{% endmermaid %}
+```
 
 *图 7：从 GE CDO 到 Spec 到 ActiveGE，再到 ASC 和聚合器的完整流程。*
 
