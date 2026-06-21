@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>虚幻引擎的Shader课堂之Global Shader | 晨小屋</title><meta name="author" content="晨"><meta name="copyright" content="晨"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言 在上一篇关于虚幻引擎SceneViewExtension的介绍里面简单的提到了一些关于UE中的Shader的一些介绍。由于那篇文章的重点是关于SceneViewExtensionTemplate的，所以并没有将Shader这部分内容展开和整理起来。 现在回想起来，觉得如果需要对UE的渲染流程做自定义的话，弄清楚UE的不同的shader的类型，以及各自的用法还是非常有必要的，因此打算开一个系列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚幻引擎的Shader课堂之Global Shader">
+<meta property="og:url" content="https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/">
+<meta property="og:site_name" content="晨小屋">
+<meta property="og:description" content="前言 在上一篇关于虚幻引擎SceneViewExtension的介绍里面简单的提到了一些关于UE中的Shader的一些介绍。由于那篇文章的重点是关于SceneViewExtensionTemplate的，所以并没有将Shader这部分内容展开和整理起来。 现在回想起来，觉得如果需要对UE的渲染流程做自定义的话，弄清楚UE的不同的shader的类型，以及各自的用法还是非常有必要的，因此打算开一个系列">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/ue-shader-globalshader.png">
+<meta property="article:published_time" content="2025-05-11T03:20:53.000Z">
+<meta property="article:modified_time" content="2026-06-21T03:44:06.525Z">
+<meta property="article:author" content="晨">
+<meta property="article:tag" content="3D">
+<meta property="article:tag" content="虚幻引擎">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/ue-shader-globalshader.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "虚幻引擎的Shader课堂之Global Shader",
+  "url": "https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/",
+  "image": "https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/ue-shader-globalshader.png",
+  "datePublished": "2025-05-11T03:20:53.000Z",
+  "dateModified": "2026-06-21T03:44:06.525Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "晨",
+      "url": "https://ruochenhua.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '虚幻引擎的Shader课堂之Global Shader',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/05/11/ue-shader-globalshader/ue-shader-globalshader.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">晨小屋</span></a><a class="nav-page-title" href="/"><span class="site-name">虚幻引擎的Shader课堂之Global Shader</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">虚幻引擎的Shader课堂之Global Shader</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-05-11T03:20:53.000Z" title="发表于 2025-05-11 11:20:53">2025-05-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-21T03:44:06.525Z" title="更新于 2026-06-21 11:44:06">2026-06-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/UE%E6%8A%80%E6%9C%AF%E6%B8%B2%E6%9F%93/">UE技术渲染</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="前言">前言</h2>
+<p>在上一篇关于<a href="https://ruochenhua.github.io/2025/05/01/UE-SceneViewExtension/">虚幻引擎SceneViewExtension的介绍</a>里面简单的提到了一些关于UE中的Shader的一些介绍。由于那篇文章的重点是关于SceneViewExtensionTemplate的，所以并没有将Shader这部分内容展开和整理起来。</p>
+<p>现在回想起来，觉得如果需要对UE的渲染流程做自定义的话，弄清楚UE的不同的shader的类型，以及各自的用法还是非常有必要的，因此打算开一个系列的文章，讲讲虚幻引擎的Shader。</p>
+<p>相比较Unity对自定义shader的开发，UE从设计上其实更鼓励使用者通过可视化节点工具来实现自定义的渲染效果，可能和UE设计上的目标人群很多是设计师和影视行业从业者等非技术人员有关。因此，在UE中实现自定义Shader开发确实存在一定门槛，不过只要稍微了解核心逻辑并辅以实践，依然是可行的。也希望这个系列内容能为读者提供具体的思路与帮助，让复杂的技术变得更易上手。</p>
+<p>第一篇，我会先介绍一下<strong>Global Shader</strong>。</p>
+<h2 id="Global-Shader是什么">Global Shader是什么</h2>
+<p>Global Shader是UE中一类<strong>不依赖具体材质或游戏对象的着色器</strong>，它可以用来处理全局场景相关的渲染逻辑。与依赖材质属性的<strong>Material Shader</strong>不同，Global Shader的逻辑始终围绕<strong>整个场景</strong>展开。</p>
+<p>由于它的这个特点，所以Global Shader的应用范围非常广泛，包括：</p>
+<ul>
+<li>全场景的效果，如场景雾效</li>
+<li>后处理效果，如模糊、颜色filter等等（当然后处理也可以通过后处理材质shader来实现）</li>
+<li>Compute Shader（这个后面会单独讲一期）</li>
+<li>等等</li>
+</ul>
+<p>所以总而言之，只要需要达到的效果不依赖于具体的材质属性，那么大概率都可以通过global shader来实现。</p>
+<h2 id="一个简单的Global-Shader例子">一个简单的Global Shader例子</h2>
+<p>好了，接下来我们来创建一个简单的Global Shader，并让它在UE中跑起来。通过跑通这个简单的例子，相信大家也能对Global Shader有一个大概的了解。</p>
+<h3 id="准备工作">准备工作</h3>
+<p>为了表现出我们将要创建的Global Shader的效果，参照前面<a href="https://ruochenhua.github.io/2025/05/01/UE-SceneViewExtension/">SceneViewExtension的文章</a>，采用SceneViewExtension的方法来插入我们的渲染修改，简单做一些准备工作：</p>
+<ol>
+<li>新建一个插件</li>
+<li>在插件内新建一个UEngineSubsystem的子类，和一个FSceneViewExtensionBase的子类。</li>
+<li>在Subsystem中处理SceneViewExtension的初始化和销毁</li>
+<li>在插件Module类中的StartupModule将添加虚拟Shader路径。</li>
+<li>创建Shaders目录</li>
+</ol>
+<p>准备工作都做完后，我们的目录看起来大概是这个样子的：<br>
+<img src="prepare.png" alt="简单的前期准备工作"></p>
+<h3 id="创建GlobalShader类">创建GlobalShader类</h3>
+<p>接下来我们创建Global Shader类。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> once</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;SceneTexturesConfig.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ShaderParameterStruct.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GLOBALSHADEREXAMPLE_API</span> FSampleGlobalShader : <span class="keyword">public</span> FGlobalShader</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//生成着色器类型并且序列化</span></span><br><span class="line">	<span class="built_in">DECLARE_GLOBAL_SHADER</span>(FSampleGlobalShader)</span><br><span class="line">	<span class="built_in">SHADER_USE_PARAMETER_STRUCT</span>(FSampleGlobalShader, FGlobalShader);</span><br><span class="line">	<span class="built_in">BEGIN_SHADER_PARAMETER_STRUCT</span>(FParameters,)</span><br><span class="line">		<span class="comment">//定义输入的色、贴图参数</span></span><br><span class="line">		<span class="built_in">SHADER_PARAMETER</span>(FVector3f, TargetColor)</span><br><span class="line">		<span class="built_in">SHADER_PARAMETER_RDG_TEXTURE</span>(Texture2D, SceneColorTexture)</span><br><span class="line">        <span class="comment">// 包含另外一个预定义的Shader结构体参数FSceneTextureShaderParameters</span></span><br><span class="line">		<span class="built_in">SHADER_PARAMETER_STRUCT_INCLUDE</span>(FSceneTextureShaderParameters, SceneTextures)</span><br><span class="line"></span><br><span class="line">		<span class="comment">//绑定输出的渲染目标</span></span><br><span class="line">		<span class="built_in">RENDER_TARGET_BINDING_SLOTS</span>()</span><br><span class="line">	<span class="built_in">END_SHADER_PARAMETER_STRUCT</span>()</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>在上面这段代码中，<strong>FSamplerGlobalShader</strong>是我们自定义的Global Shader类，这个类中包含几个最基本的部分：</p>
+<ul>
+<li>
+<p>DECLARE_GLOBAL_SHADER：在类中声明一个全局着色器类型，生成必要的元数据，包括类型标识符、序列化信息得到，让引擎能够识别、编译和管理这个shader。</p>
+<ul>
+<li>它等价于<strong>DECLARE_SHADER_TYPE(FSampleGlobalShader, Global)</strong>。</li>
+<li>如果需要shader跨模块可见，需要对应的使用<em>DECLARE_EXPORTED_GLOBAL_SHADER</em>或者<em>DECLARE_EXPORTED_SHADER_TYPE</em></li>
+</ul>
+</li>
+<li>
+<p>SHADER_USE_PARAMETER_STRUCT:将GlobalShader和参数结构体绑定起来，确保引擎可以正确处理参数传递。</p>
+</li>
+<li>
+<p>BEGIN/END_SHADER_PARAMETER_STRUCT:这段代码是用于定义shader所需参数的结构。</p>
+<ul>
+<li>SHADER_PARAMETER：申明一个float3类型的输入，名称为TargetColor。参照这种写法我们可以传入各种不同的参数，如float、int等等</li>
+<li>SHADER_PARAMETER_RDG_TEXTURE：声明一个与RDG兼容的2D纹理参数SceneColorTexture，使用这个MARCO可以确保纹理资源在RDG中被正确的跟踪依赖关系。我们可以参照这个例子将更多的纹理传入shader</li>
+<li>SHADER_PARAMETER_STRUCT_INCLUDE：如注释所说，这里我们包含了另外一个<strong>预定义的参数结构体</strong>，UE包含很多的预定义结构体，可以适当应用避免重复定义。当前这个结构体包括：
+<ul>
+<li>SceneDepthTexture：场景深度纹理（用于获取像素的世界位置）；</li>
+<li>SceneNormalsTexture：场景法线纹理（用于区分表面朝向）；</li>
+<li>SceneVelocityTexture：场景运动向量纹理（用于动态物体检测）。</li>
+</ul>
+</li>
+<li>RENDER_TARGET_BINDING_SLOTS：申明这个shader动态绑定的渲染输出目标。</li>
+</ul>
+</li>
+</ul>
+<p>好了，这就是一个非常简单的Global Shader的样子了。我们再来回顾一下，这个基本的GlobalShader类的几个部分：</p>
+<ol>
+<li>声明Global Shader，自动生成必要的元数据；</li>
+<li>将Global Shader和参数结构体绑定起来；</li>
+<li>申明Global Shader的参数结构体</li>
+</ol>
+<p>接下来，我们需要注册我们的shader，将C++类和HLSL文件以及文件中的入口函数绑定。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">IMPLEMENT_GLOBAL_SHADER</span>(FSampleGlobalShader, <span class="string">&quot;/Plugins/GlobalShaderExample/SamplePS.usf&quot;</span>, <span class="string">&quot;MainPS&quot;</span>, SF_Pixel);</span><br></pre></td></tr></table></figure>
+<p>如上面的代码所示，我们将HLSL文件以及入口函数绑定到了我们声明的Global Shader类，并且申明该Shader的阶段是Pixel Shader。</p>
+<h3 id="通过SceneViewExtension使Global-Shader生效">通过SceneViewExtension使Global Shader生效</h3>
+<p>接下来我们要将shader通过SceneViewExtension对UE的渲染做出改变。</p>
+<p>这里我们选择重写SceneViewExtension的PrePostProcessPass_RenderThread方法，这个方法会在UE进行后处理之前被调用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ShaderExampleSceneViewExtension::PrePostProcessPass_RenderThread</span><span class="params">(FRDGBuilder&amp; GraphBuilder,</span></span></span><br><span class="line"><span class="params"><span class="function">	<span class="type">const</span> FViewInfo&amp; InView, <span class="type">const</span> FPostProcessingInputs&amp; Inputs)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">/// 1.从预定义参数结构体中获取场景纹理与视口信息</span></span><br><span class="line">	<span class="type">const</span> FIntRect Viewport = InView.ViewRect;</span><br><span class="line">	<span class="type">const</span> FSceneTextureShaderParameters SceneTextures = <span class="built_in">CreateSceneTextureShaderParameters</span>(GraphBuilder, InView, ESceneTextureSetupMode::SceneColor | ESceneTextureSetupMode::GBuffers);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 包装场景颜色纹理及其视口，确保后续渲染仅影响该区域</span></span><br><span class="line">	<span class="function"><span class="type">const</span> FScreenPassTexture <span class="title">SceneColorTexture</span><span class="params">((*Inputs.SceneTextures)-&gt;SceneColorTexture, Viewport)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/// 2.为全局着色器配置输入与输出</span></span><br><span class="line">	FSampleGlobalShader::FParameters* Parameters = GraphBuilder.<span class="built_in">AllocParameters</span>&lt;FSampleGlobalShader::FParameters&gt;();</span><br><span class="line">    <span class="comment">//将对应的输入参数赋值给Shader声明的输入参数</span></span><br><span class="line">	Parameters-&gt;SceneColorTexture = SceneColorTexture.Texture;</span><br><span class="line">	Parameters-&gt;SceneTextures = SceneTextures;</span><br><span class="line">	Parameters-&gt;TargetColour = <span class="built_in">FVector3f</span>(<span class="number">1.0f</span>, <span class="number">0.9f</span>, <span class="number">0.7f</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//绑定输出渲染目标（此处直接复用输入的场景颜色纹理）</span></span><br><span class="line">	Parameters-&gt;RenderTargets[<span class="number">0</span>] = <span class="built_in">FRenderTargetBinding</span>((*Inputs.SceneTextures)-&gt;SceneColorTexture, ERenderTargetLoadAction::ELoad);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/// 3.执行全屏幕渲染通道</span></span><br><span class="line">    <span class="comment">//从全局shader映射中获取我们定义的Global Shader实例</span></span><br><span class="line">	<span class="type">const</span> FGlobalShaderMap* GlobalShaderMap = <span class="built_in">GetGlobalShaderMap</span>(GMaxRHIFeatureLevel);</span><br><span class="line">	<span class="function">TShaderMapRef&lt;FSampleGlobalShader&gt; <span class="title">PixelShader</span><span class="params">(GlobalShaderMap)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在全屏幕渲染通道将我们的执行命令加到RDG中</span></span><br><span class="line">	FPixelShaderUtils::<span class="built_in">AddFullscreenPass</span>(GraphBuilder, GlobalShaderMap, <span class="built_in">FRDGEventName</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Color Calibration Pass&quot;</span>)), PixelShader, Parameters, Viewport);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段执行的代码也是相对来说比较简单易懂的，大体分为3个部分：</p>
+<ol>
+<li>准备需要传入给shader结构体的参数；</li>
+<li>将输入输出参数绑定到shader的结构体上；</li>
+<li>将执行shader的指令添加到RDG上，通过RDG确保依赖关系正确，最终调用渲染指令。</li>
+</ol>
+<h3 id="一个简单的示例Shader">一个简单的示例Shader</h3>
+<p>最后，这里贴一个对应上面我们定义的Global Shader类的shader代码。UE的Shader执行内容都放在**usf（unreal shading file）<strong>类型的文件中，很多公共定义、函数声明、结构体等复用的代码放在</strong>ush（unreal shading header）**类型的文件里面。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">// 一个简单的色彩滤镜shader</span><br><span class="line">#include &quot;/Engine/Private/Common.ush&quot;</span><br><span class="line">#include &quot;/Engine/Public/Platform.ush&quot;</span><br><span class="line"></span><br><span class="line">float3 TargetColour;</span><br><span class="line">Texture2D&lt;float4&gt; SceneColorTexture;</span><br><span class="line"></span><br><span class="line">float4 MainPS(float4 SvPosition : SV_POSITION) : SV_Target0</span><br><span class="line">&#123;</span><br><span class="line">	// 步骤1：采样场景颜色</span><br><span class="line">	float2 UV = SvPosition.xy / SvPosition.w;  // 转换为归一化UV坐标</span><br><span class="line">	float4 SceneColour = SceneColorTexture.Load(int3(UV, 0));</span><br><span class="line"></span><br><span class="line">	// 步骤2：基于目标颜色的色偏校正（RGB通道乘法）</span><br><span class="line">	float3 CorrectedColor = SceneColour.rgb * TargetColour;</span><br><span class="line"></span><br><span class="line">	// 步骤3：限制颜色范围（避免过曝，保持在[0,1]）</span><br><span class="line">	CorrectedColor = saturate(CorrectedColor);</span><br><span class="line"></span><br><span class="line">	return float4(CorrectedColor, 1.0); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是一个非常简单的色彩滤镜的shader代码，我们添加一个控制指令来开启和关闭SceneViewExtension的效果，看看最终的结果吧。</p>
+<p><img src="global_shader_effect.gif" alt="最终效果"></p>
+<h2 id="结语">结语</h2>
+<p>好了，UE的global shader就先简单介绍到这里了。Global Shader 的应用非常广泛，目前这个例子只能是作为一个简单的入门，带大家了解一下这个过程。万事开头难，希望这个例子能对各位有所帮助。</p>
+<h2 id="参考资料">参考资料</h2>
+<p><a target="_blank" rel="noopener" href="https://dev.epicgames.com/documentation/zh-cn/unreal-engine/adding-global-shaders-to-unreal-engine">https://dev.epicgames.com/documentation/zh-cn/unreal-engine/adding-global-shaders-to-unreal-engine</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io">晨</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/">https://ruochenhua.github.io/2025/05/11/ue-shader-globalshader/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://ruochenhua.github.io" target="_blank">晨小屋</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3D/">3D</a><a class="post-meta__tags" href="/tags/%E8%99%9A%E5%B9%BB%E5%BC%95%E6%93%8E/">虚幻引擎</a></div><div class="post-share"><div class="social-share" data-image="/2025/05/11/ue-shader-globalshader/ue-shader-globalshader.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/05/18/ue-shader-materialexpression/" title="虚幻引擎的Shader课堂之Material Expression"><img class="cover" src="/2025/05/18/ue-shader-materialexpression/MaterialExpressionCustom.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">虚幻引擎的Shader课堂之Material Expression</div></div><div class="info-2"><div class="info-item-1">前言 在上一章的内容我们大致介绍了一下虚幻引擎Global Shader的相关内容，按照计划来说，接下来就是Material Shader了。不过由于最近工作比较忙，没有时间来好好整理Material Shader的内容，并且Material Shader在本系列也是比较重要的一个知识点，所以为了能把它讲清楚，我决定还是将这篇文章推迟。 因此今天我会先来介绍一个和Material Shader比较相关的概念，就是Material Expression。 Material Expression是一个非常重要的部分，它可以让我们在材质编辑器中创建一个自定义的材质节点，来实现各种各样的计算，影响最终的渲染效果。Material Shader很多时候也是通过Material Expression来应用在渲染流程中的。所以，理解Material Expression的基本概念和用法，对于掌握Material Shader的实现也非常重要。 另外这里要提一嘴的就是，本次教程所基于的引擎版本为5.5，若是有些示例代码或者方法不生效可能是版本不一致导致的，但是概念应该基本相通，可以作为参考。 M...</div></div></div></a><a class="pagination-related" href="/2025/05/01/UE-SceneViewExtension/" title="虚幻引擎之浅谈SceneViewExtension"><img class="cover" src="/2025/05/01/UE-SceneViewExtension/unreal_rider.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">虚幻引擎之浅谈SceneViewExtension</div></div><div class="info-2"><div class="info-item-1">前言 我们都知道虚幻引擎是一个非常强大且使用广泛的商业引擎，在虚幻引擎的强大的渲染能力加持下，只要有质量足够好的模型，一个新手都可以得到非常逼真的渲染场景。 但是如果你是一个图形开发工程师，在虚幻引擎中定制自己的渲染过程是非常麻烦的，很有可能涉及到修改虚幻引擎的源代码，那这样一个很简单的修改调试起来都会非常的麻烦。（想起来之前做UE项目的时候，只要有引擎相关的代码更新，我们本地编译基本上就是2、3个小时起了，基本上干不了活。） 在这方面Unity的URP的灵活性就要好很多，也许是引擎的设计理念不同，Unity的可能更多的是面向技术人员，需要有更多的图形学技术能力以及自定义能力；而虚幻引擎可能更多的面向美术和设计人员，更多的是使用蓝图来实现多样的效果，提供统一且强大的渲染管线。 在虚幻引擎4.12版本中，Epic引入了SceneViewExtension，它为开发者提供了一种在场景渲染过程中插入自定义渲染逻辑的方式，通过它可以实现很多自定义渲染效果，比如后处理效果、自定义的调试信息显示等。这种机制允许开发者在不直接修改引擎核心渲染代码的前提下，扩展和定制渲染流程。 在网上Scene...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/04/06/ue-android-setup/" title="虚幻引擎之Android环境配置"><img class="cover" src="/2025/04/06/ue-android-setup/Android_thumbnail.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-06</div><div class="info-item-2">虚幻引擎之Android环境配置</div></div><div class="info-2"><div class="info-item-1">前言 最近工作又出现了变动，去年我这个快十年游戏客户端和引擎开发经验的被调去做AI后端，迷茫了一年后今年又要被调去做安卓Native C++开发了，真的是这两年转的方向比我原来工作七八年的时间都要多。 不过至少安卓Native C++开发比后端开发更加贴合我的工作了，说不定也是件好事。周末闲来无事，想着我好像从来没有自己构建过UE的安卓工程，打算来走走这个流程。 构建安卓环境 Android Studio 要构建安卓包，首先需要下载Android Studio，在官网下载后安装即可。 安装完运行Android studio，第一次打开会做Studio的初始化，需要安装一些默认的组件，选择需要的（一般是提示的都选了）的后等待下载安装完成即可。  然后我们会进到Android Studio的欢迎界面，由于我们一般不用Android Studio来开发UE的工程，这里我们不打开我们的C++代码目录，而是直接打开More Actions-&gt;SDK Manager，在弹出来的设置界面中，选择SDK Tools，勾选NDK(Side by side)和Android SDK Comma...</div></div></div></a><a class="pagination-related" href="/2025/05/01/UE-SceneViewExtension/" title="虚幻引擎之浅谈SceneViewExtension"><img class="cover" src="/2025/05/01/UE-SceneViewExtension/unreal_rider.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-01</div><div class="info-item-2">虚幻引擎之浅谈SceneViewExtension</div></div><div class="info-2"><div class="info-item-1">前言 我们都知道虚幻引擎是一个非常强大且使用广泛的商业引擎，在虚幻引擎的强大的渲染能力加持下，只要有质量足够好的模型，一个新手都可以得到非常逼真的渲染场景。 但是如果你是一个图形开发工程师，在虚幻引擎中定制自己的渲染过程是非常麻烦的，很有可能涉及到修改虚幻引擎的源代码，那这样一个很简单的修改调试起来都会非常的麻烦。（想起来之前做UE项目的时候，只要有引擎相关的代码更新，我们本地编译基本上就是2、3个小时起了，基本上干不了活。） 在这方面Unity的URP的灵活性就要好很多，也许是引擎的设计理念不同，Unity的可能更多的是面向技术人员，需要有更多的图形学技术能力以及自定义能力；而虚幻引擎可能更多的面向美术和设计人员，更多的是使用蓝图来实现多样的效果，提供统一且强大的渲染管线。 在虚幻引擎4.12版本中，Epic引入了SceneViewExtension，它为开发者提供了一种在场景渲染过程中插入自定义渲染逻辑的方式，通过它可以实现很多自定义渲染效果，比如后处理效果、自定义的调试信息显示等。这种机制允许开发者在不直接修改引擎核心渲染代码的前提下，扩展和定制渲染流程。 在网上Scene...</div></div></div></a><a class="pagination-related" href="/2025/05/18/ue-shader-materialexpression/" title="虚幻引擎的Shader课堂之Material Expression"><img class="cover" src="/2025/05/18/ue-shader-materialexpression/MaterialExpressionCustom.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-18</div><div class="info-item-2">虚幻引擎的Shader课堂之Material Expression</div></div><div class="info-2"><div class="info-item-1">前言 在上一章的内容我们大致介绍了一下虚幻引擎Global Shader的相关内容，按照计划来说，接下来就是Material Shader了。不过由于最近工作比较忙，没有时间来好好整理Material Shader的内容，并且Material Shader在本系列也是比较重要的一个知识点，所以为了能把它讲清楚，我决定还是将这篇文章推迟。 因此今天我会先来介绍一个和Material Shader比较相关的概念，就是Material Expression。 Material Expression是一个非常重要的部分，它可以让我们在材质编辑器中创建一个自定义的材质节点，来实现各种各样的计算，影响最终的渲染效果。Material Shader很多时候也是通过Material Expression来应用在渲染流程中的。所以，理解Material Expression的基本概念和用法，对于掌握Material Shader的实现也非常重要。 另外这里要提一嘴的就是，本次教程所基于的引擎版本为5.5，若是有些示例代码或者方法不生效可能是版本不一致导致的，但是概念应该基本相通，可以作为参考。 M...</div></div></div></a><a class="pagination-related" href="/2026/05/24/aether-engine-intro/" title="AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构"><img class="cover" src="/2026/05/24/aether-engine-intro/aether_cover.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-24</div><div class="info-item-2">AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构</div></div><div class="info-2"><div class="info-item-1">写了十年引擎，还在画三角形——这话放在我身上挺合适的。 KongEngine 是我用 C++ 和 OpenGL/Vulkan 写的个人渲染引擎，延迟渲染、级联阴影、SSR、水体这些效果都折腾过一遍，也写了不少文章记录。但说实话，C++ 那套东西越往后越累：模板报错能看半天，头文件改一处编译五分钟，手动管理 GPU 资源时不时漏个释放，内存泄漏查起来要命。更别提让 AI 帮忙写代码了——C++ 的宏魔法和复杂语法让 AI 生成的代码经常编译不过，改来改去还不如自己写。 正好这两年 Rust 在图形领域慢慢起来了，wgpu 提供了跨平台的统一渲染抽象，hecs 是个极简的 ECS 实现。想了想，干脆用现代架构和 Rust 重新搭一个引擎，AetherEngine 就这么立项了。 为什么重写 KongEngine 代码量上来之后，几个坑越来越深：  编译慢得离谱。改一行头文件，等五分钟编译，这谁受得了。 内存泄漏查起来要命。手动管 GPU 资源，几次忘了释放，查半天才发现是某个纹理没删。 AI 写 C++ 太费劲。宏魔法和复杂语法让 AI 生成的代码经常编译不过，改来改去还不如自己写。...</div></div></div></a><a class="pagination-related" href="/2026/06/21/aether-engine-phase5/" title="Aether Engine Phase 5：当 AI 开始看图验收"><img class="cover" src="/2026/06/21/aether-engine-phase5/cover.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-21</div><div class="info-item-2">Aether Engine Phase 5：当 AI 开始看图验收</div></div><div class="info-2"><div class="info-item-1">Phase 5 的代码已经合进 main 了。地形、大气、水体、CSM、GPU Timer，这一串功能清单全打上了勾。 要是放在以前，这篇文章大概会是一堆技术细节：Gerstner 波浪怎么实现、大气散射用了哪个模型、CSM 的分裂策略是什么。但这次我不太想这么写。因为 Phase 5 最让我印象深刻的，不是这些效果本身，而是我第一次让 AI 参与了&quot;看图验收&quot;。 Phase 5 先快速看一眼 水体效果：  大气散射：  水体和大气看起来还行，但说实话，这些效果本身不是 Phase 5 最让我兴奋的地方。 更让我兴奋的是，这一阶段我开始让 AI 参与验收——不是只看代码，而是直接看渲染结果。每次改完场景，把截图丢给 Kimi，问它&quot;这看起来对不对&quot;，成了我新的日常。所以接下来想聊的，不是某个具体效果怎么实现，而是我最近摸索出来的这套 AI 视觉回归工作流：  技术上没什么要特别颠覆的，该写的 ADR 之前都写了。Phase 5 更像是一个大拼图——把前面搭好的 Deferred PBR、SSAO、SSR、Bloom，和新加入的地形、大气、水...</div></div></div></a><a class="pagination-related" href="/2024/11/04/ProceduralTerrainGeneration2/" title="程序化地形生成-2"><img class="cover" src="/2024/11/04/ProceduralTerrainGeneration2/terrain_with_all_cloud.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-11-04</div><div class="info-item-2">程序化地形生成-2</div></div><div class="info-2"><div class="info-item-1">距离上一篇将程序化地形生成的教程也已经过去了一段时间了。前段时间一直有其他事情需要忙，现在终于有时间继续之前未完成的工作了。 丰富地形 上一篇教程我们已经创建出了绵延的山脉，如下图所示：  看起来似乎是有那么点意思了，但是这样的山脉效果还是太单调了。 接下来我们就计划丰富一下这个场景。 增加绿植 我们场景中的山光秃秃的，很像是沙漠，也很像火星上的地貌。 我想给场景增加一些层次，一些生机，因此我打算将山的一部分渲染为绿植部分。 那么如何确定哪些部分是绿植，哪些部分是裸露的山体呢？根据地形表面的法线可以做一个简单的判定：法线的y分量越大，也就是面向上的分量越大，表明这个面更平，因此有绿植是更合适的；反正则表明这个面更加陡峭，更适合作为山体表现。 1234567891011121314vec3 dirt_color = vec3(0.8549, 0.5255, 0.3098);vec3 grass_color = vec3(0.3137, 0.5412, 0.0157);// ..if(rd.y &lt; 0.05 &amp;&amp; rayMarchingTerrain(ro, r...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">晨</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">42</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Global-Shader%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.</span> <span class="toc-text">Global Shader是什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84Global-Shader%E4%BE%8B%E5%AD%90"><span class="toc-number">3.</span> <span class="toc-text">一个简单的Global Shader例子</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">3.1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAGlobalShader%E7%B1%BB"><span class="toc-number">3.2.</span> <span class="toc-text">创建GlobalShader类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87SceneViewExtension%E4%BD%BFGlobal-Shader%E7%94%9F%E6%95%88"><span class="toc-number">3.3.</span> <span class="toc-text">通过SceneViewExtension使Global Shader生效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E7%A4%BA%E4%BE%8BShader"><span class="toc-number">3.4.</span> <span class="toc-text">一个简单的示例Shader</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">4.</span> <span class="toc-text">结语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/06/21/aether-engine-phase5/" title="Aether Engine Phase 5：当 AI 开始看图验收"><img src="/2026/06/21/aether-engine-phase5/cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Aether Engine Phase 5：当 AI 开始看图验收"/></a><div class="content"><a class="title" href="/2026/06/21/aether-engine-phase5/" title="Aether Engine Phase 5：当 AI 开始看图验收">Aether Engine Phase 5：当 AI 开始看图验收</a><time datetime="2026-06-21T03:00:00.000Z" title="发表于 2026-06-21 11:00:00">2026-06-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/06/07/aether-engine-ai-dev/" title="从手写到口述：我用 AI 重构了自己的引擎开发方式"><img src="/2026/06/07/aether-engine-ai-dev/editor.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="从手写到口述：我用 AI 重构了自己的引擎开发方式"/></a><div class="content"><a class="title" href="/2026/06/07/aether-engine-ai-dev/" title="从手写到口述：我用 AI 重构了自己的引擎开发方式">从手写到口述：我用 AI 重构了自己的引擎开发方式</a><time datetime="2026-06-07T04:00:00.000Z" title="发表于 2026-06-07 12:00:00">2026-06-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/24/aether-engine-intro/" title="AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构"><img src="/2026/05/24/aether-engine-intro/aether_cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构"/></a><div class="content"><a class="title" href="/2026/05/24/aether-engine-intro/" title="AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构">AetherEngine：从 KongEngine 到 Rust + wgpu 的现代渲染引擎重构</a><time datetime="2026-05-24T04:00:00.000Z" title="发表于 2026-05-24 12:00:00">2026-05-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/04/05/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC3%E7%AF%87-GameplayEffect-%E6%BA%90%E7%A0%81%E5%AF%BC%E8%AF%BB-%E4%B8%8A/" title="UE5 GAS 源码深度解析 | 第3篇：GameplayEffect 源码导读（上）"><img src="/2026/04/05/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC3%E7%AF%87-GameplayEffect-%E6%BA%90%E7%A0%81%E5%AF%BC%E8%AF%BB-%E4%B8%8A/gas-part3-cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE5 GAS 源码深度解析 | 第3篇：GameplayEffect 源码导读（上）"/></a><div class="content"><a class="title" href="/2026/04/05/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC3%E7%AF%87-GameplayEffect-%E6%BA%90%E7%A0%81%E5%AF%BC%E8%AF%BB-%E4%B8%8A/" title="UE5 GAS 源码深度解析 | 第3篇：GameplayEffect 源码导读（上）">UE5 GAS 源码深度解析 | 第3篇：GameplayEffect 源码导读（上）</a><time datetime="2026-04-05T02:00:00.000Z" title="发表于 2026-04-05 10:00:00">2026-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/" title="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读"><img src="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/gas-part2-cover.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读"/></a><div class="content"><a class="title" href="/2026/03/21/UE5-GAS-%E6%BA%90%E7%A0%81%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90-%E7%AC%AC2%E7%AF%87-AttributeSet-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90/" title="UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读">UE5 GAS 源码深度解析 | 第2篇：AttributeSet 源码导读</a><time datetime="2026-03-21T02:00:00.000Z" title="发表于 2026-03-21 10:00:00">2026-03-21</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By 晨</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

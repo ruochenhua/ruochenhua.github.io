@@ -1,0 +1,72 @@
+<svg version="1.1" width="1200" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#4cc9f0;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#4cc9f0;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+  
+  <!-- Title -->
+  <text x="600" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#4cc9f0" text-anchor="middle" opacity="0.9">
+    TVariant &amp; FVariant 详解
+  </text>
+  
+  <!-- Central Glow -->
+  <circle cx="600" cy="150" r="200" fill="url(#glow)" opacity="0.2"/>
+  
+  <!-- TVariant Card -->
+  <g transform="translate(415, 160)">
+    <rect x="0" y="0" width="150" height="120" fill="#16213e" stroke="#4361ee" stroke-width="2" rx="10" ry="10"/>
+    <rect x="4" y="4" width="142" height="112" fill="#0f3460" rx="6" ry="6"/>
+    <text x="75" y="38" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#4cc9f0" text-anchor="middle" font-weight="bold">
+      TVariant
+    </text>
+    <text x="75" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.8">
+      模板类
+    </text>
+    <text x="75" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" opacity="0.6">
+      编译时安全
+    </text>
+  </g>
+  
+  <!-- Connection -->
+  <g transform="translate(600, 220)">
+    <circle cx="0" cy="0" r="35" fill="#16213e" stroke="#4361ee" stroke-width="2"/>
+    <text x="0" y="0" font-family="'Segoe UI', Arial, sans-serif" font-size="32" fill="#4cc9f0" text-anchor="middle" dominant-baseline="middle" font-weight="bold">
+      +
+    </text>
+  </g>
+  
+  <!-- FVariant Card -->
+  <g transform="translate(635, 160)">
+    <rect x="0" y="0" width="150" height="120" fill="#16213e" stroke="#4cc9f0" stroke-width="2" rx="10" ry="10"/>
+    <rect x="4" y="4" width="142" height="112" fill="#0f3460" rx="6" ry="6"/>
+    <text x="75" y="38" font-family="'Segoe UI', Arial, sans-serif" font-size="24" fill="#3a86ff" text-anchor="middle" font-weight="bold">
+      FVariant
+    </text>
+    <text x="75" y="62" font-family="'Segoe UI', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.8">
+      运行时类
+    </text>
+    <text x="75" y="85" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#ffffff" text-anchor="middle" opacity="0.6">
+      反射序列化
+    </text>
+  </g>
+  
+
+  
+  <!-- Decorative Elements -->
+  <circle cx="150" cy="100" r="6" fill="#4cc9f0" opacity="0.8"/>
+  <circle cx="1050" cy="100" r="6" fill="#3a86ff" opacity="0.8"/>
+  <circle cx="150" cy="200" r="6" fill="#3a86ff" opacity="0.8"/>
+  <circle cx="1050" cy="200" r="6" fill="#4cc9f0" opacity="0.8"/>
+  
+  <!-- Horizontal Line -->
+  <line x1="200" y1="145" x2="1000" y2="145" stroke="#4361ee" stroke-width="1" stroke-dasharray="8,4" opacity="0.5"/>
+</svg>
